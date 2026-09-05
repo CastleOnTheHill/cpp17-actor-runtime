@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>01 · 返回不是暂停</title><link rel="stylesheet" href="../assets/course.css"><script defer src="../assets/course.js"></script></head><body>
+<header><nav><a href="../course.html">课程首页</a><a href="../reference/mechanisms.html#lifetime">生存期速查</a><a href="0002-explicit-state.html">下一章</a></nav><p class="eyebrow">01 / 24 · 从一个你熟悉的事实出发</p><h1>返回不是暂停</h1><p class="lead">这次只回答：普通函数 return 后，为什么不能让“这一次调用”继续？</p><p class="muted">先不讲协程 API。不引入线程、调度器或汇编指令。</p></header>
+<main><section><h2>你的第一个构建目标</h2><p>造一个小探针，把每个局部对象何时出生、何时析构打印出来。你最后要能解释：返回值带走了什么，又没有带走什么。这是后面理解协程暂停时资源为什么仍然被占用的底座。</p><p>正文分三小段；每段想清楚再往下。今天只做正常路径。异常路径放在可选层，不必同时学习。</p></section>
+<section class="unit"><p class="eyebrow">A · 对象与事实</p><h2>函数代码与一次调用，不是同一件东西</h2><p>函数定义描述可执行的操作。每次调用还需要这一次执行的数据：参数、当前进度，以及局部对象。两次调用同一个函数，可以执行同一份代码，却不是同一次执行。</p><pre><code>int inner() {
+    Guard guard("inner");
+    int value = 41;
+    return value + 1;
+}
+void outer() {
+    Guard guard("outer");
+    int answer = inner();
+    print(answer);
+}</code></pre><p>这里的 <code>Guard</code> 只是构造与析构会打印事件的 C++ 类；不是框架设施。<code>inner</code> 返回一个整数，<code>outer</code> 得到 42。它没有得到一个能恢复 inner 执行的句柄。</p><div class="table-wrap"><table><thead><tr><th>对象</th><th>保存什么</th><th>何时变化</th></tr></thead><tbody><tr><td>inner 的 value</td><td>本次计算的整数 41</td><td>进入声明时初始化；离开作用域后不可当原对象继续使用</td></tr><tr><td>inner 的 guard</td><td>探针名字；代表一项需清理的资源</td><td>构造记录开始，退出时析构记录结束</td></tr><tr><td>outer 的 answer</td><td>从返回表达式取得的整数 42</td><td>inner 返回后完成初始化；不是 inner 局部对象本身</td></tr></tbody></table></div><p>语言层面，我们关心对象的<a href="https://eel.is/c++draft/basic.life">生存期</a>与<a href="https://eel.is/c++draft/basic.stc.auto">自动存储期</a>。存储字节可能仍在某处，不代表原对象还活着。不要通过解引用已失效局部指针做“验证”。</p></section>
+<section class="unit"><p class="eyebrow">B · 最小机制模型</p><h2>控制流回去了，内层作用域结束了</h2><p>你可以暂时把调用链画成 <code>main → outer → inner</code>。执行 inner 时，outer 还没有结束，它在等 inner 的返回。inner 完成后，outer 继续执行调用之后的代码。</p><div class="walkthrough" data-walkthrough><p class="step-label">先预测下一步，再翻一页 · <span data-counter></span></p><div aria-live="polite"><div data-frame><h3>① 进入 outer</h3><p>outer 的 guard 构造。inner 尚未调用；没有本次 inner 的局部对象。</p><code>main → outer</code></div><div data-frame><h3>② 进入 inner</h3><p>inner 的 guard 构造，value 为 41。两个 Guard 此时都未析构。</p><code>main → outer → inner</code></div><div data-frame><h3>③ inner 返回</h3><p>计算返回值 42；inner 的 guard 析构。outer 得到 42，继续打印；outer 的 guard 还没析构。</p><code>main → outer</code></div><div data-frame><h3>④ outer 返回</h3><p>outer 的 guard 析构，main 继续。若再次调用 inner，那是一次新调用，从入口开始，不是恢复旧调用。</p><code>main</code></div></div><div class="controls"><button class="secondary" data-prev>上一步</button><button data-next>下一步</button></div></div><p>“栈帧”是解释普通调用的常用机器模型，不是标准 C++ 要求每个函数都有某种固定物理布局。优化可能内联函数、把值放在寄存器里。我们先依靠可观察事件和语言语义，不依靠某个地址恰好相同。</p><details><summary>可选证据层：想看看机器代码时</summary><p>在 WSL 根目录运行以下只读命令，找到 inner 的符号段。只观察调用与返回，不要求背寄存器；不同架构会不同。编译采用 -O0 方便观察，但它并不保证每个变量一定存在于栈内存。</p><pre><code>objdump -d -C labs/build/ch01_call_stack | less
+# 在 less 中输入 /inner，再按 Enter 搜索；q 退出。</code></pre><p>解释程序时首先引用 <a href="../labs/ch01_call_stack.cpp">C++ 源码</a>中的作用域与析构事件，机器代码只是补充。不要通过一次反汇编概括所有编译器。</p></details></section>
+<section class="unit"><p class="eyebrow">C · 自己造，再实验</p><h2>用 20 行左右代码做一个生命周期探针</h2><p>先不打开参考实现。自己新建一个 C++ 文件，写出带 name 的 Guard：构造打印 <code>construct name</code>，析构打印 <code>destroy name</code>。再写 outer 调 inner，inner 返回 41+1；每层各放一个 Guard。</p><p>在纸上写出完整输出，尤其是 <code>destroy inner</code> 与 <code>outer received=42</code> 的先后。编译运行自己写的版本。之后再用仓库参考程序核对：</p><pre><code># 在 WSL 的仓库根目录，首次准备见 labs/README.md
+cmake -S labs -B labs/build
+cmake --build labs/build -j4
+./labs/build/ch01_call_stack</code></pre><details><summary>已写预测后：核对参考输出</summary><pre><code>main before
+construct outer
+construct inner
+inner value=41
+destroy inner
+outer received=42
+destroy outer
+main received=42
+main after
+[PASS] ch01</code></pre><p>参考程序的 outer 也把整数返回给 main。关键不是背住日志，而是从嵌套作用域推导顺序。若你的输出不同，先找第一个不同事件，并检查该事件属于哪个作用域。</p></details><p>构建变式：增加 <code>middle()</code>，让 outer 调 middle、middle 调 inner；middle 也有一个 Guard。运行前重新画调用链。验收：构造从外到内，离开时从内到外；不要为了匹配日志硬编码一串打印。</p><details><summary>可选：你已熟悉异常时再做 --throw</summary><pre><code>./labs/build/ch01_call_stack --throw</code></pre><p>参考实现让 inner 抛出异常，由 main 捕获。预测被跨过的两个作用域怎样清理；确认正常返回的接收日志不会出现。这里不引入跨协程异常，第三章附录再讨论它。</p></details></section>
+<section class="gate"><h2>唯一过关题 · 合上上文再答</h2><p>inner 里有 <code>Guard g</code> 和 <code>int x=41</code>，它返回 <code>x+1</code>。outer 收到 42 时，g 与 x 处于什么状态？为什么“内存里也许还留着 41”不足以让这一次 inner 继续执行？请用对象、进度、返回值三者串成一条因果链。</p><label for="ch01">写你的解释（刷新会丢失，请下载或复制）</label><textarea id="ch01" placeholder="先写你能确定的部分；卡住就写在哪一步。"></textarea><button data-download="ch01">下载我的回答</button><p class="feedback" data-feedback aria-live="polite"></p><details><summary>提交自己的解释后：自评依据，不是自动判分</summary><p>必须包含：inner 的作用域已退出，g 已经过析构；x 的本次生存期结束；42 是返回结果而非恢复现场；没有保留让旧调用继续的有效进度与局部状态；字节残留不能替代生存期与控制流。仅答“因为栈销毁了”不够精确。</p><p>若在生存期处断裂，回到一个 Guard 的实验。若把 42 当整个现场，下次换成返回字符串再解释“返回结果”与“暂停执行”的区别。</p></details></section>
+<p>把你的答案发给我；有疑问就停在该点，不用先读第二章。通过后，我们将自己保存“下一步”和数据，构建一种不依赖保留调用栈的继续方式。</p><div class="next"><a href="../course.html">← 课程首页</a><a href="0002-explicit-state.html">过关后：把下一步存成数据 →</a></div></main><footer>本章成果：生命周期事件探针 · 依据：C++ 对象生存期、自动存储期与本仓库可运行实验 · 学习完成需独立解释</footer></body></html>
