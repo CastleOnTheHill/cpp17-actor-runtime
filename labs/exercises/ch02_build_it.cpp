@@ -10,6 +10,16 @@ public:
     Step next(std::vector<int>& observed) {
         (void)observed;
         // TODO: 第 1 次记录原值并暂停；第 2 次加 1、记录并完成。
+        if (phase_ == Phase::Start) {
+            observed = {value_};
+            phase_ = Phase::AfterPause;
+            return Step::Suspended;
+        } else if (phase_ == Phase::AfterPause) {
+            value_ += 1;
+            observed.push_back(value_);
+            phase_ = Phase::Finished;
+            return Step::Done;
+        }
         // TODO: 第 3 次以及以后返回 Done，且不能再修改 observed。
         // 提示：区分“本次的返回值”与“下次要做什么的持久状态”。
         throw std::logic_error("TODO: implement Task::next");
