@@ -25,6 +25,8 @@ namespace actor_runtime {
 struct ActorControl;
 struct Fiber;
 struct Worker;
+class IpcTransport;
+class BlockingPool;
 
 struct Actor::Impl {
     explicit Impl(ActorSystem& owner) : system(&owner) {}
@@ -70,6 +72,7 @@ struct CoroutineContext::Impl {
 };
 
 struct Fiber final {
+    void* sanitizerFakeStack = nullptr;
     FiberId id = 0;
     ActorControl* actor = nullptr;
     Worker* owner = nullptr;
@@ -117,9 +120,13 @@ struct Completion final {
     std::exception_ptr error;
     bool cancelled = false;
     FiberId parentId = 0;
+    bool done = true;
 };
 
 struct ActorControl final {
+    std::string name;
+    std::promise<void> stoppedPromise;
+    std::shared_future<void> stoppedFuture = stoppedPromise.get_future().share();
     ActorSystem::Impl* system = nullptr;
     std::unique_ptr<Actor> actor;
     std::mutex executionMutex;
@@ -130,9 +137,11 @@ struct ActorControl final {
     std::unordered_map<FiberId, Completion> completions;
     std::unordered_map<MessageKey, std::vector<LeafRef>, MessageKeyHash, MessageKeyEqual> messageWaiters;
     std::unordered_map<FiberId, std::vector<LeafRef>> childWaiters;
+    std::unordered_map<TaskId, Completion> tasks;
+    std::unordered_map<TaskId, std::vector<LeafRef>> taskWaiters;
 };
 
-enum class JobKind { DispatchMessage, ResumeFiber, CancelActor, TimerFire };
+enum class JobKind { DispatchMessage, ResumeFiber, CancelActor, TimerFire, TaskCompleted };
 
 struct Job final {
     JobKind kind = JobKind::DispatchMessage;
@@ -140,6 +149,8 @@ struct Job final {
     FiberId fiberId = 0;
     std::uint64_t token = 0;
     std::size_t leafIndex = 0;
+    std::any value{};
+    std::exception_ptr error{};
 };
 
 struct TimerEntry final {
@@ -159,6 +170,10 @@ struct TimerLater final {
 };
 
 struct Worker final {
+    void* sanitizerFakeStack = nullptr;
+    const void* schedulerStackBottom = nullptr;
+    std::size_t schedulerStackSize = 0;
+    unsigned nextQueue = 0;
     ActorSystem::Impl* system = nullptr;
     std::size_t index = 0;
     std::thread thread;
@@ -189,6 +204,11 @@ struct ActorSystem::Impl final {
     std::optional<WaitResult> installWait(Fiber& fiber, const WaitSpec& spec);
     void triggerWait(const std::shared_ptr<ActorControl>& actor, const LeafRef& leaf, WaitResult result);
     void notifyMessage(const std::shared_ptr<ActorControl>& actor, const MessagePtr& message);
+    void log(const char* event, ActorId actor = 0, FiberId fiber = 0) const;
+    void receiveNamed(const std::string& name, ActorId incarnation, MessagePtr message);
+    MessageId sendBytes(const ActorAddress& target, ActorId incarnation, TypeId type,
+                        const void* data, std::size_t size, MessageId correlation, ActorId sender);
+    TaskId submitBlocking(Fiber& fiber, std::function<std::any()> work);
 
     ActorSystem& facade;
     Config config;
@@ -197,12 +217,18 @@ struct ActorSystem::Impl final {
     std::atomic<ActorId> nextActorId{1};
     std::atomic<MessageId> nextMessageId{1};
     std::atomic<FiberId> nextFiberId{1};
+    std::atomic<TaskId> nextTaskId{1};
     std::atomic<std::size_t> outstandingJobs{0};
     std::atomic<std::size_t> liveFibers{0};
     std::atomic<std::size_t> liveStacks{0};
 
     mutable std::mutex registryMutex;
     std::unordered_map<ActorId, std::shared_ptr<ActorControl>> registry;
+    std::unordered_map<std::string, ActorId> names;
+    std::unordered_map<ActorId, std::shared_ptr<ActorControl>> retiring;
+    std::mutex shutdownMutex;
+    std::unique_ptr<IpcTransport> transport;
+    std::unique_ptr<BlockingPool> blockingPool;
 
     std::mutex queueMutex;
     std::condition_variable queueCv;

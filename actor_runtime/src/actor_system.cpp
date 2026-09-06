@@ -2,6 +2,9 @@
 
 #include "actor_runtime/actor.h"
 #include "internal.h"
+#include "sanitizer.h"
+#include "ipc_transport.h"
+#include "blocking_pool.h"
 
 #include <algorithm>
 #include <cerrno>
@@ -12,6 +15,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <utility>
+#include <iostream>
+#include <sys/random.h>
 
 namespace actor_runtime {
 
@@ -29,6 +34,7 @@ void fiberTrampoline(std::uint32_t low, std::uint32_t high) {
     if (fiber == nullptr || fiber->id != id) {
         std::terminate();
     }
+    sanitizerFinish(fiber->sanitizerFakeStack, &currentWorker->schedulerStackBottom, &currentWorker->schedulerStackSize);
     CoroutineContext context(&fiber->contextImpl);
     try {
         fiber->result = fiber->body(context);
@@ -41,6 +47,7 @@ void fiberTrampoline(std::uint32_t low, std::uint32_t high) {
         fiber->state = FiberState::Done;
     }
     fiber->finishedOnStack = true;
+    sanitizerStart(nullptr, currentWorker->schedulerStackBottom, currentWorker->schedulerStackSize);
 }
 
 bool evaluate(RuntimeWaitNode& node) {
@@ -90,11 +97,9 @@ WaitResult cancelledResult() {
 }
 
 void decrementJobs(ActorSystem::Impl& system) {
-    if (system.outstandingJobs.fetch_sub(1, std::memory_order_acq_rel) == 1) {
-        system.stateCv.notify_all();
-    } else {
-        system.stateCv.notify_all();
-    }
+    std::lock_guard<std::mutex> lock(system.queueMutex);
+    system.outstandingJobs.fetch_sub(1, std::memory_order_acq_rel);
+    system.stateCv.notify_all();
 }
 
 } // namespace
@@ -129,6 +134,9 @@ StackMapping::~StackMapping() {
 
 ActorSystem::Impl::Impl(ActorSystem& facadeValue, Config options)
     : facade(facadeValue), config(options) {
+    std::uint64_t seed = 0;
+    if (::getrandom(&seed, sizeof(seed), 0) != sizeof(seed)) throw std::runtime_error("cannot allocate process incarnation");
+    nextActorId.store(((seed & 0xffffffffULL) << 32U) | 1U);
     if (config.workerCount == 0) {
         config.workerCount = std::max<std::size_t>(1, std::thread::hardware_concurrency());
     }
@@ -148,6 +156,17 @@ ActorSystem::Impl::Impl(ActorSystem& facadeValue, Config options)
 }
 
 ActorSystem::Impl::~Impl() = default;
+
+void ActorSystem::Impl::log(const char* event, ActorId actor, FiberId fiber) const {
+    if (!config.diagnosticLogging) return;
+    static std::mutex outputMutex;
+    std::lock_guard<std::mutex> lock(outputMutex);
+    const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+    std::clog << "[actor-runtime] t=" << ms << " pid=" << ::getpid() << " process=" << config.processName
+              << " worker=" << (currentWorker ? static_cast<long>(currentWorker->index) : -1L)
+              << " event=" << event << " actor=" << actor << " fiber=" << fiber << '\n';
+}
 
 void ActorSystem::Impl::enqueueGlobal(Job job) {
     outstandingJobs.fetch_add(1, std::memory_order_relaxed);
@@ -171,29 +190,30 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
     currentWorker = &worker;
     for (;;) {
         std::optional<Job> selected;
-        {
-            std::lock_guard<std::mutex> lock(worker.localMutex);
-            if (!worker.localQueue.empty()) {
-                selected = std::move(worker.localQueue.front());
-                worker.localQueue.pop_front();
+        for (unsigned attempt = 0; attempt < 3 && !selected; ++attempt) {
+            const auto category = (worker.nextQueue + attempt) % 3;
+            if (category == 0) {
+                std::lock_guard<std::mutex> lock(worker.localMutex);
+                if (!worker.localQueue.empty()) {
+                    selected = std::move(worker.localQueue.front());
+                    worker.localQueue.pop_front();
+                }
+            } else if (category == 1) {
+                std::lock_guard<std::mutex> lock(queueMutex);
+                if (!globalQueue.empty()) {
+                    selected = std::move(globalQueue.front());
+                    globalQueue.pop_front();
+                }
+            } else if (!stopping.load(std::memory_order_acquire) && !worker.timers.empty() &&
+                       worker.timers.top().deadline <= std::chrono::steady_clock::now()) {
+                auto timer = worker.timers.top();
+                worker.timers.pop();
+                if (auto actor = timer.actor.lock()) {
+                    outstandingJobs.fetch_add(1, std::memory_order_relaxed);
+                    selected = Job{JobKind::TimerFire, std::move(actor), timer.fiberId, timer.token, timer.leafIndex};
+                }
             }
-        }
-        if (!selected) {
-            std::lock_guard<std::mutex> lock(queueMutex);
-            if (!globalQueue.empty()) {
-                selected = std::move(globalQueue.front());
-                globalQueue.pop_front();
-            }
-        }
-        if (!selected && !stopping.load(std::memory_order_acquire) && !worker.timers.empty() &&
-            worker.timers.top().deadline <= std::chrono::steady_clock::now()) {
-            auto timer = worker.timers.top();
-            worker.timers.pop();
-            if (auto actor = timer.actor.lock()) {
-                outstandingJobs.fetch_add(1, std::memory_order_relaxed);
-                selected = Job{JobKind::TimerFire, std::move(actor), timer.fiberId,
-                    timer.token, timer.leafIndex};
-            }
+            if (selected) { worker.nextQueue = (category + 1) % 3; break; }
         }
         if (selected) {
             processJob(worker, std::move(*selected));
@@ -244,8 +264,35 @@ void ActorSystem::Impl::processJob(Worker& worker, Job job) {
     }
 
     currentActor = job.actor.get();
+    if (!job.actor->actor) {
+        currentActor = nullptr;
+        actorLock.unlock();
+        decrementJobs(*this);
+        return;
+    }
     try {
         switch (job.kind) {
+        case JobKind::TaskCompleted: {
+            auto found = job.actor->tasks.find(job.fiberId);
+            if (found == job.actor->tasks.end()) { log("blocking.late_result"); break; }
+            found->second.result = std::move(job.value);
+            found->second.error = job.error;
+            found->second.done = true;
+            auto waiting = job.actor->taskWaiters.find(job.fiberId);
+            if (waiting != job.actor->taskWaiters.end()) {
+                auto snapshot = waiting->second;
+                job.actor->taskWaiters.erase(waiting);
+                for (const auto& ref : snapshot) {
+                    WaitResult result;
+                    result.reason = job.error ? WakeReason::Error : WakeReason::TaskCompleted;
+                    result.value = found->second.result;
+                    result.error = job.error;
+                    triggerWait(job.actor, ref, std::move(result));
+                }
+            }
+            log("blocking.completed", job.actor->actor->id(), job.fiberId);
+            break;
+        }
         case JobKind::DispatchMessage: {
             MessagePtr message;
             {
@@ -260,6 +307,7 @@ void ActorSystem::Impl::processJob(Worker& worker, Job job) {
                 try {
                     job.actor->actor->onMessage(std::move(message));
                 } catch (...) {
+                    log("handler.error", job.actor->actor->id());
                     // Handler exceptions are isolated at the scheduler seam.
                 }
             }
@@ -287,10 +335,23 @@ void ActorSystem::Impl::processJob(Worker& worker, Job job) {
         }
         }
     } catch (...) {
+        log("scheduler.error", job.actor->actor->id());
         // Runtime jobs must not terminate a worker.
     }
     currentFiber = nullptr;
     currentActor = nullptr;
+    if (job.actor->stopping && job.actor->fibers.empty()) {
+        const auto id = job.actor->actor->id();
+        job.actor->actor.reset();
+        job.actor->completions.clear();
+        job.actor->messageWaiters.clear();
+        job.actor->childWaiters.clear();
+        job.actor->tasks.clear();
+        job.actor->taskWaiters.clear();
+        job.actor->stoppedPromise.set_value();
+        { std::lock_guard<std::mutex> lock(registryMutex); retiring.erase(id); }
+        log("actor.stopped", id);
+    }
     actorLock.unlock();
     decrementJobs(*this);
 }
@@ -356,10 +417,12 @@ void ActorSystem::Impl::resumeFiber(
     fiber.state = FiberState::Running;
     fiber.started = true;
     currentFiber = &fiber;
+    sanitizerStart(&worker.sanitizerFakeStack, fiber.stack->usable, fiber.stack->usableSize);
     if (::swapcontext(&worker.schedulerContext, &fiber.context) != 0) {
         currentFiber = nullptr;
         throw std::system_error(errno, std::generic_category(), "swapcontext to fiber");
     }
+    sanitizerFinish(worker.sanitizerFakeStack);
     currentFiber = nullptr;
     const auto again = actor->fibers.find(id);
     if (again != actor->fibers.end() && again->second->finishedOnStack) finishFiber(actor, id);
@@ -370,6 +433,13 @@ void ActorSystem::Impl::finishFiber(const std::shared_ptr<ActorControl>& actor, 
     if (found == actor->fibers.end()) return;
     Fiber& fiber = *found->second;
     fiber.wait.reset();
+
+    for (auto task = actor->tasks.begin(); task != actor->tasks.end();) {
+        if (task->second.parentId == id) {
+            actor->taskWaiters.erase(task->first);
+            task = actor->tasks.erase(task);
+        } else ++task;
+    }
 
     Completion completion{fiber.result, fiber.error, fiber.cancelled, fiber.parentId};
     actor->completions[id] = completion;
@@ -427,6 +497,7 @@ void ActorSystem::Impl::requestCancellation(
     Fiber& fiber) {
     if (fiber.cancellationRequested) return;
     fiber.cancellationRequested = true;
+    log("fiber.cancel", actor->actor->id(), fiber.id);
     std::vector<FiberId> cascade;
     for (const auto& child : fiber.children) {
         if (child.second == ChildLifetime::CancelWithParent) cascade.push_back(child.first);
@@ -492,6 +563,16 @@ std::optional<WaitResult> ActorSystem::Impl::installWait(Fiber& fiber, const Wai
             } else {
                 actor->childWaiters[leaf->childId].push_back(reference);
             }
+        } else if (leaf->kind == WaitKind::Task) {
+            auto found = actor->tasks.find(leaf->childId);
+            if (found == actor->tasks.end() || found->second.parentId != fiber.id)
+                throw std::invalid_argument("unknown task or foreign task owner");
+            if (found->second.done) {
+                leaf->completed = true;
+                leaf->result.reason = found->second.error ? WakeReason::Error : WakeReason::TaskCompleted;
+                leaf->result.value = found->second.result;
+                leaf->result.error = found->second.error;
+            } else actor->taskWaiters[leaf->childId].push_back(reference);
         } else if (leaf->kind == WaitKind::Timer) {
             if (leaf->deadline <= std::chrono::steady_clock::now()) {
                 leaf->completed = true;
@@ -557,11 +638,27 @@ void ActorSystem::Impl::notifyMessage(
 }
 
 ActorSystem::ActorSystem() : ActorSystem(Config{}) {}
-ActorSystem::ActorSystem(Config config) : impl_(std::make_unique<Impl>(*this, config)) {}
+ActorSystem::ActorSystem(Config config) : impl_(std::make_unique<Impl>(*this, config)) {
+    try {
+        impl_->blockingPool = std::make_unique<BlockingPool>(config.blockingThreads, config.blockingQueueCapacity);
+        if (!config.processName.empty()) {
+            impl_->transport = std::make_unique<IpcTransport>(config.processName,
+                [this](const std::string& name, ActorId id, MessagePtr message) {
+                    impl_->receiveNamed(name, id, std::move(message));
+                }, [this](const char* event) { impl_->log(event); });
+        }
+    } catch (...) { shutdown(); throw; }
+}
 ActorSystem::~ActorSystem() { shutdown(); }
 
 ActorRef ActorSystem::registerActor(std::unique_ptr<Actor> actor) {
+    return registerActor({}, std::move(actor));
+}
+
+ActorRef ActorSystem::registerActor(std::string name, std::unique_ptr<Actor> actor) {
+    if (!name.empty()) validateName(name);
     if (!actor) throw std::invalid_argument("cannot register a null actor");
+    std::lock_guard<std::mutex> lock(impl_->registryMutex);
     if (!impl_->accepting.load(std::memory_order_acquire)) {
         throw std::runtime_error("actor system is shutting down");
     }
@@ -569,41 +666,65 @@ ActorRef ActorSystem::registerActor(std::unique_ptr<Actor> actor) {
         throw std::invalid_argument("actor belongs to another system or is already registered");
     }
     const ActorId id = impl_->nextActorId.fetch_add(1, std::memory_order_relaxed);
+    if (!name.empty() && impl_->names.count(name)) throw std::invalid_argument("actor name already registered");
     auto control = std::make_shared<ActorControl>();
+    control->name = name;
     control->system = impl_.get();
     actor->impl_->id = id;
     actor->impl_->control = control;
     control->actor = std::move(actor);
-    {
-        std::lock_guard<std::mutex> lock(impl_->registryMutex);
-        impl_->registry.emplace(id, control);
-    }
+    impl_->registry.emplace(id, control);
+    if (!name.empty()) impl_->names.emplace(name, id);
+    impl_->log("actor.register", id);
     return ActorRef(this, id);
 }
 
 ActorRef ActorSystem::ref(ActorId id) noexcept { return ActorRef(this, id); }
+
+ActorRef ActorSystem::findActor(const std::string& name) {
+    std::lock_guard<std::mutex> lock(impl_->registryMutex);
+    auto found = impl_->names.find(name);
+    if (found == impl_->names.end()) throw std::invalid_argument("actor name not registered");
+    return ref(found->second);
+}
+
+std::shared_future<void> ActorSystem::stopActor(ActorId id) {
+    std::lock_guard<std::mutex> lock(impl_->registryMutex);
+    auto pending = impl_->retiring.find(id);
+    if (pending != impl_->retiring.end()) return pending->second->stoppedFuture;
+    auto found = impl_->registry.find(id);
+    if (found == impl_->registry.end()) throw std::invalid_argument("actor not registered");
+    auto actor = found->second;
+    impl_->names.erase(actor->name);
+    impl_->retiring.emplace(id, actor);
+    impl_->registry.erase(found);
+    impl_->enqueueGlobal(Job{JobKind::CancelActor, actor, 0, 0, 0});
+    impl_->log("actor.stop_requested", id);
+    return actor->stoppedFuture;
+}
 
 MessageId ActorSystem::send(
     ActorId recipient,
     TypeId typeId,
     std::any payload,
     MessageId correlationId) {
+    std::lock_guard<std::mutex> lock(impl_->registryMutex);
     if (!impl_->accepting.load(std::memory_order_acquire)) {
         throw std::runtime_error("actor system is shutting down");
     }
     std::shared_ptr<ActorControl> control;
     {
-        std::lock_guard<std::mutex> lock(impl_->registryMutex);
         const auto found = impl_->registry.find(recipient);
         if (found == impl_->registry.end()) throw std::invalid_argument("recipient actor does not exist");
         control = found->second;
     }
     const MessageId id = impl_->nextMessageId.fetch_add(1, std::memory_order_relaxed);
-    const ActorId sender = currentActor == nullptr ? 0 : currentActor->actor->id();
+    const ActorId sender = currentActor == nullptr || currentActor->system != impl_.get() ? 0 : currentActor->actor->id();
     auto message = std::make_shared<const Message>(Message{
-        typeId, id, correlationId, sender, std::move(payload)});
+        typeId, id, correlationId, sender, std::move(payload),
+        {impl_->config.processName, currentActor ? currentActor->name : std::string{}}});
     {
-        std::lock_guard<std::mutex> lock(control->mailboxMutex);
+        std::lock_guard<std::mutex> mailboxLock(control->mailboxMutex);
         control->mailbox.push_back(std::move(message));
     }
     impl_->enqueueGlobal(Job{JobKind::DispatchMessage, control, 0, 0, 0});
@@ -621,17 +742,23 @@ RuntimeStats ActorSystem::stats() const noexcept {
 
 void ActorSystem::shutdown() {
     if (!impl_) return;
+    if (currentWorker && currentWorker->system == impl_.get()) throw std::logic_error("shutdown cannot join its own worker");
+    std::lock_guard<std::mutex> shutdownLock(impl_->shutdownMutex);
     bool expected = true;
     if (!impl_->accepting.compare_exchange_strong(expected, false, std::memory_order_acq_rel)) return;
+    if (impl_->transport) impl_->transport->stop();
 
     std::vector<std::shared_ptr<ActorControl>> actors;
     {
         std::lock_guard<std::mutex> lock(impl_->registryMutex);
         for (const auto& item : impl_->registry) actors.push_back(item.second);
+        for (const auto& item : impl_->retiring) actors.push_back(item.second);
+        impl_->names.clear();
     }
     for (const auto& actor : actors) {
         impl_->enqueueGlobal(Job{JobKind::CancelActor, actor, 0, 0, 0});
     }
+    if (impl_->blockingPool) impl_->blockingPool->stop();
 
     const auto deadline = std::chrono::steady_clock::now() + impl_->config.shutdownTimeout;
     {
@@ -648,6 +775,84 @@ void ActorSystem::shutdown() {
     }
     std::lock_guard<std::mutex> lock(impl_->registryMutex);
     impl_->registry.clear();
+    impl_->retiring.clear();
+    impl_->transport.reset();
+}
+
+void ActorSystem::Impl::receiveNamed(const std::string& name, ActorId incarnation, MessagePtr message) {
+    std::lock_guard<std::mutex> lock(registryMutex);
+    if (!accepting) return;
+    auto found = names.find(name);
+    if (found == names.end() || (incarnation && found->second != incarnation)) {
+        log("ipc.dead_letter");
+        return;
+    }
+    auto actor = registry.at(found->second);
+    { std::lock_guard<std::mutex> mailboxLock(actor->mailboxMutex); actor->mailbox.push_back(std::move(message)); }
+    enqueueGlobal(Job{JobKind::DispatchMessage, actor, 0, 0, 0});
+}
+
+MessageId ActorSystem::Impl::sendBytes(const ActorAddress& target, ActorId incarnation, TypeId type,
+                                    const void* data, std::size_t size, MessageId correlation, ActorId sender) {
+    validateName(target.actor);
+    if (size > MaxPayloadBytes) throw std::length_error("payload exceeds 60 KiB");
+    if (!data && size) throw std::invalid_argument("null payload");
+    Bytes payload(size);
+    if (size) std::memcpy(payload.data(), data, size);
+    std::lock_guard<std::mutex> lock(registryMutex);
+    if (!accepting) throw std::runtime_error("actor system is shutting down");
+    if (!sender && currentActor && currentActor->system == this) sender = currentActor->actor->id();
+    ActorAddress source{config.processName, {}};
+    if (sender) {
+        auto found = registry.find(sender);
+        if (found == registry.end()) throw std::invalid_argument("sender is not registered");
+        source.actor = found->second->name;
+    }
+    const auto id = nextMessageId.fetch_add(1);
+    auto message = std::make_shared<const Message>(Message{type, id, correlation, sender, std::move(payload), source});
+    if (target.process.empty() || target.process == config.processName) {
+        auto named = names.find(target.actor);
+        if (named == names.end() || (incarnation && named->second != incarnation))
+            throw std::invalid_argument("target actor does not exist or was replaced");
+        auto actor = registry.at(named->second);
+        { std::lock_guard<std::mutex> mailboxLock(actor->mailboxMutex); actor->mailbox.push_back(message); }
+        enqueueGlobal(Job{JobKind::DispatchMessage, actor, 0, 0, 0});
+    } else {
+        if (!transport) throw std::logic_error("IPC requires a configured processName");
+        if (sender && source.actor.empty()) throw std::logic_error("IPC sender requires a registered actor name");
+        transport->send(target, incarnation, *message);
+    }
+    return id;
+}
+MessageId ActorSystem::sendBytes(const ActorAddress& target, TypeId type, const void* data,
+                               std::size_t size, MessageId correlation, ActorId sender) {
+    return impl_->sendBytes(target, 0, type, data, size, correlation, sender);
+}
+MessageId ActorSystem::replyBytes(const Message& request, TypeId type, const void* data, std::size_t size) {
+    if (!request.sender || request.senderAddress.actor.empty()) throw std::invalid_argument("request has no reply address");
+    return impl_->sendBytes(request.senderAddress, request.sender, type, data, size, request.id, 0);
+}
+
+TaskId ActorSystem::Impl::submitBlocking(Fiber& fiber, std::function<std::any()> work) {
+    if (!work) throw std::invalid_argument("empty blocking function");
+    if (!accepting) throw std::runtime_error("system is shutting down");
+    const auto id = nextTaskId.fetch_add(1);
+    auto actor = fiber.actor->actor->impl_->control.lock();
+    actor->tasks.emplace(id, Completion{{}, {}, false, fiber.id, false});
+    std::weak_ptr<ActorControl> weakActor = actor;
+    auto* owner = fiber.owner;
+    try {
+        blockingPool->submit([this, weakActor, owner, id, work = std::move(work)]() mutable {
+            std::any result;
+            std::exception_ptr error;
+            try { result = work(); } catch (...) { error = std::current_exception(); }
+            if (auto target = weakActor.lock()) {
+                enqueueLocal(*owner, Job{JobKind::TaskCompleted, target, id, 0, 0, std::move(result), error});
+            }
+        });
+    } catch (...) { actor->tasks.erase(id); throw; }
+    log("blocking.submitted", actor->actor->id(), id);
+    return id;
 }
 
 } // namespace actor_runtime

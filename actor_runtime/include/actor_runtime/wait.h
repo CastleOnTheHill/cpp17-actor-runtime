@@ -13,7 +13,7 @@ namespace actor_runtime {
 
 struct WaitSpecAccess;
 
-enum class WaitKind { Message, Child, Timer, Any, All, AllSettled };
+enum class WaitKind { Message, Child, Timer, Any, All, AllSettled, Task };
 
 struct MessageKey {
     TypeId typeId;
@@ -24,6 +24,7 @@ class WaitSpec {
 public:
     static WaitSpec message(MessageKey key);
     static WaitSpec child(FiberId id);
+    static WaitSpec task(TaskId id);
     static WaitSpec timer(std::chrono::steady_clock::time_point deadline);
     static WaitSpec any(std::vector<WaitSpec> children);
     static WaitSpec all(std::vector<WaitSpec> children);
@@ -40,7 +41,7 @@ private:
     friend struct WaitSpecAccess;
 };
 
-enum class WakeReason { Message, ChildCompleted, Timeout, Cancelled, Error, Settled };
+enum class WakeReason { Message, ChildCompleted, Timeout, Cancelled, Error, Settled, TaskCompleted };
 
 struct WaitResult {
     WakeReason reason = WakeReason::Error;

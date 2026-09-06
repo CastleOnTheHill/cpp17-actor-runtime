@@ -1,4 +1,4 @@
-# C++17 single-process actor runtime
+# C++17 Linux actor runtime
 
 A small Linux/glibc actor runtime with multiple worker threads and cooperative,
 stackful `ucontext` fibers. It is deliberately a deep module: callers use the
@@ -6,9 +6,10 @@ non-template `ActorSystem`, `ActorRef`, `Actor`, `CoroutineContext`, and runtime
 `WaitSpec` tree while mailbox, scheduling, wait registration, timers, context
 switching, and stack lifetime remain internal.
 
-This release is **single-process only and does not support IPC**. It has no wire
-protocol, serialization, remote addresses, persistence, delivery retry, or
-distributed supervision.
+Each system is a single-process scheduler. Named systems communicate directly
+using Linux Unix-domain datagram sockets, without a broker. Local messages keep
+`std::any`; IPC messages carry copied bytes. There is no persistence, delivery
+retry, automatic serialization, or distributed supervision.
 
 ## Build and run on WSL/Linux
 
@@ -22,8 +23,9 @@ ctest --test-dir build --output-on-failure
 ./build/order_fulfillment_example
 ```
 
-Requirements: Linux/glibc, a C++17 compiler, CMake 3.16 or newer, and pthreads.
-There are no third-party runtime or test dependencies.
+Requirements: Linux/glibc, C/C++17 compilers, CMake 3.16 or newer, and pthreads.
+Python 3 is used by the multi-process test launcher; there are no third-party
+runtime dependencies. Development is on `dev`; teaching material is on `teaching`.
 
 ## Execution model and invariants
 
@@ -67,7 +69,7 @@ or a send after shutdown throws a documented standard exception.
 
 ## Waiting and children
 
-Leaves are explicit: `WaitSpec::message`, `WaitSpec::child`, and
+Leaves are explicit: `WaitSpec::message`, `WaitSpec::child`, `WaitSpec::task`, and
 `WaitSpec::timer`. Composites are ordinary runtime trees:
 
 ```cpp
@@ -142,22 +144,146 @@ an executing stack asynchronously.
 
 ## Shutdown
 
-Shutdown first rejects Actor creation and external sends, requests cancellation
-for every fiber, resumes suspended fibers with `Cancelled`, drains scheduler
-jobs up to the configured shutdown deadline, stops and joins every worker, then
-destroys actors and mappings. Cooperative bodies must return, await, or call
+Shutdown first rejects Actor creation and external sends, stops the IPC receive
+thread, requests cancellation for every fiber, and resumes suspended fibers with
+`Cancelled`. It drains and joins the blocking pool while scheduler workers are
+still alive, drains scheduler jobs up to the configured shutdown deadline, then
+stops and joins every worker and destroys actors and mappings. The shutdown
+deadline does not forcibly terminate native functions or CPU-bound actors.
+Cooperative bodies must return, await, or call
 `throwIfCancelled`; a body that computes forever cannot be forcibly unwound
 safely. `RuntimeStats` exposes live fiber and stack counts for shutdown checks.
 
-## Sanitizers and known limits
+## Named IPC / 跨进程寻址
 
-The runtime does not yet call the AddressSanitizer fiber-switch hooks
-(`__sanitizer_start_switch_fiber` / `__sanitizer_finish_switch_fiber`). ASan may
-therefore report false positives or mishandle alternate stacks, so an ASan pass
-is not claimed. UBSan coverage around deprecated `makecontext` calling
-conventions is likewise platform-sensitive. The automated suite instead
-stresses 19 public behaviors including repeated message/timeout races,
-broadcast, nested waits, parent/child policies, Actor serialization and
-migration, owner-worker affinity, fairness, stack preservation, and complete
-shutdown. Production hardening should add sanitizer hooks before treating ASan
-as authoritative.
+```cpp
+ActorSystem::Config config;
+config.processName = "inventory";
+config.diagnosticLogging = true;
+ActorSystem system(config);
+auto stock = system.registerActor("stock", std::make_unique<StockActor>());
+// In an Actor coroutine, the named sender is filled automatically.
+struct Request { uint64_t order; uint32_t quantity; uint32_t reserved; };
+Request request{42, 2, 0};
+auto id = system.sendBytes({"billing", "payment"}, RequestType,
+                           &request, sizeof(request));
+// Await message({ReplyType, id}) against a timer, as for local requests.
+// Receiver uses any_cast<Bytes>, checks size, then memcpy into a local struct.
+// system.replyBytes(originalRequest, ReplyType, &reply, sizeof(reply));
+```
+
+- `ActorAddress{process, actor}` allows identical Actor names in different
+  processes. Names contain 1–63 ASCII letters, digits, `_`, `-`, or `.`.
+  Empty `Config::processName` disables remote transport; empty target process
+  selects the local system. Process names must be unique within the socket
+  namespace. Named Actors must be unique within their system.
+- One nonblocking `AF_UNIX/SOCK_DGRAM` socket per process, using abstract address
+  `actor-runtime.<uid>.<process>` in the same Linux network namespace. The
+  transport is peer-to-peer; the kernel releases the socket on process exit.
+  A receive thread validates complete datagrams and enqueues Actor messages.
+- Maximum payload is 60 KiB. The wire contract is local, trusted, same ABI and
+  endianness: use pointer-free, trivially copyable C structs, fixed-width fields,
+  identical packing, and initialized padding. Never transmit pointers, STL
+  objects, or the object representation of `std::any`. Copy `Bytes` with
+  `memcpy` into an aligned local object; do not reinterpret an unaligned buffer.
+  This is not a portable serialization or a security/authentication boundary.
+- Send copies data before returning. Missing peer, full socket queue, oversized
+  payload, and bad names fail immediately; no retry is hidden. A successful
+  datagram send does not acknowledge handler execution. Unknown remote Actors
+  are dropped; use a reply deadline. Malformed datagrams are rejected.
+- Requests carry correlation and sender-instance IDs. `replyBytes` targets the
+  original instance, not a new Actor that reused its name. Actor IDs include a
+  random process incarnation (probabilistic protection across restarts).
+  Reply-capable senders must be named. External C++ sends can supply the named
+  sender's ActorId; the C client bridge does this automatically.
+
+`tests/c_api_process_test.c` and `tests/run_ipc_tests.py` form an executable
+multi-process example: two services with the same `echo` Actor name perform
+route-specific request/reply work for a separate C client process. CTest runs
+100 exchanges plus timeout, malformed packet, and shutdown cases.
+
+## Dynamic Actor lifecycle / 动态注册与消亡
+
+`registerActor(name, unique_ptr<Actor>)` publishes an instance;
+`findActor(name)` returns its ref. `stopActor(id)` immediately unpublishes the
+name and returns a `shared_future<void>`: cancellation is queued to owner
+workers, suspended fibers unwind cooperatively, and the future becomes ready
+after the Actor destructor. A replacement may register the same name while
+the old instance retires. Old refs and addressed replies cannot reach it.
+
+Wait on the stop future only from an external thread, never an Actor worker.
+Repeated stops during retirement return the same future; unknown/already
+destroyed IDs throw. This is dynamic instance registration, **not** `dlopen`
+shared-library loading. Handles/refs must not outlive their ActorSystem.
+
+## Blocking functions / 阻塞函数隔离
+
+```cpp
+auto result = context.blocking(
+    [ownedInput]() -> std::any { return legacyBlockingCall(ownedInput); },
+    std::chrono::steady_clock::now() + 100ms);
+// Any result: branch 0 = task completion/error, branch 1 = timeout.
+result.rethrowIfError();
+```
+
+For later joining, use `submitBlocking(work)` and `WaitSpec::task(taskId)`.
+Tasks belong to the submitting fiber and compose with message/child/timer
+waits. Exceptions become `Error`; repeated joins return the saved result.
+`Config::blockingThreads` (default 2) and `blockingQueueCapacity` (default 64)
+bound the executor; capacity counts pending work, not running work. Full queues
+reject synchronously. Actor workers never execute the submitted native work.
+
+A timeout deactivates the wait, **not the running function**. You may join its
+task again while the submitting fiber remains alive. Capture owned values or
+safe shared state, never raw Actor/Context pointers: Actor destruction need not
+wait for native work. Late results for dead fibers/Actors are discarded.
+System shutdown drains accepted tasks and joins their threads, so native
+functions must eventually return or implement their own cooperative deadline.
+There is no safe forced cancellation of an arbitrary C/C++ function.
+
+## Pure C integration / 纯 C 接口
+
+Include `actor_runtime/c_api.h` from C11 code and link `actor_runtime` with the
+C++ linker. `ar_system_create` owns a runtime; a C++ host can instead pass its
+`ActorSystem*` to `ar_system_borrow`. The borrowed wrapper does not own it.
+
+Register a C callback with `ar_actor_register`; use `ar_reply` inside that
+callback. Payload, `ar_message`, internal request token, and callback system view
+are valid only during the callback. Copy data needed later. Callbacks execute
+under Actor serialization and must not block. The cleanup callback runs when
+the adapter is destroyed (including a failed registration after its creation).
+
+An external native thread uses `ar_client_create` and `ar_client_request` to
+send bytes to `(process, actor)` and wait for the matching reply type/ID. Calls
+on one client serialize; late replies after timeout are discarded. Status codes
+distinguish invalid input, timeout, closed client, small output buffer, and
+other errors; `ar_last_error` is thread-local. `AR_BUFFER_SMALL` reports the
+required length but consumes that response. `ar_actor_stop` waits for cleanup
+with a deadline; a timeout does not undo the stop request.
+
+Destroy client handles before the owned system; a borrowed host must outlive
+its handles. Do not destroy a handle concurrently with API calls using it.
+`ar_client_request`, synchronous Actor stop, and system destruction are not
+allowed on Actor workers. See the actual C integration example/test above.
+
+## Diagnostics and sanitizer validation
+
+Set `Config::diagnosticLogging = true` to log monotonic milliseconds, PID,
+process, worker, event, Actor and fiber IDs to stderr. Events cover registration,
+stop/cancellation, handler failures, IPC receive/send/reject/dead-letter, and
+blocking task submission/completion/late-result discard. Payloads are not logged.
+CTest preserves test output in `build*/Testing/Temporary/LastTest.log`.
+
+The runtime calls `__sanitizer_start_switch_fiber` and
+`__sanitizer_finish_switch_fiber` around scheduler/fiber transitions, including
+first entry and final exit. Linux/glibc with GCC in WSL is the verified platform.
+ASan may still print its generic `makecontext/swapcontext` support warning;
+no error suppression is configured. A passing suite is not proof of all possible
+concurrency interleavings or support for other libc/compiler combinations.
+
+```bash
+cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=Debug -DACTOR_RUNTIME_SANITIZERS=ON
+cmake --build build-asan -j4
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 \
+  ctest --test-dir build-asan --output-on-failure
+```

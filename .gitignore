@@ -1,0 +1,2 @@
+# Teaching build cache may remain on disk after switching branches.
+/labs/

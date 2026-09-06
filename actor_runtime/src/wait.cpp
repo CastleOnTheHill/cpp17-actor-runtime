@@ -49,6 +49,14 @@ WaitSpec WaitSpec::all(std::vector<WaitSpec> children) {
 
 WaitKind WaitSpec::kind() const noexcept { return node_->kind; }
 
+WaitSpec WaitSpec::task(TaskId id) {
+    if (!id) throw std::invalid_argument("task id must be nonzero");
+    auto node = std::make_shared<Node>();
+    node->kind = WaitKind::Task;
+    node->childId = id;
+    return WaitSpec(std::move(node));
+}
+
 WaitSpec WaitSpec::allSettled(std::vector<WaitSpec> children) {
     if (children.empty()) throw std::invalid_argument("AllSettled requires at least one child");
     auto node = std::make_shared<Node>();

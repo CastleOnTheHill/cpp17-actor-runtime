@@ -26,6 +26,9 @@ public:
     // 仅能取消当前协程的直接子协程；重复请求/已经完成返回 false。
     // 请求取消不会内联恢复子协程；用 await(child(id)) 等待清理结束。
     bool cancel(FiberId childId);
+    // work 必须捕获自有数据，不能捕获 Actor/CoroutineContext 裸指针。
+    TaskId submitBlocking(std::function<std::any()> work);
+    WaitResult blocking(std::function<std::any()> work, std::chrono::steady_clock::time_point deadline);
     bool cancellationRequested() const noexcept;
     void throwIfCancelled() const;
     ActorRef self() const noexcept;

@@ -1,6 +1,7 @@
 #include "actor_runtime/coroutine_context.h"
 
 #include "internal.h"
+#include "sanitizer.h"
 
 #include <cerrno>
 #include <stdexcept>
@@ -27,9 +28,11 @@ WaitResult CoroutineContext::await(WaitSpec spec) {
     if (immediate) return std::move(*immediate);
 
     fiber.state = FiberState::Waiting;
+    sanitizerStart(&fiber.sanitizerFakeStack, currentWorker->schedulerStackBottom, currentWorker->schedulerStackSize);
     if (::swapcontext(&fiber.context, &currentWorker->schedulerContext) != 0) {
         throw std::system_error(errno, std::generic_category(), "swapcontext to scheduler");
     }
+    sanitizerFinish(fiber.sanitizerFakeStack);
     if (!fiber.pendingWait) throw std::logic_error("resumed coroutine has no wait result");
     WaitResult result = std::move(*fiber.pendingWait);
     fiber.pendingWait.reset();
@@ -70,6 +73,17 @@ bool CoroutineContext::cancel(FiberId childId) {
 
 void CoroutineContext::throwIfCancelled() const {
     if (cancellationRequested()) throw OperationCancelled();
+}
+
+TaskId CoroutineContext::submitBlocking(std::function<std::any()> work) {
+    if (!impl_ || !impl_->fiber || currentFiber != impl_->fiber || !currentWorker)
+        throw std::logic_error("submitBlocking requires a running coroutine");
+    throwIfCancelled();
+    return currentWorker->system->submitBlocking(*impl_->fiber, std::move(work));
+}
+WaitResult CoroutineContext::blocking(std::function<std::any()> work, std::chrono::steady_clock::time_point deadline) {
+    auto id = submitBlocking(std::move(work));
+    return await(WaitSpec::any({WaitSpec::task(id), WaitSpec::timer(deadline)}));
 }
 
 ActorRef CoroutineContext::self() const noexcept {
