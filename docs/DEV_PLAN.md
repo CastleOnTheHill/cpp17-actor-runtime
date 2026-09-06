@@ -14,7 +14,7 @@
 - [x] 运行时诊断日志与多进程测试日志。
 - [x] sanitizer fiber-switch hooks；WSL ASan/UBSan/LSan 验证。
 - [x] 普通回归、跨进程集成测试和文档。
-- [ ] 分支提交/推送及远端校验。
+- [x] 分支提交/推送及远端校验。
 
 接口约束：跨进程只发送复制后的字节，不把 std::any 对象表示直接上网；
 业务 C struct 必须同 ABI、无指针，调用方明确尺寸。动态加载按运行时注册
@@ -67,4 +67,15 @@ cmake --build build-coverage --target coverage -j4
 曾因执行权限审核超时受阻，当前权限已经恢复，以上为恢复后新生成的结果。
 构建出现挂载盘时间戳偏差提示，因此另行执行普通 Debug 构建复核。
 独立 `build-dev` 普通 Debug 构建完成，10/10 CTest 通过，耗时 10.17 秒，
-未再出现时间戳警告。待收尾：Git 提交及 teaching/dev 两分支推送并校验远端。
+未再出现时间戳警告。
+
+## GitHub 交付
+
+已推送并用 `git ls-remote --heads origin dev teaching master` 实际核对：
+
+- 私有仓库：`CastleOnTheHill/cpp17-actor-runtime`。
+- `dev` 功能提交：`0f2a65a42bc6b4837455f5268492860c036604e1`。
+- `teaching`：`5540b50fba426a7ccd4ac0ca41974ab4855f4dc6`，含用户未完成练习。
+- 远端 `master` 保持 `0e214506f1c5fdc962877a19e55d403c76eafc93`，未改写历史。
+
+本验收记录的后续文档提交不改变已验证的运行库代码。
