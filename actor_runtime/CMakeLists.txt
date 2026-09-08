@@ -39,7 +39,7 @@ target_compile_options(actor_runtime PRIVATE -Wall -Wextra -Wpedantic -Wconversi
 target_link_libraries(actor_runtime PUBLIC Threads::Threads)
 
 enable_testing()
-foreach(test_name blocking_tests ipc_lifecycle_tests c_api_lifecycle_tests blocking_capacity_tests)
+foreach(test_name blocking_tests ipc_lifecycle_tests c_api_lifecycle_tests blocking_capacity_tests scheduler_wakeup_tests)
     add_executable(${test_name} tests/${test_name}.cpp)
     target_link_libraries(${test_name} PRIVATE actor_runtime)
     add_test(NAME ${test_name} COMMAND ${test_name})

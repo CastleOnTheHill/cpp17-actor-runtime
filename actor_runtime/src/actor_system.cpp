@@ -180,7 +180,7 @@ void ActorSystem::Impl::enqueueGlobal(Job job) {
 void ActorSystem::Impl::enqueueLocal(Worker& worker, Job job) {
     outstandingJobs.fetch_add(1, std::memory_order_relaxed);
     {
-        std::lock_guard<std::mutex> lock(worker.localMutex);
+        std::lock_guard<std::mutex> lock(queueMutex);
         worker.localQueue.push_back(std::move(job));
     }
     queueCv.notify_all();
@@ -193,7 +193,7 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
         for (unsigned attempt = 0; attempt < 3 && !selected; ++attempt) {
             const auto category = (worker.nextQueue + attempt) % 3;
             if (category == 0) {
-                std::lock_guard<std::mutex> lock(worker.localMutex);
+                std::lock_guard<std::mutex> lock(queueMutex);
                 if (!worker.localQueue.empty()) {
                     selected = std::move(worker.localQueue.front());
                     worker.localQueue.pop_front();
@@ -223,7 +223,7 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
         if (stopping.load(std::memory_order_acquire)) {
             bool localEmpty;
             {
-                std::lock_guard<std::mutex> lock(worker.localMutex);
+                std::lock_guard<std::mutex> lock(queueMutex);
                 localEmpty = worker.localQueue.empty();
             }
             bool globalEmpty;
@@ -238,12 +238,12 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
         std::unique_lock<std::mutex> lock(queueMutex);
         if (worker.timers.empty()) {
             queueCv.wait_for(lock, std::chrono::milliseconds(10), [&] {
-                return stopping.load(std::memory_order_acquire) || !globalQueue.empty();
+                return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty();
             });
         } else {
             const auto periodicWake = std::chrono::steady_clock::now() + std::chrono::milliseconds(10);
             queueCv.wait_until(lock, std::min(worker.timers.top().deadline, periodicWake), [&] {
-                return stopping.load(std::memory_order_acquire) || !globalQueue.empty();
+                return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty();
             });
         }
     }
@@ -768,7 +768,10 @@ void ActorSystem::shutdown() {
                 impl_->liveFibers.load(std::memory_order_acquire) == 0;
         });
     }
-    impl_->stopping.store(true, std::memory_order_release);
+    {
+        std::lock_guard<std::mutex> lock(impl_->queueMutex);
+        impl_->stopping.store(true, std::memory_order_release);
+    }
     impl_->queueCv.notify_all();
     for (auto& worker : impl_->workers) {
         if (worker->thread.joinable()) worker->thread.join();

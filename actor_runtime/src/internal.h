@@ -178,7 +178,7 @@ struct Worker final {
     std::size_t index = 0;
     std::thread thread;
     ucontext_t schedulerContext{};
-    std::mutex localMutex;
+    // Protected by system->queueMutex, also used by the sleeping predicate.
     std::deque<Job> localQueue;
     std::priority_queue<TimerEntry, std::vector<TimerEntry>, TimerLater> timers;
     std::uint64_t nextTimerSequence = 1;
