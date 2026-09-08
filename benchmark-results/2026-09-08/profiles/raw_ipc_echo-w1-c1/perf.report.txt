@@ -1,0 +1,140 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 21  of event 'cpu-clock:u'
+# Event count (approx.): 105527625
+#
+# Overhead  Command       Shared Object        Symbol                                                                                                                       
+# ........  ............  ...................  .............................................................................................................................
+#
+    19.05%  raw_ipc_echo  raw_ipc_echo         [.] std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+            |          
+            |--9.52%--std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+            |          0x7fad4175adb3
+            |          0x7fad414cab83
+            |          0x7fad41557d6b
+            |          
+            |--4.76%--__invoke_impl<void, main(int, char**)::<lambda()> > (inlined)
+            |          __invoke<main(int, char**)::<lambda()> > (inlined)
+            |          _M_invoke<0> (inlined)
+            |          operator() (inlined)
+            |          _M_run (inlined)
+            |          0x7fad4175adb3
+            |          0x7fad414cab83
+            |          0x7fad41557d6b
+            |          
+             --4.76%--/usr/include/c++/13/bits/invoke.h:61 (discriminator 4) (inlined)
+                       0x7fad4175adb3
+                       0x7fad414cab83
+                       0x7fad41557d6b
+
+    14.29%  raw_ipc_echo  libc.so.6            [.] __send
+            |
+            ---__send
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7fad4175adb3
+               0x7fad414cab83
+               0x7fad41557d6b
+
+    14.29%  raw_ipc_echo  libc.so.6            [.] recv
+            |
+            ---recv
+               _M_run (inlined)
+               0x7fad4175adb3
+               0x7fad414cab83
+               0x7fad41557d6b
+
+    14.29%  raw_ipc_echo  libc.so.6            [.] recvfrom
+            |
+            ---recvfrom
+               server(bench::Config const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int)
+               /usr/include/c++/13/bits/invoke.h:61 (inlined)
+               0x7fad414581c9
+               __libc_start_main
+               _start
+
+     4.76%  raw_ipc_echo  libc.so.6            [.] malloc
+            |
+            ---malloc
+               operator new(unsigned long)
+               std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7fad4175adb3
+               0x7fad414cab83
+               0x7fad41557d6b
+
+     4.76%  raw_ipc_echo  libc.so.6            [.] 0x00000000000986c9
+            |
+            ---0x7fad414c66c9
+               recv
+               _M_run (inlined)
+               0x7fad4175adb3
+               0x7fad414cab83
+               0x7fad41557d6b
+
+     4.76%  raw_ipc_echo  libc.so.6            [.] 0x00000000001884a0
+            |
+            ---0x7fad415b64a0
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7fad4175adb3
+               0x7fad414cab83
+               0x7fad41557d6b
+
+     4.76%  raw_ipc_echo  libstdc++.so.6.0.33  [.] operator delete(void*)
+            |
+            ---operator delete(void*)
+               __invoke_impl<void, main(int, char**)::<lambda()> > (inlined)
+               __invoke<main(int, char**)::<lambda()> > (inlined)
+               _M_invoke<0> (inlined)
+               operator() (inlined)
+               _M_run (inlined)
+               0x7fad4175adb3
+               0x7fad414cab83
+               0x7fad41557d6b
+
+     4.76%  raw_ipc_echo  libstdc++.so.6.0.33  [.] operator new(unsigned long)
+            |
+            ---operator new(unsigned long)
+               std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7fad4175adb3
+               0x7fad414cab83
+               0x7fad41557d6b
+
+     4.76%  raw_ipc_echo  libstdc++.so.6.0.33  [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_create(unsigned long&, unsigned long)
+            |
+            ---std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_create(unsigned long&, unsigned long)
+               std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7fad4175adb3
+               0x7fad414cab83
+               0x7fad41557d6b
+
+     4.76%  raw_ipc_echo  raw_ipc_echo         [.] recvfrom@plt
+            |
+            ---__invoke_impl<void, main(int, char**)::<lambda()> > (inlined)
+               __invoke<main(int, char**)::<lambda()> > (inlined)
+               _M_invoke<0> (inlined)
+               operator() (inlined)
+               _M_run (inlined)
+               server(bench::Config const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int)
+               /usr/include/c++/13/bits/invoke.h:61 (inlined)
+               0x7fad414581c9
+               __libc_start_main
+               _start
+
+     4.76%  raw_ipc_echo  raw_ipc_echo         [.] send@plt
+            |
+            ---server(bench::Config const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, int) (inlined)
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7fad4175adb3
+               0x7fad414cab83
+               0x7fad41557d6b
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

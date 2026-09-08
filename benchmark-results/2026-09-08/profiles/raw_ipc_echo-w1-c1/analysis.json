@@ -1,0 +1,214 @@
+{
+  "name": "raw_ipc_echo-w1-c1",
+  "samples": 21,
+  "script_samples": 21,
+  "unknown_stack_samples": 21,
+  "unknown_stack_percent": 100.0,
+  "unknown_leaf_percent": 9.523809523809524,
+  "top_leaf": [
+    [
+      "__invoke_impl<void, main",
+      3
+    ],
+    [
+      "recv",
+      3
+    ],
+    [
+      "__send",
+      3
+    ],
+    [
+      "recvfrom",
+      3
+    ],
+    [
+      "[libc.so.6]",
+      2
+    ],
+    [
+      "std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda",
+      2
+    ],
+    [
+      "/usr/include/c++/13/bits/invoke.h:61 ",
+      1
+    ],
+    [
+      "operator new",
+      1
+    ],
+    [
+      "malloc",
+      1
+    ],
+    [
+      "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_create",
+      1
+    ],
+    [
+      "operator delete",
+      1
+    ]
+  ],
+  "top_inclusive": [
+    [
+      "[libc.so.6]",
+      21
+    ],
+    [
+      "[libstdc++.so.6.0.33]",
+      17
+    ],
+    [
+      "_M_run",
+      10
+    ],
+    [
+      "recv",
+      8
+    ],
+    [
+      "std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda",
+      8
+    ],
+    [
+      "operator",
+      6
+    ],
+    [
+      "_M_invoke<0>",
+      6
+    ],
+    [
+      "__invoke<main",
+      6
+    ],
+    [
+      "__libc_start_main",
+      4
+    ],
+    [
+      "main",
+      4
+    ],
+    [
+      "__invoke_impl<void, main",
+      3
+    ],
+    [
+      "bool std::operator!=<unsigned char, std::allocator<unsigned char> >",
+      3
+    ],
+    [
+      "bool std::operator==<unsigned char, std::allocator<unsigned char> >",
+      3
+    ],
+    [
+      "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign",
+      3
+    ],
+    [
+      "__send",
+      3
+    ],
+    [
+      "recvfrom",
+      3
+    ],
+    [
+      "operator new",
+      2
+    ],
+    [
+      "/usr/include/c++/13/bits/invoke.h:61 ",
+      1
+    ],
+    [
+      "malloc",
+      1
+    ],
+    [
+      "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_create",
+      1
+    ],
+    [
+      "operator delete",
+      1
+    ]
+  ],
+  "measurement_instrumented": {
+    "framework": "raw-unix-dgram",
+    "mode": "ipc",
+    "workers": 1,
+    "clients": 1,
+    "window": 1,
+    "payload_bytes": 64,
+    "batch": 1,
+    "hotspot": true,
+    "rounds_per_client": 151025,
+    "warmup_per_client": 128,
+    "round_trips": 151025,
+    "seconds": 5.310233436,
+    "rps": 28440.3693,
+    "messages_per_second": 56880.7386,
+    "rtt_samples": 9440,
+    "rtt_p50_us": 31.764,
+    "rtt_p95_us": 45.243,
+    "rtt_p99_us": 82.276,
+    "cpu_seconds": 2.09996,
+    "peak_rss_kib": 3468,
+    "voluntary_context_switches": 150869,
+    "involuntary_context_switches": 13
+  },
+  "files": {
+    "buildids.txt": {
+      "bytes": 302,
+      "sha256": "49c68816a5e6682d0997c9de2cf8af84dbd9febaedff37e6bd3798965aa44c71"
+    },
+    "stacks.folded": {
+      "bytes": 2415,
+      "sha256": "7f412de7d650e553812836383291072af3a70207c0f6fa739f5092cba220a422"
+    },
+    "perf.script": {
+      "bytes": 12205,
+      "sha256": "07f835eed5a387571e16c59809a0f079788f4c06490bbbb97ea183455e3a5f98"
+    },
+    "perf.report.txt": {
+      "bytes": 6368,
+      "sha256": "e008b75388d5ef7de4f8315bb78ed086a8c888fd4622dcb265402213d577362a"
+    },
+    "record.json": {
+      "bytes": 1313,
+      "sha256": "34cd2dc810b9f22f25d2a40b169ab737712b7dcac621605ee015adabbc1eeb0b"
+    },
+    "perf.data": {
+      "bytes": 200060,
+      "sha256": "035b04fb9efa8104037ff9a045a1d8502ce136280d4bccd684df98d17b705e1c"
+    },
+    "buildids.txt.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "perf.script.stderr": {
+      "bytes": 705,
+      "sha256": "ff08fa5bcfd100f716dd13c5d40587afe995b1079f0a535847f9fa2ee156cdf3"
+    },
+    "flamegraph.svg": {
+      "bytes": 21744,
+      "sha256": "3b6dff93531de3dcf4bbfded0813be4a17a2cf28c8a2732f3f2586e3b639bcad"
+    },
+    "perf.report.txt.stderr": {
+      "bytes": 588,
+      "sha256": "2ad70787dcab9185501218f974188b65f83eb40f5b9722e262388d2f681cc5b2"
+    },
+    "flamegraph.svg.stderr": {
+      "bytes": 49,
+      "sha256": "5b2b1723ab15ff2c8d280162931f2806651f7603eed19ea23432cea280076f7b"
+    },
+    "stacks.folded.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

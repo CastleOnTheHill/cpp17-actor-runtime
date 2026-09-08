@@ -1,0 +1,286 @@
+{
+  "name": "native_echo-w1-c1",
+  "samples": 1050,
+  "script_samples": 1050,
+  "unknown_stack_samples": 1046,
+  "unknown_stack_percent": 99.61904761904762,
+  "unknown_leaf_percent": 3.238095238095238,
+  "top_leaf": [
+    [
+      "pthread_mutex_unlock",
+      225
+    ],
+    [
+      "pthread_mutex_lock",
+      179
+    ],
+    [
+      "actor_runtime::ActorSystem::send",
+      112
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::processJob",
+      54
+    ],
+    [
+      "std::any::_Manager_external<bench::Packet>::_S_manage",
+      44
+    ],
+    [
+      "malloc",
+      42
+    ],
+    [
+      "pthread_mutex_trylock",
+      41
+    ],
+    [
+      "[libc.so.6]",
+      34
+    ],
+    [
+      "std::_Sp_counted_base<",
+      30
+    ],
+    [
+      "cfree",
+      28
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::enqueueGlobal",
+      24
+    ],
+    [
+      "actor_runtime::Job::~Job",
+      23
+    ],
+    [
+      "operator new",
+      23
+    ],
+    [
+      "std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find",
+      23
+    ],
+    [
+      "std::mutex::unlock",
+      16
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::workerLoop",
+      14
+    ],
+    [
+      "void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>",
+      14
+    ],
+    [
+      "operator delete",
+      13
+    ],
+    [
+      "Client::issue",
+      11
+    ],
+    [
+      "pthread_mutex_lock@plt",
+      9
+    ],
+    [
+      "actor_runtime::ActorRef::send",
+      8
+    ],
+    [
+      "std::mutex::lock",
+      8
+    ],
+    [
+      "__vdso_clock_gettime",
+      7
+    ],
+    [
+      "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_create",
+      7
+    ],
+    [
+      "pthread_cond_signal",
+      5
+    ]
+  ],
+  "top_inclusive": [
+    [
+      "[libc.so.6]",
+      1046
+    ],
+    [
+      "[libstdc++.so.6.0.33]",
+      1043
+    ],
+    [
+      "std::mutex::unlock",
+      905
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::processJob",
+      901
+    ],
+    [
+      "std::unique_lock<std::mutex>::unlock",
+      901
+    ],
+    [
+      "actor_runtime::ActorRef::send",
+      455
+    ],
+    [
+      "actor_runtime::ActorSystem::send",
+      388
+    ],
+    [
+      "Client::onMessage",
+      287
+    ],
+    [
+      "Client::issue",
+      259
+    ],
+    [
+      "pthread_mutex_unlock",
+      225
+    ],
+    [
+      "Echo::onMessage",
+      216
+    ],
+    [
+      "pthread_mutex_lock",
+      179
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::workerLoop",
+      132
+    ],
+    [
+      "std::_Sp_counted_base<",
+      111
+    ],
+    [
+      "std::any::_Manager_external<bench::Packet>::_S_manage",
+      92
+    ],
+    [
+      "std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, ",
+      84
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::enqueueGlobal",
+      76
+    ],
+    [
+      "operator new",
+      67
+    ],
+    [
+      "cfree",
+      57
+    ],
+    [
+      "malloc",
+      42
+    ],
+    [
+      "pthread_mutex_trylock",
+      41
+    ],
+    [
+      "void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>",
+      32
+    ],
+    [
+      "std::mutex::lock",
+      29
+    ],
+    [
+      "std::lock_guard<std::mutex>::lock_guard",
+      29
+    ],
+    [
+      "void std::any::_Manager_external<bench::Packet>::_S_create<bench::Packet>",
+      26
+    ]
+  ],
+  "measurement_instrumented": {
+    "framework": "actor-runtime",
+    "mode": "event",
+    "workers": 1,
+    "clients": 1,
+    "window": 1,
+    "payload_bytes": 64,
+    "batch": 1,
+    "hotspot": false,
+    "rounds_per_client": 10203755,
+    "warmup_per_client": 128,
+    "round_trips": 10203755,
+    "seconds": 5.296041865,
+    "rps": 1926675.668,
+    "messages_per_second": 3853351.337,
+    "rtt_samples": 637735,
+    "rtt_p50_us": 0.424,
+    "rtt_p95_us": 0.92,
+    "rtt_p99_us": 1.032,
+    "cpu_seconds": 5.294415,
+    "peak_rss_kib": 7144,
+    "voluntary_context_switches": 1,
+    "involuntary_context_switches": 5
+  },
+  "files": {
+    "buildids.txt": {
+      "bytes": 301,
+      "sha256": "21a79e3e31911284dce31205dfe3529dedb0b8e05cfa378728d4dc875656c78f"
+    },
+    "stacks.folded": {
+      "bytes": 42860,
+      "sha256": "dbfc34d4ab633b834f7d5493683a06982b30da8810a609548e6cd1698ffd634c"
+    },
+    "perf.script": {
+      "bytes": 1033021,
+      "sha256": "0489d02faceb78f51ea9d9cd1e3b19349eacad1dc85ffd7a115b0f3c8d9922f9"
+    },
+    "perf.report.txt": {
+      "bytes": 39044,
+      "sha256": "64fcceeceda784203df390b230bd282695d75d3546c24af6f552a79cef8b9bf8"
+    },
+    "record.json": {
+      "bytes": 1316,
+      "sha256": "3cf7d8e0f004af112b1043ba6f3bc361772eed41ec855a2c7f478670d0cffc26"
+    },
+    "perf.data": {
+      "bytes": 8885908,
+      "sha256": "b77163edbe25441a9b96b1c4ac4a95519f579f2679f851cb18a375fd87248dc3"
+    },
+    "buildids.txt.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "perf.script.stderr": {
+      "bytes": 15078,
+      "sha256": "b5038568e6a739e5844e70e9668f81bcdfb315610505894aaca2fd159ad0805f"
+    },
+    "flamegraph.svg": {
+      "bytes": 53595,
+      "sha256": "3d0cb2c579db571a0ea5129152ca57722a9cf4be3dc7e4e849a5b2127c726e29"
+    },
+    "perf.report.txt.stderr": {
+      "bytes": 15087,
+      "sha256": "effde9ec90d8b2a29df90ec45e8df83794a26a908f859fdb13abbaee330d8740"
+    },
+    "flamegraph.svg.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stacks.folded.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,286 @@
+{
+  "name": "caf_echo-w4-c8",
+  "samples": 3754,
+  "script_samples": 3754,
+  "unknown_stack_samples": 3737,
+  "unknown_stack_percent": 99.54714970697923,
+  "unknown_leaf_percent": 5.780500799147576,
+  "top_leaf": [
+    [
+      "caf::scheduled_actor::resume",
+      619
+    ],
+    [
+      "caf::intrusive_ptr_release",
+      387
+    ],
+    [
+      "caf::scheduled_actor::enqueue",
+      324
+    ],
+    [
+      "[libc.so.6]",
+      217
+    ],
+    [
+      "pthread_mutex_unlock",
+      208
+    ],
+    [
+      "malloc",
+      201
+    ],
+    [
+      "operator",
+      169
+    ],
+    [
+      "cfree",
+      157
+    ],
+    [
+      "pthread_mutex_lock",
+      135
+    ],
+    [
+      "caf::detail::default_mailbox::fetch_more",
+      116
+    ],
+    [
+      "caf::response_promise::respond_to",
+      86
+    ],
+    [
+      "caf::scheduler::worker<caf::policy::work_stealing>::exec_later",
+      85
+    ],
+    [
+      "/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22",
+      72
+    ],
+    [
+      "caf::intrusive_ptr<caf::actor_control_block>::reset",
+      42
+    ],
+    [
+      "operator new",
+      40
+    ],
+    [
+      "caf::scheduled_actor::reactivate",
+      38
+    ],
+    [
+      "caf::scheduled_actor::categorize",
+      37
+    ],
+    [
+      "caf::intrusive_ptr<caf::actor_control_block>::intrusive_ptr",
+      37
+    ],
+    [
+      "caf::intrusive_ptr<caf::actor_control_block>::~intrusive_ptr",
+      36
+    ],
+    [
+      "std::enable_if<",
+      33
+    ],
+    [
+      "caf::detail::message_data::~message_data",
+      32
+    ],
+    [
+      "caf::make_mailbox_element",
+      30
+    ],
+    [
+      "operator delete",
+      27
+    ],
+    [
+      "void caf::detail::profiled_send<caf::event_based_actor, caf::actor_control_block*, caf::actor, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&>",
+      24
+    ],
+    [
+      "client",
+      23
+    ]
+  ],
+  "top_inclusive": [
+    [
+      "[libc.so.6]",
+      3737
+    ],
+    [
+      "caf::scheduled_actor::resume",
+      3725
+    ],
+    [
+      "run_with_metrics<caf::scheduled_actor::resume",
+      3723
+    ],
+    [
+      "[libstdc++.so.6.0.33]",
+      3723
+    ],
+    [
+      "caf::scheduled_actor::reactivate",
+      3350
+    ],
+    [
+      "invoke",
+      2185
+    ],
+    [
+      "caf::scheduled_actor::consume",
+      2084
+    ],
+    [
+      "/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 ",
+      1929
+    ],
+    [
+      "/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 ",
+      1929
+    ],
+    [
+      "caf::detail::default_behavior_impl<std::tuple<client",
+      777
+    ],
+    [
+      "caf::scheduled_actor::enqueue",
+      609
+    ],
+    [
+      "std::enable_if<!",
+      520
+    ],
+    [
+      "void caf::detail::profiled_send<caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>",
+      471
+    ],
+    [
+      "client",
+      461
+    ],
+    [
+      "caf::intrusive_ptr_release",
+      387
+    ],
+    [
+      "caf::detail::default_behavior_impl<std::tuple<echo",
+      362
+    ],
+    [
+      "caf::scheduler::worker<caf::policy::work_stealing>::run",
+      352
+    ],
+    [
+      "operator",
+      319
+    ],
+    [
+      "caf::intrusive_ptr<caf::actor_control_block>::~intrusive_ptr",
+      283
+    ],
+    [
+      "caf::scheduled_actor::update_watched_disposables",
+      277
+    ],
+    [
+      "cfree",
+      265
+    ],
+    [
+      "caf::intrusive_ptr_access<caf::actor_control_block>::release",
+      247
+    ],
+    [
+      "operator new",
+      231
+    ],
+    [
+      "caf::make_mailbox_element",
+      220
+    ],
+    [
+      "std::enable_if<",
+      217
+    ]
+  ],
+  "measurement_instrumented": {
+    "framework": "caf-0.19.6",
+    "mode": "event",
+    "workers": 4,
+    "clients": 8,
+    "window": 1,
+    "payload_bytes": 64,
+    "batch": 1,
+    "hotspot": false,
+    "rounds_per_client": 3840147,
+    "warmup_per_client": 128,
+    "round_trips": 30721176,
+    "seconds": 5.166026615,
+    "rps": 5946770.756,
+    "messages_per_second": 11893541.51,
+    "rtt_samples": 1920080,
+    "rtt_p50_us": 0.554,
+    "rtt_p95_us": 0.867,
+    "rtt_p99_us": 1.086,
+    "cpu_seconds": 18.981239,
+    "peak_rss_kib": 18876,
+    "voluntary_context_switches": 26737,
+    "involuntary_context_switches": 29
+  },
+  "files": {
+    "buildids.txt": {
+      "bytes": 298,
+      "sha256": "ada24ed6da1600021350741b5703343a189c7bae4d0bedb3e153906b9ae0748e"
+    },
+    "stacks.folded": {
+      "bytes": 205079,
+      "sha256": "62eabb091d9303c9aed526e05a033c06dbc8df393ab20d7fe9acd17ee6fe1046"
+    },
+    "perf.script": {
+      "bytes": 6341179,
+      "sha256": "6ae4c77c3ce416b29cbe72475dcf25d6d278c628f27686e31081c1be036cb085"
+    },
+    "perf.report.txt": {
+      "bytes": 89779,
+      "sha256": "1b93cdcd8e2d16fbe81ba76cd473d0a060b5a8c60f48ba4a7081e5b2bdb61a54"
+    },
+    "record.json": {
+      "bytes": 1313,
+      "sha256": "2de02f2e888d730561d97fc23ebf343a4502f70a460f6647f69b6b297156e21c"
+    },
+    "perf.data": {
+      "bytes": 31711636,
+      "sha256": "81a5a9dfd91adf591093f708be94e6a52843970761db443133cac9e2a7795919"
+    },
+    "buildids.txt.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "perf.script.stderr": {
+      "bytes": 15441,
+      "sha256": "ddcccb08c59261480ec36c99422eb3fdc3548ed8edc034a2c5e1cab059a0bf6e"
+    },
+    "flamegraph.svg": {
+      "bytes": 187261,
+      "sha256": "2e4e94c281e149f9d957f1d0ae4bc13118ab79f5c5f78a509458132e47e4c323"
+    },
+    "perf.report.txt.stderr": {
+      "bytes": 15900,
+      "sha256": "f54ec948f124d9d92c3e551cf8ec364aa44aba26c582ab2187c639031b4e201f"
+    },
+    "flamegraph.svg.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stacks.folded.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

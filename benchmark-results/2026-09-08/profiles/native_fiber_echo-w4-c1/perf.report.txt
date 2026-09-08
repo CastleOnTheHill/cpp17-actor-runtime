@@ -1,0 +1,90 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 7  of event 'cpu-clock:u'
+# Event count (approx.): 35175875
+#
+# Overhead  Command          Shared Object      Symbol                                                                                                                                                                
+# ........  ...............  .................  ......................................................................................................................................................................
+#
+    28.57%  native_fiber_ec  libc.so.6          [.] pthread_mutex_lock
+            |
+            ---pthread_mutex_lock
+               |          
+               |--14.29%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f63c144adb3
+               |          0x7f63c11bab83
+               |          0x7f63c1247d6b
+               |          
+                --14.29%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                          Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+                          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+                          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+                          0x7f63c117cf7f
+
+    14.29%  native_fiber_ec  libc.so.6          [.] cfree
+            |
+            ---cfree
+               std::__new_allocator<char>::deallocate(char*, unsigned long) (inlined)
+               std::allocator_traits<std::allocator<char> >::deallocate(std::allocator<char>&, char*, unsigned long) (inlined)
+               std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_destroy(unsigned long) (inlined)
+               std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_dispose() (inlined)
+               std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::~basic_string() (inlined)
+               std::any::_Manager_external<bench::Packet>::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*) (inlined)
+               std::any::reset() (inlined)
+               std::any::~any() (inlined)
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f63c144adb3
+               0x7f63c11bab83
+               0x7f63c1247d6b
+
+    14.29%  native_fiber_ec  libc.so.6          [.] swapcontext
+            |
+            ---swapcontext
+               std::mutex::lock() (inlined)
+               std::lock_guard<std::mutex>::lock_guard(std::mutex&) (inlined)
+               Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               0x7f63c117cf7f
+
+    14.29%  native_fiber_ec  libc.so.6          [.] 0x00000000000ab264
+            |
+            ---0x7f63c11c9264
+               cfree
+               std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               0x7f63c117cf7f
+
+    14.29%  native_fiber_ec  native_fiber_echo  [.] Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+            |
+            ---Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               0x7f63c117cf7f
+
+    14.29%  native_fiber_ec  native_fiber_echo  [.] actor_runtime::ActorSystem::Impl::triggerWait(std::shared_ptr<actor_runtime::ActorControl> const&, actor_runtime::LeafRef const&, actor_runtime::WaitResult)
+            |
+            ---std::unique_ptr<actor_runtime::RuntimeWaitNode, std::default_delete<actor_runtime::RuntimeWaitNode> >::~unique_ptr() (inlined)
+               std::default_delete<actor_runtime::WaitRegistration>::operator()(actor_runtime::WaitRegistration*) const (inlined)
+               std::default_delete<actor_runtime::WaitRegistration>::operator()(actor_runtime::WaitRegistration*) const (inlined)
+               std::__uniq_ptr_impl<actor_runtime::WaitRegistration, std::default_delete<actor_runtime::WaitRegistration> >::reset(actor_runtime::WaitRegistration*) (inlined)
+               std::unique_ptr<actor_runtime::WaitRegistration, std::default_delete<actor_runtime::WaitRegistration> >::reset(actor_runtime::WaitRegistration*) (inlined)
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f63c144adb3
+               0x7f63c11bab83
+               0x7f63c1247d6b
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

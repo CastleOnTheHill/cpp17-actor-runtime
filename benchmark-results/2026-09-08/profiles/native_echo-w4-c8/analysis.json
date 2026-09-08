@@ -1,0 +1,286 @@
+{
+  "name": "native_echo-w4-c8",
+  "samples": 992,
+  "script_samples": 992,
+  "unknown_stack_samples": 990,
+  "unknown_stack_percent": 99.79838709677419,
+  "unknown_leaf_percent": 16.22983870967742,
+  "top_leaf": [
+    [
+      "[libc.so.6]",
+      161
+    ],
+    [
+      "pthread_mutex_unlock",
+      152
+    ],
+    [
+      "pthread_mutex_lock",
+      148
+    ],
+    [
+      "actor_runtime::ActorSystem::send",
+      74
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::processJob",
+      65
+    ],
+    [
+      "std::any::_Manager_external<bench::Packet>::_S_manage",
+      42
+    ],
+    [
+      "pthread_mutex_trylock",
+      33
+    ],
+    [
+      "cfree",
+      29
+    ],
+    [
+      "malloc",
+      25
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::workerLoop",
+      24
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::notifyMessage",
+      23
+    ],
+    [
+      "actor_runtime::Job::~Job",
+      18
+    ],
+    [
+      "std::enable_if<__and_v<std::__not_<std::is_same<std::optional<actor_runtime::Job>, std::remove_cv<std::remove_reference<actor_runtime::Job>::type>::type> >, std::__not_<std::__and_<std::is_scalar<actor_runtime::Job>, std::is_same<actor_runtime::Job, std::decay<actor_runtime::Job>::type> > >, std::is_constructible<actor_runtime::Job, actor_runtime::Job>, std::is_assignable<actor_runtime::Job&, actor_runtime::Job> >, std::optional<actor_runtime::Job>&>::type std::optional<actor_runtime::Job>::operator=<actor_runtime::Job>",
+      18
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::enqueueGlobal",
+      17
+    ],
+    [
+      "operator delete",
+      15
+    ],
+    [
+      "std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find",
+      14
+    ],
+    [
+      "std::mutex::lock",
+      14
+    ],
+    [
+      "std::shared_ptr<actor_runtime::Message const>& std::deque<std::shared_ptr<actor_runtime::Message const>, std::allocator<std::shared_ptr<actor_runtime::Message const> > >::emplace_back<std::shared_ptr<actor_runtime::Message const> >",
+      13
+    ],
+    [
+      "std::_Sp_counted_base<",
+      12
+    ],
+    [
+      "Client::onMessage",
+      9
+    ],
+    [
+      "actor_runtime::Job& std::deque<actor_runtime::Job, std::allocator<actor_runtime::Job> >::emplace_back<actor_runtime::Job>",
+      9
+    ],
+    [
+      "operator new",
+      8
+    ],
+    [
+      "std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, ",
+      8
+    ],
+    [
+      "actor_runtime::ActorRef::send",
+      5
+    ],
+    [
+      "pthread_cond_signal",
+      4
+    ]
+  ],
+  "top_inclusive": [
+    [
+      "[libc.so.6]",
+      990
+    ],
+    [
+      "[libstdc++.so.6.0.33]",
+      989
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::workerLoop",
+      955
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::processJob",
+      822
+    ],
+    [
+      "actor_runtime::ActorRef::send",
+      472
+    ],
+    [
+      "actor_runtime::ActorSystem::send",
+      426
+    ],
+    [
+      "Echo::onMessage",
+      285
+    ],
+    [
+      "Client::onMessage",
+      255
+    ],
+    [
+      "Client::issue",
+      243
+    ],
+    [
+      "pthread_mutex_unlock",
+      152
+    ],
+    [
+      "pthread_mutex_lock",
+      148
+    ],
+    [
+      "std::_Sp_counted_base<",
+      82
+    ],
+    [
+      "std::any::_Manager_external<bench::Packet>::_S_manage",
+      67
+    ],
+    [
+      "std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, ",
+      58
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::enqueueGlobal",
+      55
+    ],
+    [
+      "cfree",
+      36
+    ],
+    [
+      "pthread_mutex_trylock",
+      33
+    ],
+    [
+      "operator new",
+      32
+    ],
+    [
+      "malloc",
+      26
+    ],
+    [
+      "std::lock_guard<std::mutex>::lock_guard",
+      25
+    ],
+    [
+      "std::mutex::lock",
+      24
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::notifyMessage",
+      23
+    ],
+    [
+      "actor_runtime::Job::~Job",
+      18
+    ],
+    [
+      "std::enable_if<__and_v<std::__not_<std::is_same<std::optional<actor_runtime::Job>, std::remove_cv<std::remove_reference<actor_runtime::Job>::type>::type> >, std::__not_<std::__and_<std::is_scalar<actor_runtime::Job>, std::is_same<actor_runtime::Job, std::decay<actor_runtime::Job>::type> > >, std::is_constructible<actor_runtime::Job, actor_runtime::Job>, std::is_assignable<actor_runtime::Job&, actor_runtime::Job> >, std::optional<actor_runtime::Job>&>::type std::optional<actor_runtime::Job>::operator=<actor_runtime::Job>",
+      18
+    ],
+    [
+      "std::shared_ptr<actor_runtime::Message const>& std::deque<std::shared_ptr<actor_runtime::Message const>, std::allocator<std::shared_ptr<actor_runtime::Message const> > >::emplace_back<std::shared_ptr<actor_runtime::Message const> >",
+      16
+    ]
+  ],
+  "measurement_instrumented": {
+    "framework": "actor-runtime",
+    "mode": "event",
+    "workers": 4,
+    "clients": 8,
+    "window": 1,
+    "payload_bytes": 64,
+    "batch": 1,
+    "hotspot": false,
+    "rounds_per_client": 357644,
+    "warmup_per_client": 128,
+    "round_trips": 2861152,
+    "seconds": 4.601158256,
+    "rps": 621832.9909,
+    "messages_per_second": 1243665.982,
+    "rtt_samples": 178824,
+    "rtt_p50_us": 10.564,
+    "rtt_p95_us": 28.937,
+    "rtt_p99_us": 60.115,
+    "cpu_seconds": 9.373461,
+    "peak_rss_kib": 3460,
+    "voluntary_context_switches": 897211,
+    "involuntary_context_switches": 10
+  },
+  "files": {
+    "buildids.txt": {
+      "bytes": 301,
+      "sha256": "21a79e3e31911284dce31205dfe3529dedb0b8e05cfa378728d4dc875656c78f"
+    },
+    "stacks.folded": {
+      "bytes": 35422,
+      "sha256": "814a9222b848dd22295856b86892a2332d310f5f9e2bc17ee85b019c678b8078"
+    },
+    "perf.script": {
+      "bytes": 886433,
+      "sha256": "dc9e2ff63e9a1039a8d2dc4c1fd50c7771b800f08f9c3279f824c2a7cc70e466"
+    },
+    "perf.report.txt": {
+      "bytes": 34239,
+      "sha256": "941cc5aa49a83512a2badc0bcb434f77b0ebced03d558973bd686c276ab8778d"
+    },
+    "record.json": {
+      "bytes": 1320,
+      "sha256": "d8da508cee891931a9c17a72ce07e6efa87bdd7867dee66ce60294a096ab1990"
+    },
+    "perf.data": {
+      "bytes": 8398748,
+      "sha256": "4fec2ba300ba6bad4cdf9d7cbccb4b1ee0a94a6781308659cb1735e753af2f05"
+    },
+    "buildids.txt.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "perf.script.stderr": {
+      "bytes": 16536,
+      "sha256": "3605961f32cd26362427120cab55ec1a8cdfb8d62edf9f147c3736331408177c"
+    },
+    "flamegraph.svg": {
+      "bytes": 55071,
+      "sha256": "d16411f151e2c63e76812640728e9ca0edf57b272cfa01b464c2f512c3834427"
+    },
+    "perf.report.txt.stderr": {
+      "bytes": 16626,
+      "sha256": "93a614e021d29894009a64cc072cfa9615fc1357267934a3e10323b2edfce5d2"
+    },
+    "flamegraph.svg.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stacks.folded.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

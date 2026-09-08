@@ -1,0 +1,490 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 897  of event 'cpu-clock:u'
+# Event count (approx.): 4507537125
+#
+# Overhead  Command          Shared Object        Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+# ........  ...............  ...................  ..............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    13.60%  native_fiber_ec  libc.so.6            [.] swapcontext
+            |
+            ---swapcontext
+               |          
+               |--7.47%--actor_runtime::CoroutineContext::await(actor_runtime::WaitSpec)
+               |          Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               |          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               |          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               |          0x7fb7789c7f7f
+               |          
+                --5.91%--actor_runtime::ActorSystem::Impl::resumeFiber(actor_runtime::Worker&, std::shared_ptr<actor_runtime::ActorControl> const&, unsigned long)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7fb778c95db3
+                          0x7fb778a05b83
+                          0x7fb778a92d6b
+
+    10.14%  native_fiber_ec  libc.so.6            [.] pthread_mutex_unlock
+            |
+            ---pthread_mutex_unlock
+               |          
+               |--3.57%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7fb778c95db3
+               |          0x7fb778a05b83
+               |          0x7fb778a92d6b
+               |          
+               |--2.01%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7fb778c95db3
+               |          0x7fb778a05b83
+               |          0x7fb778a92d6b
+               |          
+               |--1.56%--actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+               |          actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          |          
+               |          |--1.00%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               |          |          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               |          |          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               |          |          0x7fb7789c7f7f
+               |          |          
+               |           --0.56%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |                     std::function<std::any (actor_runtime::CoroutineContext&)>::operator()(actor_runtime::CoroutineContext&) const (inlined)
+               |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |                     0x7fb778c95db3
+               |                     0x7fb778a05b83
+               |                     0x7fb778a92d6b
+               |          
+               |--1.11%--actor_runtime::ActorSystem::Impl::enqueueLocal(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::triggerWait(std::shared_ptr<actor_runtime::ActorControl> const&, actor_runtime::LeafRef const&, actor_runtime::WaitResult)
+               |          actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+               |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7fb778c95db3
+               |          0x7fb778a05b83
+               |          0x7fb778a92d6b
+               |          
+               |--1.00%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          |          
+               |           --0.56%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               |                     std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               |                     actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               |                     0x7fb7789c7f7f
+               |          
+                --0.89%--std::any::_Manager_external<bench::Packet>::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*) (inlined)
+                          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                          |          
+                           --0.56%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+                                     std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+                                     actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+                                     0x7fb7789c7f7f
+
+     7.92%  native_fiber_ec  libc.so.6            [.] pthread_mutex_lock
+            |
+            ---pthread_mutex_lock
+               |          
+               |--2.56%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7fb778c95db3
+               |          0x7fb778a05b83
+               |          0x7fb778a92d6b
+               |          
+               |--2.12%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          |          
+               |          |--1.23%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               |          |          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               |          |          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               |          |          0x7fb7789c7f7f
+               |          |          
+               |           --0.89%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |                     std::function<std::any (actor_runtime::CoroutineContext&)>::operator()(actor_runtime::CoroutineContext&) const (inlined)
+               |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |                     0x7fb778c95db3
+               |                     0x7fb778a05b83
+               |                     0x7fb778a92d6b
+               |          
+               |--1.23%--std::__uniq_ptr_impl<actor_runtime::WaitRegistration, std::default_delete<actor_runtime::WaitRegistration> >::reset(actor_runtime::WaitRegistration*) (inlined)
+               |          std::unique_ptr<actor_runtime::WaitRegistration, std::default_delete<actor_runtime::WaitRegistration> >::reset(actor_runtime::WaitRegistration*) (inlined)
+               |          0x7fb778c95db3
+               |          0x7fb778a05b83
+               |          0x7fb778a92d6b
+               |          
+               |--0.89%--actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+               |          actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          |          
+               |           --0.56%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |                     std::function<std::any (actor_runtime::CoroutineContext&)>::operator()(actor_runtime::CoroutineContext&) const (inlined)
+               |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |                     0x7fb778c95db3
+               |                     0x7fb778a05b83
+               |                     0x7fb778a92d6b
+               |          
+               |--0.56%--std::_Vector_base<actor_runtime::LeafRef, std::allocator<actor_runtime::LeafRef> >::_M_allocate(unsigned long) (inlined)
+               |          std::_Vector_base<actor_runtime::LeafRef, std::allocator<actor_runtime::LeafRef> >::_M_allocate(unsigned long) (inlined)
+               |          void std::vector<actor_runtime::LeafRef, std::allocator<actor_runtime::LeafRef> >::_M_realloc_insert<actor_runtime::LeafRef const&>(__gnu_cxx::__normal_iterator<actor_runtime::LeafRef*, std::vector<actor_runtime::LeafRef, std::allocator<actor_runtime::LeafRef> > >, actor_runtime::LeafRef const&) (inlined)
+               |          0x7fb778c95db3
+               |          0x7fb778a05b83
+               |          0x7fb778a92d6b
+               |          
+                --0.56%--actor_runtime::ActorSystem::Impl::enqueueLocal(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::triggerWait(std::shared_ptr<actor_runtime::ActorControl> const&, actor_runtime::LeafRef const&, actor_runtime::WaitResult)
+                          actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7fb778c95db3
+                          0x7fb778a05b83
+                          0x7fb778a92d6b
+
+     5.24%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+            |
+            ---actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          
+               |--3.01%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          std::function<std::any (actor_runtime::CoroutineContext&)>::operator()(actor_runtime::CoroutineContext&) const (inlined)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7fb778c95db3
+               |          0x7fb778a05b83
+               |          0x7fb778a92d6b
+               |          
+                --2.23%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+                          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+                          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+                          0x7fb7789c7f7f
+
+     4.79%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+            |          
+             --4.57%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       0x7fb778c95db3
+                       0x7fb778a05b83
+                       0x7fb778a92d6b
+
+     4.68%  native_fiber_ec  libc.so.6            [.] cfree
+            |
+            ---cfree
+               |          
+               |--1.11%--std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+               |          |          
+               |           --0.78%--std::any::_Manager_external<std::shared_ptr<actor_runtime::Message const> >::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+               |                     Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               |                     std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               |                     actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               |                     0x7fb7789c7f7f
+               |          
+               |--0.89%--actor_runtime::CoroutineContext::await(actor_runtime::WaitSpec)
+               |          Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               |          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               |          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               |          0x7fb7789c7f7f
+               |          
+               |--0.78%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               |          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               |          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               |          0x7fb7789c7f7f
+               |          
+                --0.56%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7fb778c95db3
+                          0x7fb778a05b83
+                          0x7fb778a92d6b
+
+     3.79%  native_fiber_ec  libc.so.6            [.] malloc
+            |
+            ---malloc
+               operator new(unsigned long)
+               |          
+               |--0.78%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          
+                --0.56%--actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7fb778c95db3
+                          0x7fb778a05b83
+                          0x7fb778a92d6b
+
+     3.68%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+            |          
+             --2.56%--actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+                       actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       0x7fb778c95db3
+                       0x7fb778a05b83
+                       0x7fb778a92d6b
+
+     3.34%  native_fiber_ec  native_fiber_echo    [.] std::any::_Manager_external<std::shared_ptr<actor_runtime::Message const> >::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+            |          
+            |--2.79%--std::any::_Manager_external<std::shared_ptr<actor_runtime::Message const> >::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+            |          |          
+            |          |--1.00%--actor_runtime::WaitResult::WaitResult(actor_runtime::WaitResult const&)
+            |          |          actor_runtime::ActorSystem::Impl::triggerWait(std::shared_ptr<actor_runtime::ActorControl> const&, actor_runtime::LeafRef const&, actor_runtime::WaitResult)
+            |          |          actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+            |          |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+            |          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+            |          |          0x7fb778c95db3
+            |          |          0x7fb778a05b83
+            |          |          0x7fb778a92d6b
+            |          |          
+            |          |--0.67%--actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+            |          |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+            |          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+            |          |          0x7fb778c95db3
+            |          |          0x7fb778a05b83
+            |          |          0x7fb778a92d6b
+            |          |          
+            |           --0.56%--actor_runtime::WaitResult::~WaitResult()
+            |                     actor_runtime::CoroutineContext::await(actor_runtime::WaitSpec)
+            |                     Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+            |                     std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+            |                     actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+            |                     0x7fb7789c7f7f
+            |          
+             --0.56%--/usr/include/c++/13/bits/invoke.h:61 (discriminator 1) (inlined)
+
+     3.23%  native_fiber_ec  libc.so.6            [.] pthread_mutex_trylock
+            |
+            ---pthread_mutex_trylock
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7fb778c95db3
+               0x7fb778a05b83
+               0x7fb778a92d6b
+
+     2.56%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::ActorSystem::Impl::triggerWait(std::shared_ptr<actor_runtime::ActorControl> const&, actor_runtime::LeafRef const&, actor_runtime::WaitResult)
+            |          
+             --2.01%--actor_runtime::ActorSystem::Impl::triggerWait(std::shared_ptr<actor_runtime::ActorControl> const&, actor_runtime::LeafRef const&, actor_runtime::WaitResult)
+                       actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+                       actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       0x7fb778c95db3
+                       0x7fb778a05b83
+                       0x7fb778a92d6b
+
+     2.45%  native_fiber_ec  native_fiber_echo    [.] Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+            |          
+            |--1.34%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+            |          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+            |          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+            |          0x7fb7789c7f7f
+            |          
+             --0.78%--void std::_Optional_base_impl<actor_runtime::WaitResult, std::_Optional_base<actor_runtime::WaitResult, false, false> >::_M_construct<actor_runtime::WaitResult&>(actor_runtime::WaitResult&) (inlined)
+                       std::enable_if<__and_v<std::__not_<std::is_same<std::optional<actor_runtime::WaitResult>, std::remove_cv<std::remove_reference<actor_runtime::WaitResult&>::type>::type> >, std::__not_<std::__and_<std::is_scalar<actor_runtime::WaitResult>, std::is_same<actor_runtime::WaitResult, std::decay<actor_runtime::WaitResult&>::type> > >, std::is_constructible<actor_runtime::WaitResult, actor_runtime::WaitResult&>, std::is_assignable<actor_runtime::WaitResult&, actor_runtime::WaitResult&> >, std::optional<actor_runtime::WaitResult>&>::type std::optional<actor_runtime::WaitResult>::operator=<actor_runtime::WaitResult&>(actor_runtime::WaitResult&) (inlined)
+                       std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+                       actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+                       0x7fb7789c7f7f
+
+     2.34%  native_fiber_ec  native_fiber_echo    [.] std::any::_Manager_external<bench::Packet>::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+            |          
+             --2.23%--std::any::_Manager_external<bench::Packet>::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+                       |          
+                        --1.67%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                                  actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                                  |          
+                                  |--0.89%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+                                  |          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+                                  |          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+                                  |          0x7fb7789c7f7f
+                                  |          
+                                   --0.78%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                                             std::function<std::any (actor_runtime::CoroutineContext&)>::operator()(actor_runtime::CoroutineContext&) const (inlined)
+                                             actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                                             0x7fb778c95db3
+                                             0x7fb778a05b83
+                                             0x7fb778a92d6b
+
+     2.12%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::CoroutineContext::await(actor_runtime::WaitSpec)
+            |          
+             --1.78%--actor_runtime::CoroutineContext::await(actor_runtime::WaitSpec)
+                       Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+                       std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+                       actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+                       0x7fb7789c7f7f
+
+     2.12%  native_fiber_ec  native_fiber_echo    [.] std::_Hashtable<unsigned long, std::pair<unsigned long const, std::unique_ptr<actor_runtime::Fiber, std::default_delete<actor_runtime::Fiber> > >, std::allocator<std::pair<unsigned long const, std::unique_ptr<actor_runtime::Fiber, std::default_delete<actor_runtime::Fiber> > > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(unsigned long const&) [clone .isra.0]
+            |          
+             --2.01%--std::_Hashtable<unsigned long, std::pair<unsigned long const, std::unique_ptr<actor_runtime::Fiber, std::default_delete<actor_runtime::Fiber> > >, std::allocator<std::pair<unsigned long const, std::unique_ptr<actor_runtime::Fiber, std::default_delete<actor_runtime::Fiber> > > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(unsigned long const&) [clone .isra.0]
+                       |          
+                        --1.34%--actor_runtime::ActorSystem::Impl::resumeFiber(actor_runtime::Worker&, std::shared_ptr<actor_runtime::ActorControl> const&, unsigned long)
+                                  actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                                  actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                                  0x7fb778c95db3
+                                  0x7fb778a05b83
+                                  0x7fb778a92d6b
+
+     1.90%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::ActorSystem::Impl::installWait(actor_runtime::Fiber&, actor_runtime::WaitSpec const&)
+            |          
+             --1.56%--actor_runtime::ActorSystem::Impl::installWait(actor_runtime::Fiber&, actor_runtime::WaitSpec const&)
+                       actor_runtime::CoroutineContext::await(actor_runtime::WaitSpec)
+                       Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+                       std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+                       actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+                       0x7fb7789c7f7f
+
+     1.90%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::Job::~Job()
+            |
+            ---actor_runtime::Job::~Job()
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7fb778c95db3
+               0x7fb778a05b83
+               0x7fb778a92d6b
+
+     1.78%  native_fiber_ec  native_fiber_echo    [.] std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+            |
+            ---std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+               |          
+               |--1.00%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          |          
+               |           --0.67%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               |                     std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               |                     actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               |                     0x7fb7789c7f7f
+               |          
+                --0.78%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7fb778c95db3
+                          0x7fb778a05b83
+                          0x7fb778a92d6b
+
+     1.45%  native_fiber_ec  libstdc++.so.6.0.33  [.] operator new(unsigned long)
+            |
+            ---operator new(unsigned long)
+               |          
+                --0.67%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+
+     1.45%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::ActorSystem::Impl::resumeFiber(actor_runtime::Worker&, std::shared_ptr<actor_runtime::ActorControl> const&, unsigned long)
+            |          
+             --1.34%--actor_runtime::ActorSystem::Impl::resumeFiber(actor_runtime::Worker&, std::shared_ptr<actor_runtime::ActorControl> const&, unsigned long)
+                       actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       0x7fb778c95db3
+                       0x7fb778a05b83
+                       0x7fb778a92d6b
+
+     1.11%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+            |
+            ---actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+               actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          
+                --0.67%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+                          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+                          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+                          0x7fb7789c7f7f
+
+     1.11%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::Job& std::deque<actor_runtime::Job, std::allocator<actor_runtime::Job> >::emplace_back<actor_runtime::Job>(actor_runtime::Job&&) [clone .isra.0]
+            |
+            ---actor_runtime::Job& std::deque<actor_runtime::Job, std::allocator<actor_runtime::Job> >::emplace_back<actor_runtime::Job>(actor_runtime::Job&&) [clone .isra.0]
+               |          
+                --0.78%--actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+                          actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+
+     1.11%  native_fiber_ec  native_fiber_echo    [.] std::_Function_handler<std::unique_ptr<actor_runtime::RuntimeWaitNode, std::default_delete<actor_runtime::RuntimeWaitNode> > (actor_runtime::WaitSpec const&), actor_runtime::ActorSystem::Impl::installWait(actor_runtime::Fiber&, actor_runtime::WaitSpec const&)::{lambda(actor_runtime::WaitSpec const&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::WaitSpec const&)
+            |          
+             --1.00%--std::_Function_handler<std::unique_ptr<actor_runtime::RuntimeWaitNode, std::default_delete<actor_runtime::RuntimeWaitNode> > (actor_runtime::WaitSpec const&), actor_runtime::ActorSystem::Impl::installWait(actor_runtime::Fiber&, actor_runtime::WaitSpec const&)::{lambda(actor_runtime::WaitSpec const&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::WaitSpec const&)
+                       actor_runtime::ActorSystem::Impl::installWait(actor_runtime::Fiber&, actor_runtime::WaitSpec const&)
+                       actor_runtime::CoroutineContext::await(actor_runtime::WaitSpec)
+                       Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+                       std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+                       actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+                       0x7fb7789c7f7f
+
+     1.11%  native_fiber_ec  native_fiber_echo    [.] std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(unsigned long const&) [clone .isra.0]
+            |
+            ---std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(unsigned long const&) [clone .isra.0]
+               actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          
+               |--0.56%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               |          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               |          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               |          0x7fb7789c7f7f
+               |          
+                --0.56%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                          std::function<std::any (actor_runtime::CoroutineContext&)>::operator()(actor_runtime::CoroutineContext&) const (inlined)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7fb778c95db3
+                          0x7fb778a05b83
+                          0x7fb778a92d6b
+
+     1.00%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+            |
+            ---actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7fb778c95db3
+               0x7fb778a05b83
+               0x7fb778a92d6b
+
+     0.78%  native_fiber_ec  native_fiber_echo    [.] std::shared_ptr<actor_runtime::Message const>& std::deque<std::shared_ptr<actor_runtime::Message const>, std::allocator<std::shared_ptr<actor_runtime::Message const> > >::emplace_back<std::shared_ptr<actor_runtime::Message const> >(std::shared_ptr<actor_runtime::Message const>&&) [clone .isra.0]
+            |
+            ---std::shared_ptr<actor_runtime::Message const>& std::deque<std::shared_ptr<actor_runtime::Message const>, std::allocator<std::shared_ptr<actor_runtime::Message const> > >::emplace_back<std::shared_ptr<actor_runtime::Message const> >(std::shared_ptr<actor_runtime::Message const>&&) [clone .isra.0]
+               actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          
+                --0.56%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+                          std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+                          actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+                          0x7fb7789c7f7f
+
+     0.67%  native_fiber_ec  libc.so.6            [.] 0x00000000000ab264
+            |
+            ---0x7fb778a14264
+               cfree
+
+     0.67%  native_fiber_ec  native_fiber_echo    [.] actor_runtime::WaitResult::WaitResult(actor_runtime::WaitResult const&)
+            |          
+             --0.56%--actor_runtime::WaitResult::WaitResult(actor_runtime::WaitResult const&)
+                       actor_runtime::ActorSystem::Impl::triggerWait(std::shared_ptr<actor_runtime::ActorControl> const&, actor_runtime::LeafRef const&, actor_runtime::WaitResult)
+                       actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+                       actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       0x7fb778c95db3
+                       0x7fb778a05b83
+                       0x7fb778a92d6b
+
+     0.67%  native_fiber_ec  native_fiber_echo    [.] pthread_mutex_lock@plt
+            |
+            ---pthread_mutex_lock@plt
+               |          
+                --0.56%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7fb778c95db3
+                          0x7fb778a05b83
+                          0x7fb778a92d6b
+
+     0.67%  native_fiber_ec  native_fiber_echo    [.] void std::vector<actor_runtime::LeafRef, std::allocator<actor_runtime::LeafRef> >::_M_realloc_insert<actor_runtime::LeafRef const&>(__gnu_cxx::__normal_iterator<actor_runtime::LeafRef*, std::vector<actor_runtime::LeafRef, std::allocator<actor_runtime::LeafRef> > >, actor_runtime::LeafRef const&)
+            |
+            ---void std::vector<actor_runtime::LeafRef, std::allocator<actor_runtime::LeafRef> >::_M_realloc_insert<actor_runtime::LeafRef const&>(__gnu_cxx::__normal_iterator<actor_runtime::LeafRef*, std::vector<actor_runtime::LeafRef, std::allocator<actor_runtime::LeafRef> > >, actor_runtime::LeafRef const&)
+               actor_runtime::ActorSystem::Impl::installWait(actor_runtime::Fiber&, actor_runtime::WaitSpec const&)
+               actor_runtime::CoroutineContext::await(actor_runtime::WaitSpec)
+               Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}::operator()(actor_runtime::CoroutineContext&) const
+               std::_Function_handler<std::any (actor_runtime::CoroutineContext&), Client::onMessage(std::shared_ptr<actor_runtime::Message const>)::{lambda(actor_runtime::CoroutineContext&)#1}>::_M_invoke(std::_Any_data const&, actor_runtime::CoroutineContext&)
+               actor_runtime::(anonymous namespace)::fiberTrampoline(unsigned int, unsigned int)
+               0x7fb7789c7f7f
+
+     0.56%  native_fiber_ec  libc.so.6            [.] 0x00000000000ab2c2
+            |
+            ---0x7fb778a142c2
+               cfree
+
+     0.56%  native_fiber_ec  libstdc++.so.6.0.33  [.] malloc@plt
+            |
+            ---malloc@plt
+               operator new(unsigned long)
+
+     0.56%  native_fiber_ec  native_fiber_echo    [.] pthread_mutex_unlock@plt
+            |
+            ---pthread_mutex_unlock@plt
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

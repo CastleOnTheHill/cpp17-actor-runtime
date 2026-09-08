@@ -1,0 +1,795 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 3K of event 'cpu-clock:u'
+# Event count (approx.): 18864319250
+#
+# Overhead  Command     Shared Object        Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+# ........  ..........  ...................  .......................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    17.37%  caf.worker  caf_echo             [.] caf::scheduled_actor::resume(caf::execution_unit*, unsigned long)
+            |          
+             --16.28%--caf::scheduled_actor::resume(caf::execution_unit*, unsigned long)
+                       caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+    10.23%  caf.worker  caf_echo             [.] caf::intrusive_ptr_release(caf::actor_control_block*)
+            |
+            ---caf::intrusive_ptr_release(caf::actor_control_block*)
+               |          
+               |--2.53%--caf::response_promise::state::cancel()
+               |          caf::response_promise::respond_to(caf::local_actor*, caf::mailbox_element*, caf::message&)
+               |          |          
+               |          |--1.41%--caf::detail::default_behavior_impl<std::tuple<echo(caf::event_based_actor*)::{lambda(caf::actor, unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+               |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |          |          invoke (inlined)
+               |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          |          0x7feed817adb3
+               |          |          0x7feed7e01b83
+               |          |          0x7feed7e8ed6b
+               |          |          
+               |           --1.12%--caf::intrusive_ptr_access<caf::actor_control_block>::release(caf::actor_control_block*) (inlined)
+               |                     caf::intrusive_ptr<caf::actor_control_block>::~intrusive_ptr() (inlined)
+               |                     caf::response_promise::state::~state() (inlined)
+               |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |                     invoke (inlined)
+               |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                     run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                     0x7feed817adb3
+               |                     0x7feed7e01b83
+               |                     0x7feed7e8ed6b
+               |          
+               |--2.24%--caf::intrusive_ptr_access<caf::actor_control_block>::release(caf::actor_control_block*) (inlined)
+               |          caf::intrusive_ptr<caf::actor_control_block>::~intrusive_ptr() (inlined)
+               |          caf::scheduled_actor::enqueue(std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> >, caf::execution_unit*)
+               |          |          
+               |          |--1.28%--caf::actor caf::actor_cast<caf::actor, caf::event_based_actor* const&>(caf::event_based_actor* const&) (inlined)
+               |          |          caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+               |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |          |          invoke (inlined)
+               |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          |          0x7feed817adb3
+               |          |          0x7feed7e01b83
+               |          |          0x7feed7e8ed6b
+               |          |          
+               |           --0.96%--void caf::detail::profiled_send<caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::event_based_actor*, caf::actor_control_block*&&, caf::actor const&, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::execution_unit*, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+               |                     std::enable_if<!(is_same_v<caf::group, caf::actor>), void>::type caf::mixin::sender<caf::scheduled_actor, caf::event_based_actor>::send<(caf::message_priority)1, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::actor const&, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+               |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |                     invoke (inlined)
+               |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                     run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                     0x7feed817adb3
+               |                     0x7feed7e01b83
+               |                     0x7feed7e8ed6b
+               |          
+               |--2.10%--caf::scheduler::worker<caf::policy::work_stealing>::run()
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          0x7feed817adb3
+               |          0x7feed7e01b83
+               |          0x7feed7e8ed6b
+               |          
+               |--1.81%--auto caf::actor_system::launch_thread<caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1}>(char const*, caf::thread_owner, caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1})::{lambda(auto:1)#1}::operator()<caf::intrusive_ptr<caf::ref_counted> >(caf::intrusive_ptr<caf::ref_counted>) const (inlined)
+               |          void std::__invoke_impl<void, caf::actor_system::launch_thread<caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1}>(char const*, caf::thread_owner, caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1})::{lambda(auto:1)#1}, caf::intrusive_ptr<caf::ref_counted> >(std::__invoke_other, caf::actor_system::launch_thread<caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1}>(char const*, caf::thread_owner, caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1})::{lambda(auto:1)#1}&&, caf::intrusive_ptr<caf::ref_counted>&&) (inlined)
+               |          std::__invoke_result<caf::actor_system::launch_thread<caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1}>(char const*, caf::thread_owner, caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1})::{lambda(auto:1)#1}, caf::intrusive_ptr<caf::ref_counted> >::type std::__invoke<caf::actor_system::launch_thread<caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1}>(char const*, caf::thread_owner, caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1})::{lambda(auto:1)#1}, caf::intrusive_ptr<caf::ref_counted> >(caf::actor_system::launch_thread<caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1}>(char const*, caf::thread_owner, caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1})::{lambda(auto:1)#1}&&, caf::intrusive_ptr<caf::ref_counted>&&) (inlined)
+               |          void std::thread::_Invoker<std::tuple<caf::actor_system::launch_thread<caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1}>(char const*, caf::thread_owner, caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1})::{lambda(auto:1)#1}, caf::intrusive_ptr<caf::ref_counted> > >::_M_invoke<0ul, 1ul>(std::_Index_tuple<0ul, 1ul>) (inlined)
+               |          std::thread::_Invoker<std::tuple<caf::actor_system::launch_thread<caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1}>(char const*, caf::thread_owner, caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1})::{lambda(auto:1)#1}, caf::intrusive_ptr<caf::ref_counted> > >::operator()() (inlined)
+               |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<caf::actor_system::launch_thread<caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1}>(char const*, caf::thread_owner, caf::scheduler::worker<caf::policy::work_stealing>::start()::{lambda()#1})::{lambda(auto:1)#1}, caf::intrusive_ptr<caf::ref_counted> > > >::_M_run() (inlined)
+               |          caf::scheduler::worker<caf::policy::work_stealing>::run() (inlined)
+               |          std::mutex::lock() (inlined)
+               |          std::unique_lock<std::mutex>::lock() (inlined)
+               |          std::unique_lock<std::mutex>::unique_lock(std::mutex&) (inlined)
+               |          caf::detail::double_ended_queue<caf::resumable>::try_take_head() (inlined)
+               |          caf::resumable* caf::policy::work_stealing::dequeue<caf::scheduler::worker<caf::policy::work_stealing> >(caf::scheduler::worker<caf::policy::work_stealing>*) (inlined)
+               |          caf::scheduler::worker<caf::policy::work_stealing>::run() (inlined)
+               |          |          
+               |          |--0.99%--caf::detail::default_behavior_impl<std::tuple<echo(caf::event_based_actor*)::{lambda(caf::actor, unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+               |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |          |          invoke (inlined)
+               |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          |          0x7feed817adb3
+               |          |          0x7feed7e01b83
+               |          |          0x7feed7e8ed6b
+               |          |          
+               |           --0.83%--caf::intrusive_ptr_access<caf::actor_control_block>::release(caf::actor_control_block*) (inlined)
+               |                     caf::intrusive_ptr<caf::actor_control_block>::~intrusive_ptr() (inlined)
+               |                     caf::response_promise::state::~state() (inlined)
+               |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |                     invoke (inlined)
+               |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                     run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                     0x7feed817adb3
+               |                     0x7feed7e01b83
+               |                     0x7feed7e8ed6b
+               |          
+               |--0.83%--caf::detail::default_behavior_impl<std::tuple<echo(caf::event_based_actor*)::{lambda(caf::actor, unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+               |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |          invoke (inlined)
+               |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          0x7feed817adb3
+               |          0x7feed7e01b83
+               |          0x7feed7e8ed6b
+               |          
+                --0.72%--void caf::detail::default_function::destroy<caf::actor>(void*)
+                          caf::detail::message_data::~message_data()
+                          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long)
+                          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          0x7feed817adb3
+                          0x7feed7e01b83
+                          0x7feed7e8ed6b
+
+     8.84%  caf.worker  caf_echo             [.] caf::scheduled_actor::enqueue(std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> >, caf::execution_unit*)
+            |          
+             --8.66%--caf::scheduled_actor::enqueue(std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> >, caf::execution_unit*)
+                       |          
+                       |--5.33%--void caf::detail::profiled_send<caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::event_based_actor*, caf::actor_control_block*&&, caf::actor const&, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::execution_unit*, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                       |          std::enable_if<!(is_same_v<caf::group, caf::actor>), void>::type caf::mixin::sender<caf::scheduled_actor, caf::event_based_actor>::send<(caf::message_priority)1, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::actor const&, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                       |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                       |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                       |          invoke (inlined)
+                       |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       |          0x7feed817adb3
+                       |          0x7feed7e01b83
+                       |          0x7feed7e8ed6b
+                       |          
+                        --3.33%--caf::actor caf::actor_cast<caf::actor, caf::event_based_actor* const&>(caf::event_based_actor* const&) (inlined)
+                                  caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+                                  /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                                  /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                                  invoke (inlined)
+                                  caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                                  caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                                  caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                                  caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                                  run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                                  caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                                  0x7feed817adb3
+                                  0x7feed7e01b83
+                                  0x7feed7e8ed6b
+
+     5.54%  caf.worker  libc.so.6            [.] pthread_mutex_unlock
+            |
+            ---pthread_mutex_unlock
+               |          
+               |--2.77%--caf::scheduled_actor::update_watched_disposables() (inlined)
+               |          |          
+               |          |--1.49%--void caf::detail::profiled_send<caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::event_based_actor*, caf::actor_control_block*&&, caf::actor const&, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::execution_unit*, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+               |          |          std::enable_if<!(is_same_v<caf::group, caf::actor>), void>::type caf::mixin::sender<caf::scheduled_actor, caf::event_based_actor>::send<(caf::message_priority)1, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::actor const&, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+               |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |          |          invoke (inlined)
+               |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          |          0x7feed817adb3
+               |          |          0x7feed7e01b83
+               |          |          0x7feed7e8ed6b
+               |          |          
+               |           --1.28%--caf::actor caf::actor_cast<caf::actor, caf::event_based_actor* const&>(caf::event_based_actor* const&) (inlined)
+               |                     caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+               |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |                     invoke (inlined)
+               |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                     run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                     0x7feed817adb3
+               |                     0x7feed7e01b83
+               |                     0x7feed7e8ed6b
+               |          
+                --2.50%--std::__atomic_base<caf::mailbox_element*>::compare_exchange_strong(caf::mailbox_element*&, caf::mailbox_element*, std::memory_order, std::memory_order) (inlined)
+                          std::atomic<caf::mailbox_element*>::compare_exchange_strong(caf::mailbox_element*&, caf::mailbox_element*, std::memory_order) (inlined)
+                          caf::intrusive::lifo_inbox<caf::mailbox_element>::try_block() (inlined)
+                          caf::detail::default_mailbox::try_block() (inlined)
+                          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          0x7feed817adb3
+                          0x7feed7e01b83
+                          0x7feed7e8ed6b
+
+     5.35%  caf.worker  libc.so.6            [.] malloc
+            |
+            ---malloc
+               |          
+                --4.82%--operator new(unsigned long)
+                          |          
+                          |--1.70%--caf::scheduler::worker<caf::policy::work_stealing>::exec_later(caf::resumable*)
+                          |          caf::scheduled_actor::update_watched_disposables() (inlined)
+                          |          |          
+                          |          |--0.88%--void caf::detail::profiled_send<caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::event_based_actor*, caf::actor_control_block*&&, caf::actor const&, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::execution_unit*, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                          |          |          std::enable_if<!(is_same_v<caf::group, caf::actor>), void>::type caf::mixin::sender<caf::scheduled_actor, caf::event_based_actor>::send<(caf::message_priority)1, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::actor const&, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                          |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                          |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                          |          |          invoke (inlined)
+                          |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                          |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                          |          |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                          |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          |          |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                          |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          |          |          0x7feed817adb3
+                          |          |          0x7feed7e01b83
+                          |          |          0x7feed7e8ed6b
+                          |          |          
+                          |           --0.83%--caf::actor caf::actor_cast<caf::actor, caf::event_based_actor* const&>(caf::event_based_actor* const&) (inlined)
+                          |                     caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+                          |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                          |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                          |                     invoke (inlined)
+                          |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                          |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                          |                     caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                          |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          |                     run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                          |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          |                     0x7feed817adb3
+                          |                     0x7feed7e01b83
+                          |                     0x7feed7e8ed6b
+                          |          
+                          |--1.65%--caf::make_mailbox_element(caf::intrusive_ptr<caf::actor_control_block>, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::message)
+                          |          |          
+                          |          |--0.83%--caf::detail::invoke_result_visitor::operator()(caf::unit_t const&) (inlined)
+                          |          |          operator()<client(caf::event_based_actor*, caf::actor, bench::Client*)::<lambda(uint64_t, uint64_t, const std::string&)> > (inlined)
+                          |          |          invoke_impl<0, 1> (inlined)
+                          |          |          invoke (inlined)
+                          |          |          caf::intrusive_ptr<caf::actor_control_block>::intrusive_ptr(caf::intrusive_ptr<caf::actor_control_block>&&) (inlined)
+                          |          |          std::__detail::_MakeUniq<caf::mailbox_element>::__single_object std::make_unique<caf::mailbox_element, caf::intrusive_ptr<caf::actor_control_block>, caf::message_id&, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::message>(caf::intrusive_ptr<caf::actor_control_block>&&, caf::message_id&, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >&&, caf::message&&) (inlined)
+                          |          |          caf::make_mailbox_element(caf::intrusive_ptr<caf::actor_control_block>, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::message) (inlined)
+                          |          |          caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+                          |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                          |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                          |          |          invoke (inlined)
+                          |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                          |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                          |          |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                          |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          |          |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                          |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          |          |          0x7feed817adb3
+                          |          |          0x7feed7e01b83
+                          |          |          0x7feed7e8ed6b
+                          |          |          
+                          |           --0.83%--caf::detail::intrusive_ptr_release(caf::detail::message_data*) (inlined)
+                          |                     caf::intrusive_ptr_access<caf::detail::message_data>::release(caf::detail::message_data*) (inlined)
+                          |                     caf::intrusive_ptr<caf::detail::message_data>::~intrusive_ptr() (inlined)
+                          |                     caf::intrusive_cow_ptr<caf::detail::message_data>::~intrusive_cow_ptr() (inlined)
+                          |                     caf::message::~message() (inlined)
+                          |                     caf::mailbox_element::~mailbox_element() (inlined)
+                          |                     std::default_delete<caf::mailbox_element>::operator()(caf::mailbox_element*) const (inlined)
+                          |                     std::default_delete<caf::mailbox_element>::operator()(caf::mailbox_element*) const (inlined)
+                          |                     std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> >::~unique_ptr() (inlined)
+                          |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          |                     caf::detail::default_behavior_impl<std::tuple<echo(caf::event_based_actor*)::{lambda(caf::actor, unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+                          |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                          |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                          |                     invoke (inlined)
+                          |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                          |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                          |                     caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                          |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          |                     run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                          |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          |                     0x7feed817adb3
+                          |                     0x7feed7e01b83
+                          |                     0x7feed7e8ed6b
+                          |          
+                           --1.15%--caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                                     |          
+                                      --0.80%--std::enable_if<(!(is_same_v<std::decay<unsigned long&>::type, caf::message>))||(((2)>(0))), std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> > >::type caf::make_mailbox_element<unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::intrusive_ptr<caf::actor_control_block>, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+                                                caf::detail::default_behavior_impl<std::tuple<echo(caf::event_based_actor*)::{lambda(caf::actor, unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+                                                /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                                                /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                                                invoke (inlined)
+                                                caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                                                caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                                                caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                                                caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                                                run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                                                caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                                                0x7feed817adb3
+                                                0x7feed7e01b83
+                                                0x7feed7e8ed6b
+
+     4.18%  caf.worker  libc.so.6            [.] cfree
+            |
+            ---cfree
+               |          
+               |--1.39%--caf::detail::message_data::~message_data()
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long)
+               |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          0x7feed817adb3
+               |          0x7feed7e01b83
+               |          0x7feed7e8ed6b
+               |          
+               |--0.77%--std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Alloc_hider::_Alloc_hider(char*, std::allocator<char>&&) (inlined)
+               |          std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string() (inlined)
+               |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          0x7feed817adb3
+               |          0x7feed7e01b83
+               |          0x7feed7e8ed6b
+               |          
+               |--0.75%--std::__cxx11::list<caf::resumable*, std::allocator<caf::resumable*> >::pop_front() (inlined)
+               |          caf::detail::double_ended_queue<caf::resumable>::try_take_head() (inlined)
+               |          caf::resumable* caf::policy::work_stealing::dequeue<caf::scheduler::worker<caf::policy::work_stealing> >(caf::scheduler::worker<caf::policy::work_stealing>*) (inlined)
+               |          caf::scheduler::worker<caf::policy::work_stealing>::run() (inlined)
+               |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          0x7feed817adb3
+               |          0x7feed7e01b83
+               |          0x7feed7e8ed6b
+               |          
+                --0.61%--caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          0x7feed817adb3
+                          0x7feed7e01b83
+                          0x7feed7e8ed6b
+
+     3.60%  caf.worker  libc.so.6            [.] pthread_mutex_lock
+            |
+            ---pthread_mutex_lock
+               |          
+               |--1.97%--caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |          |          
+               |           --1.78%--caf::scheduled_actor::update_watched_disposables() (inlined)
+               |                     |          
+               |                     |--0.91%--caf::actor caf::actor_cast<caf::actor, caf::event_based_actor* const&>(caf::event_based_actor* const&) (inlined)
+               |                     |          caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+               |                     |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |                     |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |                     |          invoke (inlined)
+               |                     |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                     |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                     |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |                     |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                     |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |                     |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                     |          0x7feed817adb3
+               |                     |          0x7feed7e01b83
+               |                     |          0x7feed7e8ed6b
+               |                     |          
+               |                      --0.88%--void caf::detail::profiled_send<caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::event_based_actor*, caf::actor_control_block*&&, caf::actor const&, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::execution_unit*, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+               |                                std::enable_if<!(is_same_v<caf::group, caf::actor>), void>::type caf::mixin::sender<caf::scheduled_actor, caf::event_based_actor>::send<(caf::message_priority)1, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::actor const&, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+               |                                /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               |                                /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               |                                invoke (inlined)
+               |                                caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                                caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               |                                caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               |                                caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                                run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               |                                caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               |                                0x7feed817adb3
+               |                                0x7feed7e01b83
+               |                                0x7feed7e8ed6b
+               |          
+                --1.57%--caf::scheduler::worker<caf::policy::work_stealing>::run()
+                          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                          0x7feed817adb3
+                          0x7feed7e01b83
+                          0x7feed7e8ed6b
+
+     3.06%  caf.worker  caf_echo             [.] caf::detail::default_mailbox::fetch_more()
+            |          
+            |--2.02%--caf::detail::intrusive_ptr_release(caf::detail::message_data*) (inlined)
+            |          caf::intrusive_ptr_access<caf::detail::message_data>::release(caf::detail::message_data*) (inlined)
+            |          caf::intrusive_ptr<caf::detail::message_data>::~intrusive_ptr() (inlined)
+            |          caf::intrusive_cow_ptr<caf::detail::message_data>::~intrusive_cow_ptr() (inlined)
+            |          caf::message::~message() (inlined)
+            |          caf::mailbox_element::~mailbox_element() (inlined)
+            |          std::default_delete<caf::mailbox_element>::operator()(caf::mailbox_element*) const (inlined)
+            |          std::default_delete<caf::mailbox_element>::operator()(caf::mailbox_element*) const (inlined)
+            |          std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> >::~unique_ptr() (inlined)
+            |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |          caf::detail::default_mailbox::pop_front()
+            |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long)
+            |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+            |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+            |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |          0x7feed817adb3
+            |          0x7feed7e01b83
+            |          0x7feed7e8ed6b
+            |          
+             --0.93%--caf::detail::default_mailbox::fetch_more()
+                       caf::detail::default_mailbox::pop_front()
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long)
+                       caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+     3.04%  caf.worker  caf_echo             [.] caf::response_promise::respond_to(caf::local_actor*, caf::mailbox_element*, caf::message&)
+            |          
+            |--1.73%--~scope_guard (inlined)
+            |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |          |          
+            |          |--1.07%--caf::intrusive_ptr_access<caf::actor_control_block>::release(caf::actor_control_block*) (inlined)
+            |          |          caf::intrusive_ptr<caf::actor_control_block>::~intrusive_ptr() (inlined)
+            |          |          caf::response_promise::state::~state() (inlined)
+            |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+            |          |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+            |          |          invoke (inlined)
+            |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+            |          |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+            |          |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+            |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |          |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+            |          |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |          |          0x7feed817adb3
+            |          |          0x7feed7e01b83
+            |          |          0x7feed7e8ed6b
+            |          |          
+            |           --0.67%--caf::detail::default_behavior_impl<std::tuple<echo(caf::event_based_actor*)::{lambda(caf::actor, unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+            |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+            |                     /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+            |                     invoke (inlined)
+            |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+            |                     caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+            |                     caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+            |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |                     run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+            |                     caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |                     0x7feed817adb3
+            |                     0x7feed7e01b83
+            |                     0x7feed7e8ed6b
+            |          
+             --0.67%--caf::response_promise::respond_to(caf::local_actor*, caf::mailbox_element*, caf::message&)
+
+     2.61%  caf.worker  caf_echo             [.] caf::detail::default_mailbox::try_block()
+            |          
+             --2.24%--caf::detail::invoke_result_visitor::operator()(caf::unit_t const&) (inlined)
+                       operator()<echo(caf::event_based_actor*)::<lambda(caf::actor, uint64_t, uint64_t, const std::string&)> > (inlined)
+                       invoke_impl<0> (inlined)
+                       invoke (inlined)
+                       caf::abstract_channel::flags() const (inlined)
+                       caf::abstract_actor::getf(int) const (inlined)
+                       caf::scheduled_actor::enqueue(std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> >, caf::execution_unit*) (inlined)
+                       caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+     2.58%  caf.worker  caf_echo             [.] client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda()#1}::operator()() const
+            |          
+            |--1.12%--caf::intrusive_ptr<caf::actor_control_block>::reset(caf::actor_control_block*, bool) (inlined)
+            |          caf::intrusive_ptr<caf::actor_control_block>::operator=(caf::actor_control_block*) (inlined)
+            |          caf::response_promise::state::cancel() (inlined)
+            |          caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+            |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+            |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+            |          invoke (inlined)
+            |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+            |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+            |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+            |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+            |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |          0x7feed817adb3
+            |          0x7feed7e01b83
+            |          0x7feed7e8ed6b
+            |          
+             --0.59%--client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda()#1}::operator()() const
+                       caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+                       /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                       /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                       invoke (inlined)
+                       caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+     2.50%  caf.worker  caf_echo             [.] caf::detail::default_behavior_impl<std::tuple<echo(caf::event_based_actor*)::{lambda(caf::actor, unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+            |          
+            |--1.44%--caf::detail::default_behavior_impl<std::tuple<echo(caf::event_based_actor*)::{lambda(caf::actor, unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+            |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+            |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+            |          invoke (inlined)
+            |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+            |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+            |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+            |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+            |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+            |          0x7feed817adb3
+            |          0x7feed7e01b83
+            |          0x7feed7e8ed6b
+            |          
+             --0.80%--operator() (inlined)
+                       ~scope_guard (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                       /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                       invoke (inlined)
+                       caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+     2.50%  caf.worker  caf_echo             [.] caf::detail::default_mailbox::push_back(std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> >)
+            |          
+             --2.21%--caf::scheduled_actor::enqueue(std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> >, caf::execution_unit*) (inlined)
+                       caf::scheduled_actor::enqueue(std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> >, caf::execution_unit*)
+                       |          
+                       |--1.09%--void caf::detail::profiled_send<caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::event_based_actor*, caf::actor_control_block*&&, caf::actor const&, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::execution_unit*, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                       |          std::enable_if<!(is_same_v<caf::group, caf::actor>), void>::type caf::mixin::sender<caf::scheduled_actor, caf::event_based_actor>::send<(caf::message_priority)1, caf::actor, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::actor const&, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                       |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                       |          /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                       |          invoke (inlined)
+                       |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       |          caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       |          caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       |          run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       |          caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       |          0x7feed817adb3
+                       |          0x7feed7e01b83
+                       |          0x7feed7e8ed6b
+                       |          
+                        --1.01%--caf::actor caf::actor_cast<caf::actor, caf::event_based_actor* const&>(caf::event_based_actor* const&) (inlined)
+                                  caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+                                  /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                                  /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                                  invoke (inlined)
+                                  caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                                  caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                                  caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                                  caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                                  run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                                  caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                                  0x7feed817adb3
+                                  0x7feed7e01b83
+                                  0x7feed7e8ed6b
+
+     1.49%  caf.worker  caf_echo             [.] caf::actor::actor(caf::actor_control_block*)
+            |          
+             --1.44%--apply_args<echo(caf::event_based_actor*)::<lambda(caf::actor, uint64_t, uint64_t, const std::string&)>, 0, 1, 2, 3, caf::const_typed_message_view<caf::actor, long unsigned int, long unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > (inlined)
+                       apply_args<echo(caf::event_based_actor*)::<lambda(caf::actor, uint64_t, uint64_t, const std::string&)>, caf::const_typed_message_view<caf::actor, long unsigned int, long unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > (inlined)
+                       operator()<echo(caf::event_based_actor*)::<lambda(caf::actor, uint64_t, uint64_t, const std::string&)> > (inlined)
+                       invoke_impl<0> (inlined)
+                       invoke (inlined)
+                       caf::scheduler::worker<caf::policy::work_stealing>::run() (inlined)
+                       std::mutex::unlock() (inlined)
+                       std::unique_lock<std::mutex>::unlock() (inlined)
+                       std::unique_lock<std::mutex>::~unique_lock() (inlined)
+                       caf::detail::double_ended_queue<caf::resumable>::try_take_head() (inlined)
+                       caf::resumable* caf::policy::work_stealing::dequeue<caf::scheduler::worker<caf::policy::work_stealing> >(caf::scheduler::worker<caf::policy::work_stealing>*) (inlined)
+                       caf::scheduler::worker<caf::policy::work_stealing>::run() (inlined)
+                       caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+                       /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                       /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                       invoke (inlined)
+                       caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+     1.49%  caf.worker  caf_echo             [.] caf::behavior::operator()(caf::detail::invoke_result_visitor&, caf::message&)
+            |          
+             --1.12%--caf::behavior::operator()(caf::detail::invoke_result_visitor&, caf::message&)
+                       /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                       /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                       invoke (inlined)
+                       caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+     1.23%  caf.worker  caf_echo             [.] caf::make_mailbox_element(caf::intrusive_ptr<caf::actor_control_block>, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::message)
+            |          
+             --0.99%--caf::make_mailbox_element(caf::intrusive_ptr<caf::actor_control_block>, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::message)
+                       |          
+                        --0.59%--caf::detail::invoke_result_visitor::operator()(caf::unit_t const&) (inlined)
+                                  operator()<client(caf::event_based_actor*, caf::actor, bench::Client*)::<lambda(uint64_t, uint64_t, const std::string&)> > (inlined)
+                                  invoke_impl<0, 1> (inlined)
+                                  invoke (inlined)
+                                  caf::intrusive_ptr<caf::actor_control_block>::intrusive_ptr(caf::intrusive_ptr<caf::actor_control_block>&&) (inlined)
+                                  std::__detail::_MakeUniq<caf::mailbox_element>::__single_object std::make_unique<caf::mailbox_element, caf::intrusive_ptr<caf::actor_control_block>, caf::message_id&, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::message>(caf::intrusive_ptr<caf::actor_control_block>&&, caf::message_id&, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >&&, caf::message&&) (inlined)
+                                  caf::make_mailbox_element(caf::intrusive_ptr<caf::actor_control_block>, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, caf::message) (inlined)
+                                  caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+                                  /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                                  /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                                  invoke (inlined)
+                                  caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                                  caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                                  caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                                  caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                                  run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                                  caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                                  0x7feed817adb3
+                                  0x7feed7e01b83
+                                  0x7feed7e8ed6b
+
+     1.12%  caf.worker  caf_echo             [.] caf::scheduler::worker<caf::policy::work_stealing>::run()
+            |          
+             --0.72%--caf::intrusive::lifo_inbox<caf::mailbox_element>::take_head() (inlined)
+                       caf::detail::default_mailbox::fetch_more() (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+     0.96%  caf.worker  caf_echo             [.] caf::detail::message_data::~message_data()
+            |          
+             --0.69%--caf::detail::message_data::~message_data()
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long)
+                       caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+     0.96%  caf.worker  caf_echo             [.] caf::scheduled_actor::categorize(caf::mailbox_element&)
+     0.91%  caf.worker  caf_echo             [.] caf::scheduled_actor::set_receive_timeout()
+            |          
+             --0.53%--caf::scheduled_actor::set_receive_timeout()
+                       void caf::detail::message_data::init_impl<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(std::byte*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                       void caf::detail::message_data::init_impl<unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(std::byte*, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                       void caf::detail::message_data::init_impl<unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(std::byte*, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                       void caf::detail::message_data::init<unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                       caf::message caf::make_message<unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                       std::enable_if<(!(is_same_v<std::decay<unsigned long&>::type, caf::message>))||(((2)>(0))), std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> > >::type caf::make_mailbox_element<unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::intrusive_ptr<caf::actor_control_block>, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+                       caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+     0.83%  caf.worker  libstdc++.so.6.0.33  [.] operator new(unsigned long)
+            |
+            ---operator new(unsigned long)
+
+     0.64%  caf.worker  caf_echo             [.] caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+            |          
+             --0.53%--caf::detail::default_behavior_impl<std::tuple<client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, bool)#1}, client(caf::event_based_actor*, caf::actor, bench::Client*)::{lambda(unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+                       /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+                       /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+                       invoke (inlined)
+                       caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+                       caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+                       0x7feed817adb3
+                       0x7feed7e01b83
+                       0x7feed7e8ed6b
+
+     0.64%  caf.worker  caf_echo             [.] caf::detail::default_mailbox::pop_front()
+     0.59%  caf.worker  caf_echo             [.] caf::scheduled_actor::consume(caf::mailbox_element&)
+     0.59%  caf.worker  caf_echo             [.] caf::scheduled_actor::reactivate(caf::mailbox_element&)
+     0.59%  caf.worker  caf_echo             [.] std::enable_if<(!(is_same_v<std::decay<unsigned long&>::type, caf::message>))||(((2)>(0))), std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> > >::type caf::make_mailbox_element<unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::intrusive_ptr<caf::actor_control_block>, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+     0.56%  caf.worker  caf_echo             [.] caf::scheduler::worker<caf::policy::work_stealing>::exec_later(caf::resumable*)
+     0.53%  caf.worker  libc.so.6            [.] 0x00000000000ab264
+            |
+            ---0x7feed7e10264
+               cfree
+
+     0.51%  caf.worker  libc.so.6            [.] 0x0000000000188c21
+            |
+            ---0x7feed7eedc21
+               std::enable_if<(!(is_same_v<std::decay<unsigned long&>::type, caf::message>))||(((2)>(0))), std::unique_ptr<caf::mailbox_element, std::default_delete<caf::mailbox_element> > >::type caf::make_mailbox_element<unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&>(caf::intrusive_ptr<caf::actor_control_block>, caf::message_id, std::vector<caf::intrusive_ptr<caf::actor_control_block>, std::allocator<caf::intrusive_ptr<caf::actor_control_block> > >, unsigned long&, unsigned long&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               caf::detail::default_behavior_impl<std::tuple<echo(caf::event_based_actor*)::{lambda(caf::actor, unsigned long, unsigned long, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)#1}>, caf::detail::dummy_timeout_definition>::invoke(caf::detail::invoke_result_visitor&, caf::message&)
+               /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (discriminator 2) (inlined)
+               /tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (discriminator 2) (inlined)
+               invoke (inlined)
+               caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               caf::scheduled_actor::consume(caf::mailbox_element&) (inlined)
+               caf::scheduled_actor::reactivate(caf::mailbox_element&) (inlined)
+               caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               run_with_metrics<caf::scheduled_actor::resume(caf::execution_unit*, size_t)::<lambda()> > (inlined)
+               caf::scheduled_actor::resume(caf::execution_unit*, unsigned long) (inlined)
+               0x7feed817adb3
+               0x7feed7e01b83
+               0x7feed7e8ed6b
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

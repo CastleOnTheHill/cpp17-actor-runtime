@@ -1,0 +1,3414 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" width="1200" height="550" onload="init(evt)" viewBox="0 0 1200 550" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Flame graph stack visualization. See https://github.com/brendangregg/FlameGraph for latest version, and http://www.brendangregg.com/flamegraphs.html for examples. -->
+<!-- NOTES:  -->
+<defs>
+	<linearGradient id="background" y1="0" y2="1" x1="0" x2="0" >
+		<stop stop-color="#eeeeee" offset="5%" />
+		<stop stop-color="#eeeeb0" offset="95%" />
+	</linearGradient>
+</defs>
+<style type="text/css">
+	text { font-family:Verdana; font-size:12px; fill:rgb(0,0,0); }
+	#search, #ignorecase { opacity:0.1; cursor:pointer; }
+	#search:hover, #search.show, #ignorecase:hover, #ignorecase.show { opacity:1; }
+	#subtitle { text-anchor:middle; font-color:rgb(160,160,160); }
+	#title { text-anchor:middle; font-size:17px}
+	#unzoom { cursor:pointer; }
+	#frames > *:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+	.hide { display:none; }
+	.parent { opacity:0.5; }
+</style>
+<script type="text/ecmascript">
+<![CDATA[
+	"use strict";
+	var details, searchbtn, unzoombtn, matchedtxt, svg, searching, currentSearchTerm, ignorecase, ignorecaseBtn;
+	function init(evt) {
+		details = document.getElementById("details").firstChild;
+		searchbtn = document.getElementById("search");
+		ignorecaseBtn = document.getElementById("ignorecase");
+		unzoombtn = document.getElementById("unzoom");
+		matchedtxt = document.getElementById("matched");
+		svg = document.getElementsByTagName("svg")[0];
+		searching = 0;
+		currentSearchTerm = null;
+
+		// use GET parameters to restore a flamegraphs state.
+		var params = get_params();
+		if (params.x && params.y)
+			zoom(find_group(document.querySelector('[x="' + params.x + '"][y="' + params.y + '"]')));
+                if (params.s) search(params.s);
+	}
+
+	// event listeners
+	window.addEventListener("click", function(e) {
+		var target = find_group(e.target);
+		if (target) {
+			if (target.nodeName == "a") {
+				if (e.ctrlKey === false) return;
+				e.preventDefault();
+			}
+			if (target.classList.contains("parent")) unzoom(true);
+			zoom(target);
+			if (!document.querySelector('.parent')) {
+				// we have basically done a clearzoom so clear the url
+				var params = get_params();
+				if (params.x) delete params.x;
+				if (params.y) delete params.y;
+				history.replaceState(null, null, parse_params(params));
+				unzoombtn.classList.add("hide");
+				return;
+			}
+
+			// set parameters for zoom state
+			var el = target.querySelector("rect");
+			if (el && el.attributes && el.attributes.y && el.attributes._orig_x) {
+				var params = get_params()
+				params.x = el.attributes._orig_x.value;
+				params.y = el.attributes.y.value;
+				history.replaceState(null, null, parse_params(params));
+			}
+		}
+		else if (e.target.id == "unzoom") clearzoom();
+		else if (e.target.id == "search") search_prompt();
+		else if (e.target.id == "ignorecase") toggle_ignorecase();
+	}, false)
+
+	// mouse-over for info
+	// show
+	window.addEventListener("mouseover", function(e) {
+		var target = find_group(e.target);
+		if (target) details.nodeValue = "Function: " + g_to_text(target);
+	}, false)
+
+	// clear
+	window.addEventListener("mouseout", function(e) {
+		var target = find_group(e.target);
+		if (target) details.nodeValue = ' ';
+	}, false)
+
+	// ctrl-F for search
+	// ctrl-I to toggle case-sensitive search
+	window.addEventListener("keydown",function (e) {
+		if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+			e.preventDefault();
+			search_prompt();
+		}
+		else if (e.ctrlKey && e.keyCode === 73) {
+			e.preventDefault();
+			toggle_ignorecase();
+		}
+	}, false)
+
+	// functions
+	function get_params() {
+		var params = {};
+		var paramsarr = window.location.search.substr(1).split('&');
+		for (var i = 0; i < paramsarr.length; ++i) {
+			var tmp = paramsarr[i].split("=");
+			if (!tmp[0] || !tmp[1]) continue;
+			params[tmp[0]]  = decodeURIComponent(tmp[1]);
+		}
+		return params;
+	}
+	function parse_params(params) {
+		var uri = "?";
+		for (var key in params) {
+			uri += key + '=' + encodeURIComponent(params[key]) + '&';
+		}
+		if (uri.slice(-1) == "&")
+			uri = uri.substring(0, uri.length - 1);
+		if (uri == '?')
+			uri = window.location.href.split('?')[0];
+		return uri;
+	}
+	function find_child(node, selector) {
+		var children = node.querySelectorAll(selector);
+		if (children.length) return children[0];
+	}
+	function find_group(node) {
+		var parent = node.parentElement;
+		if (!parent) return;
+		if (parent.id == "frames") return node;
+		return find_group(parent);
+	}
+	function orig_save(e, attr, val) {
+		if (e.attributes["_orig_" + attr] != undefined) return;
+		if (e.attributes[attr] == undefined) return;
+		if (val == undefined) val = e.attributes[attr].value;
+		e.setAttribute("_orig_" + attr, val);
+	}
+	function orig_load(e, attr) {
+		if (e.attributes["_orig_"+attr] == undefined) return;
+		e.attributes[attr].value = e.attributes["_orig_" + attr].value;
+		e.removeAttribute("_orig_"+attr);
+	}
+	function g_to_text(e) {
+		var text = find_child(e, "title").firstChild.nodeValue;
+		return (text)
+	}
+	function g_to_func(e) {
+		var func = g_to_text(e);
+		// if there's any manipulation we want to do to the function
+		// name before it's searched, do it here before returning.
+		return (func);
+	}
+	function update_text(e) {
+		var r = find_child(e, "rect");
+		var t = find_child(e, "text");
+		var w = parseFloat(r.attributes.width.value) -3;
+		var txt = find_child(e, "title").textContent.replace(/\([^(]*\)$/,"");
+		t.attributes.x.value = parseFloat(r.attributes.x.value) + 3;
+
+		// Smaller than this size won't fit anything
+		if (w < 2 * 12 * 0.59) {
+			t.textContent = "";
+			return;
+		}
+
+		t.textContent = txt;
+		var sl = t.getSubStringLength(0, txt.length);
+		// check if only whitespace or if we can fit the entire string into width w
+		if (/^ *$/.test(txt) || sl < w)
+			return;
+
+		// this isn't perfect, but gives a good starting point
+		// and avoids calling getSubStringLength too often
+		var start = Math.floor((w/sl) * txt.length);
+		for (var x = start; x > 0; x = x-2) {
+			if (t.getSubStringLength(0, x + 2) <= w) {
+				t.textContent = txt.substring(0, x) + "..";
+				return;
+			}
+		}
+		t.textContent = "";
+	}
+
+	// zoom
+	function zoom_reset(e) {
+		if (e.attributes != undefined) {
+			orig_load(e, "x");
+			orig_load(e, "width");
+		}
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_reset(c[i]);
+		}
+	}
+	function zoom_child(e, x, ratio) {
+		if (e.attributes != undefined) {
+			if (e.attributes.x != undefined) {
+				orig_save(e, "x");
+				e.attributes.x.value = (parseFloat(e.attributes.x.value) - x - 10) * ratio + 10;
+				if (e.tagName == "text")
+					e.attributes.x.value = find_child(e.parentNode, "rect[x]").attributes.x.value + 3;
+			}
+			if (e.attributes.width != undefined) {
+				orig_save(e, "width");
+				e.attributes.width.value = parseFloat(e.attributes.width.value) * ratio;
+			}
+		}
+
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_child(c[i], x - 10, ratio);
+		}
+	}
+	function zoom_parent(e) {
+		if (e.attributes) {
+			if (e.attributes.x != undefined) {
+				orig_save(e, "x");
+				e.attributes.x.value = 10;
+			}
+			if (e.attributes.width != undefined) {
+				orig_save(e, "width");
+				e.attributes.width.value = parseInt(svg.width.baseVal.value) - (10 * 2);
+			}
+		}
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_parent(c[i]);
+		}
+	}
+	function zoom(node) {
+		var attr = find_child(node, "rect").attributes;
+		var width = parseFloat(attr.width.value);
+		var xmin = parseFloat(attr.x.value);
+		var xmax = parseFloat(xmin + width);
+		var ymin = parseFloat(attr.y.value);
+		var ratio = (svg.width.baseVal.value - 2 * 10) / width;
+
+		// XXX: Workaround for JavaScript float issues (fix me)
+		var fudge = 0.0001;
+
+		unzoombtn.classList.remove("hide");
+
+		var el = document.getElementById("frames").children;
+		for (var i = 0; i < el.length; i++) {
+			var e = el[i];
+			var a = find_child(e, "rect").attributes;
+			var ex = parseFloat(a.x.value);
+			var ew = parseFloat(a.width.value);
+			var upstack;
+			// Is it an ancestor
+			if (0 == 0) {
+				upstack = parseFloat(a.y.value) > ymin;
+			} else {
+				upstack = parseFloat(a.y.value) < ymin;
+			}
+			if (upstack) {
+				// Direct ancestor
+				if (ex <= xmin && (ex+ew+fudge) >= xmax) {
+					e.classList.add("parent");
+					zoom_parent(e);
+					update_text(e);
+				}
+				// not in current path
+				else
+					e.classList.add("hide");
+			}
+			// Children maybe
+			else {
+				// no common path
+				if (ex < xmin || ex + fudge >= xmax) {
+					e.classList.add("hide");
+				}
+				else {
+					zoom_child(e, xmin, ratio);
+					update_text(e);
+				}
+			}
+		}
+		search();
+	}
+	function unzoom(dont_update_text) {
+		unzoombtn.classList.add("hide");
+		var el = document.getElementById("frames").children;
+		for(var i = 0; i < el.length; i++) {
+			el[i].classList.remove("parent");
+			el[i].classList.remove("hide");
+			zoom_reset(el[i]);
+			if(!dont_update_text) update_text(el[i]);
+		}
+		search();
+	}
+	function clearzoom() {
+		unzoom();
+
+		// remove zoom state
+		var params = get_params();
+		if (params.x) delete params.x;
+		if (params.y) delete params.y;
+		history.replaceState(null, null, parse_params(params));
+	}
+
+	// search
+	function toggle_ignorecase() {
+		ignorecase = !ignorecase;
+		if (ignorecase) {
+			ignorecaseBtn.classList.add("show");
+		} else {
+			ignorecaseBtn.classList.remove("show");
+		}
+		reset_search();
+		search();
+	}
+	function reset_search() {
+		var el = document.querySelectorAll("#frames rect");
+		for (var i = 0; i < el.length; i++) {
+			orig_load(el[i], "fill")
+		}
+		var params = get_params();
+		delete params.s;
+		history.replaceState(null, null, parse_params(params));
+	}
+	function search_prompt() {
+		if (!searching) {
+			var term = prompt("Enter a search term (regexp " +
+			    "allowed, eg: ^ext4_)"
+			    + (ignorecase ? ", ignoring case" : "")
+			    + "\nPress Ctrl-i to toggle case sensitivity", "");
+			if (term != null) search(term);
+		} else {
+			reset_search();
+			searching = 0;
+			currentSearchTerm = null;
+			searchbtn.classList.remove("show");
+			searchbtn.firstChild.nodeValue = "Search"
+			matchedtxt.classList.add("hide");
+			matchedtxt.firstChild.nodeValue = ""
+		}
+	}
+	function search(term) {
+		if (term) currentSearchTerm = term;
+		if (currentSearchTerm === null) return;
+
+		var re = new RegExp(currentSearchTerm, ignorecase ? 'i' : '');
+		var el = document.getElementById("frames").children;
+		var matches = new Object();
+		var maxwidth = 0;
+		for (var i = 0; i < el.length; i++) {
+			var e = el[i];
+			var func = g_to_func(e);
+			var rect = find_child(e, "rect");
+			if (func == null || rect == null)
+				continue;
+
+			// Save max width. Only works as we have a root frame
+			var w = parseFloat(rect.attributes.width.value);
+			if (w > maxwidth)
+				maxwidth = w;
+
+			if (func.match(re)) {
+				// highlight
+				var x = parseFloat(rect.attributes.x.value);
+				orig_save(rect, "fill");
+				rect.attributes.fill.value = "rgb(230,0,230)";
+
+				// remember matches
+				if (matches[x] == undefined) {
+					matches[x] = w;
+				} else {
+					if (w > matches[x]) {
+						// overwrite with parent
+						matches[x] = w;
+					}
+				}
+				searching = 1;
+			}
+		}
+		if (!searching)
+			return;
+		var params = get_params();
+		params.s = currentSearchTerm;
+		history.replaceState(null, null, parse_params(params));
+
+		searchbtn.classList.add("show");
+		searchbtn.firstChild.nodeValue = "Reset Search";
+
+		// calculate percent matched, excluding vertical overlap
+		var count = 0;
+		var lastx = -1;
+		var lastw = 0;
+		var keys = Array();
+		for (k in matches) {
+			if (matches.hasOwnProperty(k))
+				keys.push(k);
+		}
+		// sort the matched frames by their x location
+		// ascending, then width descending
+		keys.sort(function(a, b){
+			return a - b;
+		});
+		// Step through frames saving only the biggest bottom-up frames
+		// thanks to the sort order. This relies on the tree property
+		// where children are always smaller than their parents.
+		var fudge = 0.0001;	// JavaScript floating point
+		for (var k in keys) {
+			var x = parseFloat(keys[k]);
+			var w = matches[keys[k]];
+			if (x >= lastx + lastw - fudge) {
+				count += w;
+				lastx = x;
+				lastw = w;
+			}
+		}
+		// display matched percent
+		matchedtxt.classList.remove("hide");
+		var pct = 100 * count / maxwidth;
+		if (pct != 100) pct = pct.toFixed(1)
+		matchedtxt.firstChild.nodeValue = "Matched: " + pct + "%";
+	}
+]]>
+</script>
+<rect x="0.0" y="0" width="1200.0" height="550.0" fill="url(#background)"  />
+<text id="title" x="600.00" y="24" >caf_echo-w4-c8 user CPU samples</text>
+<text id="details" x="10.00" y="533" > </text>
+<text id="unzoom" x="10.00" y="24" class="hide">Reset Zoom</text>
+<text id="search" x="1090.00" y="24" >Search</text>
+<text id="ignorecase" x="1174.00" y="24" >ic</text>
+<text id="matched" x="1090.00" y="533" > </text>
+<g id="frames">
+<g >
+<title>[libc.so.6] (10 samples, 0.27%)</title><rect x="276.2" y="229" width="3.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="279.24" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (1 samples, 0.03%)</title><rect x="398.5" y="229" width="0.3" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="401.51" y="239.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (1 samples, 0.03%)</title><rect x="691.2" y="245" width="0.3" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="694.16" y="255.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33  (1 samples, 0.03%)</title><rect x="227.5" y="229" width="0.3" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="230.52" y="239.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0, 1&gt; (1 samples, 0.03%)</title><rect x="359.5" y="149" width="0.4" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="362.54" y="159.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::push_back (3 samples, 0.08%)</title><rect x="89.5" y="133" width="1.0" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
+<text  x="92.53" y="143.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::reset (1 samples, 0.03%)</title><rect x="1022.5" y="149" width="0.3" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="1025.46" y="159.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (38 samples, 1.01%)</title><rect x="214.0" y="133" width="11.9" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="217.00" y="143.5" ></text>
+</g>
+<g >
+<title>operator (2 samples, 0.05%)</title><rect x="471.4" y="213" width="0.7" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="474.44" y="223.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0, 1&gt; (25 samples, 0.67%)</title><rect x="57.5" y="293" width="7.8" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="60.46" y="303.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (98 samples, 2.61%)</title><rect x="700.0" y="357" width="30.8" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="702.96" y="367.5" >ca..</text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::~unique_ptr (37 samples, 0.99%)</title><rect x="88.3" y="181" width="11.6" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="91.27" y="191.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (2 samples, 0.05%)</title><rect x="624.8" y="245" width="0.7" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="627.83" y="255.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33  (1,925 samples, 51.28%)</title><rect x="65.3" y="309" width="605.1" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="68.32" y="319.5" >/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/ap..</text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (1 samples, 0.03%)</title><rect x="692.1" y="309" width="0.3" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="695.10" y="319.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::set_ptr (1 samples, 0.03%)</title><rect x="1022.5" y="133" width="0.3" height="15.0" fill="rgb(227,105,25)" rx="2" ry="2" />
+<text  x="1025.46" y="143.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;echo (4 samples, 0.11%)</title><rect x="426.8" y="197" width="1.3" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="429.80" y="207.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (5 samples, 0.13%)</title><rect x="157.1" y="245" width="1.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="160.11" y="255.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (2 samples, 0.05%)</title><rect x="148.3" y="213" width="0.6" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="151.31" y="223.5" ></text>
+</g>
+<g >
+<title>std::thread::_Invoker&lt;std::tuple&lt;caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (31 samples, 0.83%)</title><rect x="474.0" y="117" width="9.7" height="15.0" fill="rgb(206,7,1)" rx="2" ry="2" />
+<text  x="476.95" y="127.5" ></text>
+</g>
+<g >
+<title>invoke (76 samples, 2.02%)</title><rect x="99.9" y="197" width="23.9" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="102.90" y="207.5" >i..</text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::unique_lock (38 samples, 1.01%)</title><rect x="214.0" y="181" width="11.9" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="217.00" y="191.5" ></text>
+</g>
+<g >
+<title>caf::behavior::operator (10 samples, 0.27%)</title><rect x="78.5" y="277" width="3.2" height="15.0" fill="rgb(252,220,52)" rx="2" ry="2" />
+<text  x="81.52" y="287.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (4 samples, 0.11%)</title><rect x="1186.2" y="309" width="1.3" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1189.23" y="319.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (3 samples, 0.08%)</title><rect x="1022.8" y="181" width="0.9" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="1025.78" y="191.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (1 samples, 0.03%)</title><rect x="99.9" y="133" width="0.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="102.90" y="143.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (4 samples, 0.11%)</title><rect x="1139.4" y="341" width="1.2" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="1142.39" y="351.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::run_actions (1 samples, 0.03%)</title><rect x="359.2" y="261" width="0.3" height="15.0" fill="rgb(221,77,18)" rx="2" ry="2" />
+<text  x="362.22" y="271.5" ></text>
+</g>
+<g >
+<title>auto caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (37 samples, 0.99%)</title><rect x="361.7" y="85" width="11.7" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="364.74" y="95.5" ></text>
+</g>
+<g >
+<title>caf::detail::behavior_stack::back (2 samples, 0.05%)</title><rect x="240.1" y="197" width="0.6" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="243.09" y="207.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::activate (10 samples, 0.27%)</title><rect x="486.2" y="277" width="3.2" height="15.0" fill="rgb(218,60,14)" rx="2" ry="2" />
+<text  x="489.21" y="287.5" ></text>
+</g>
+<g >
+<title>malloc (9 samples, 0.24%)</title><rect x="428.1" y="245" width="2.8" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="431.06" y="255.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::intrusive_ptr (3 samples, 0.08%)</title><rect x="610.4" y="213" width="0.9" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="613.37" y="223.5" ></text>
+</g>
+<g >
+<title>caf::detail::message_data::~message_data (161 samples, 4.29%)</title><rect x="925.0" y="341" width="50.6" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
+<text  x="928.02" y="351.5" >caf::..</text>
+</g>
+<g >
+<title>memcpy@plt (2 samples, 0.05%)</title><rect x="99.3" y="117" width="0.6" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="102.27" y="127.5" ></text>
+</g>
+<g >
+<title>~scope_guard (2 samples, 0.05%)</title><rect x="226.9" y="229" width="0.6" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="229.89" y="239.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;echo (2 samples, 0.05%)</title><rect x="127.2" y="117" width="0.7" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="130.25" y="127.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::respond_to (1 samples, 0.03%)</title><rect x="122.5" y="133" width="0.3" height="15.0" fill="rgb(234,134,32)" rx="2" ry="2" />
+<text  x="125.53" y="143.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::get (1 samples, 0.03%)</title><rect x="490.3" y="213" width="0.3" height="15.0" fill="rgb(233,129,30)" rx="2" ry="2" />
+<text  x="493.30" y="223.5" ></text>
+</g>
+<g >
+<title>caf::detail::global_meta_objects (2 samples, 0.05%)</title><rect x="1062.4" y="309" width="0.6" height="15.0" fill="rgb(223,83,19)" rx="2" ry="2" />
+<text  x="1065.38" y="319.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (22 samples, 0.59%)</title><rect x="91.1" y="133" width="6.9" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="94.10" y="143.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;client (5 samples, 0.13%)</title><rect x="1089.1" y="293" width="1.6" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="1092.10" y="303.5" ></text>
+</g>
+<g >
+<title>caf::detail::behavior_stack::back (2 samples, 0.05%)</title><rect x="638.3" y="197" width="0.7" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="641.35" y="207.5" ></text>
+</g>
+<g >
+<title>void std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_insert&lt;caf::resumable* const&amp;&gt; (1 samples, 0.03%)</title><rect x="270.3" y="181" width="0.3" height="15.0" fill="rgb(242,174,41)" rx="2" ry="2" />
+<text  x="273.27" y="191.5" ></text>
+</g>
+<g >
+<title>cfree (79 samples, 2.10%)</title><rect x="937.9" y="325" width="24.8" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="940.91" y="335.5" >c..</text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::intrusive_cow_ptr (2 samples, 0.05%)</title><rect x="979.4" y="309" width="0.6" height="15.0" fill="rgb(221,78,18)" rx="2" ry="2" />
+<text  x="982.40" y="319.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;echo (1 samples, 0.03%)</title><rect x="670.7" y="277" width="0.3" height="15.0" fill="rgb(221,75,17)" rx="2" ry="2" />
+<text  x="673.72" y="287.5" ></text>
+</g>
+<g >
+<title>caf::mailbox_element::~mailbox_element (2 samples, 0.05%)</title><rect x="148.3" y="197" width="0.6" height="15.0" fill="rgb(246,190,45)" rx="2" ry="2" />
+<text  x="151.31" y="207.5" ></text>
+</g>
+<g >
+<title>void caf::detail::default_function::destroy&lt;caf::actor&gt; (27 samples, 0.72%)</title><rect x="1171.8" y="373" width="8.5" height="15.0" fill="rgb(251,216,51)" rx="2" ry="2" />
+<text  x="1174.77" y="383.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt; (6 samples, 0.16%)</title><rect x="1090.7" y="341" width="1.9" height="15.0" fill="rgb(214,44,10)" rx="2" ry="2" />
+<text  x="1093.67" y="351.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (53 samples, 1.41%)</title><rect x="338.2" y="229" width="16.6" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="341.16" y="239.5" ></text>
+</g>
+<g >
+<title>caf::message::~message (115 samples, 3.06%)</title><rect x="987.6" y="261" width="36.1" height="15.0" fill="rgb(252,217,52)" rx="2" ry="2" />
+<text  x="990.57" y="271.5" >caf..</text>
+</g>
+<g >
+<title>all (3,754 samples, 100%)</title><rect x="10.0" y="501" width="1180.0" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="13.00" y="511.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (1 samples, 0.03%)</title><rect x="624.5" y="213" width="0.3" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="627.52" y="223.5" ></text>
+</g>
+<g >
+<title>caf::detail::message_data::~message_data (4 samples, 0.11%)</title><rect x="433.1" y="277" width="1.2" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
+<text  x="436.09" y="287.5" ></text>
+</g>
+<g >
+<title>void caf::policy::work_stealing::internal_enqueue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (41 samples, 1.09%)</title><rect x="611.6" y="213" width="12.9" height="15.0" fill="rgb(241,167,39)" rx="2" ry="2" />
+<text  x="614.63" y="223.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::run (232 samples, 6.18%)</title><rect x="1092.9" y="373" width="72.9" height="15.0" fill="rgb(240,163,39)" rx="2" ry="2" />
+<text  x="1095.87" y="383.5" >caf::sch..</text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::unlock (10 samples, 0.27%)</title><rect x="1122.4" y="309" width="3.2" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="1125.42" y="319.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::~intrusive_ptr (27 samples, 0.72%)</title><rect x="1171.8" y="341" width="8.5" height="15.0" fill="rgb(242,171,40)" rx="2" ry="2" />
+<text  x="1174.77" y="351.5" ></text>
+</g>
+<g >
+<title>caf::local_actor::context (1 samples, 0.03%)</title><rect x="98.0" y="117" width="0.3" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
+<text  x="101.01" y="127.5" ></text>
+</g>
+<g >
+<title>std::chrono::_V2::steady_clock::now (5 samples, 0.13%)</title><rect x="314.6" y="261" width="1.6" height="15.0" fill="rgb(249,203,48)" rx="2" ry="2" />
+<text  x="317.59" y="271.5" ></text>
+</g>
+<g >
+<title>caf::detail::invoke_result_visitor::operator (2 samples, 0.05%)</title><rect x="64.7" y="261" width="0.6" height="15.0" fill="rgb(242,174,41)" rx="2" ry="2" />
+<text  x="67.69" y="271.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init&lt;unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (6 samples, 0.16%)</title><rect x="1090.7" y="309" width="1.9" height="15.0" fill="rgb(238,154,36)" rx="2" ry="2" />
+<text  x="1093.67" y="319.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (10 samples, 0.27%)</title><rect x="380.0" y="261" width="3.1" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="382.97" y="271.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::update_watched_disposables (141 samples, 3.76%)</title><rect x="625.5" y="245" width="44.3" height="15.0" fill="rgb(213,40,9)" rx="2" ry="2" />
+<text  x="628.46" y="255.5" >caf:..</text>
+</g>
+<g >
+<title>caf::intrusive_ptr_access&lt;caf::actor_control_block&gt;::release (48 samples, 1.28%)</title><rect x="198.6" y="213" width="15.1" height="15.0" fill="rgb(226,101,24)" rx="2" ry="2" />
+<text  x="201.60" y="223.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init_impl&lt;unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (6 samples, 0.16%)</title><rect x="1090.7" y="293" width="1.9" height="15.0" fill="rgb(221,75,17)" rx="2" ry="2" />
+<text  x="1093.67" y="303.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::intrusive_ptr (1 samples, 0.03%)</title><rect x="98.3" y="117" width="0.3" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="101.33" y="127.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (54 samples, 1.44%)</title><rect x="295.7" y="229" width="17.0" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="298.73" y="239.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init_impl&lt;unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (1 samples, 0.03%)</title><rect x="123.5" y="69" width="0.3" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="126.47" y="79.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (33 samples, 0.88%)</title><rect x="639.3" y="213" width="10.4" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="642.29" y="223.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::try_take_head (44 samples, 1.17%)</title><rect x="359.5" y="229" width="13.9" height="15.0" fill="rgb(231,121,29)" rx="2" ry="2" />
+<text  x="362.54" y="239.5" ></text>
+</g>
+<g >
+<title>caf.worker (3,740 samples, 99.63%)</title><rect x="10.0" y="485" width="1175.6" height="15.0" fill="rgb(239,156,37)" rx="2" ry="2" />
+<text  x="13.00" y="495.5" >caf.worker</text>
+</g>
+<g >
+<title>caf::scheduled_actor::set_receive_timeout (1 samples, 0.03%)</title><rect x="148.9" y="261" width="0.3" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="151.93" y="271.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::pop_front (1 samples, 0.03%)</title><rect x="393.5" y="245" width="0.3" height="15.0" fill="rgb(207,11,2)" rx="2" ry="2" />
+<text  x="396.48" y="255.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::~intrusive_cow_ptr (3 samples, 0.08%)</title><rect x="1022.8" y="85" width="0.9" height="15.0" fill="rgb(208,13,3)" rx="2" ry="2" />
+<text  x="1025.78" y="95.5" ></text>
+</g>
+<g >
+<title>operator (1 samples, 0.03%)</title><rect x="356.1" y="245" width="0.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="359.08" y="255.5" ></text>
+</g>
+<g >
+<title>run_with_metrics&lt;caf::scheduled_actor::resume (38 samples, 1.01%)</title><rect x="492.8" y="261" width="12.0" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="495.81" y="271.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33  (3 samples, 0.08%)</title><rect x="435.0" y="229" width="0.9" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="437.98" y="239.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;::~vector (3 samples, 0.08%)</title><rect x="360.8" y="149" width="0.9" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
+<text  x="363.79" y="159.5" ></text>
+</g>
+<g >
+<title>caf::message::empty (2 samples, 0.05%)</title><rect x="312.7" y="229" width="0.6" height="15.0" fill="rgb(241,169,40)" rx="2" ry="2" />
+<text  x="315.70" y="239.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::~basic_string (1 samples, 0.03%)</title><rect x="98.6" y="117" width="0.4" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="101.64" y="127.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (27 samples, 0.72%)</title><rect x="954.3" y="309" width="8.4" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="957.25" y="319.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (1 samples, 0.03%)</title><rect x="86.4" y="149" width="0.3" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="89.38" y="159.5" ></text>
+</g>
+<g >
+<title>caf::resumable* caf::policy::work_stealing::dequeue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (37 samples, 0.99%)</title><rect x="472.1" y="213" width="11.6" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="475.07" y="223.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::run (44 samples, 1.17%)</title><rect x="359.5" y="261" width="13.9" height="15.0" fill="rgb(240,163,39)" rx="2" ry="2" />
+<text  x="362.54" y="271.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0&gt; (1 samples, 0.03%)</title><rect x="86.4" y="245" width="0.3" height="15.0" fill="rgb(236,143,34)" rx="2" ry="2" />
+<text  x="89.38" y="255.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0&gt; (4 samples, 0.11%)</title><rect x="426.8" y="229" width="1.3" height="15.0" fill="rgb(236,143,34)" rx="2" ry="2" />
+<text  x="429.80" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::set_receive_timeout (1 samples, 0.03%)</title><rect x="426.5" y="245" width="0.3" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="429.49" y="255.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::~intrusive_ptr (1 samples, 0.03%)</title><rect x="987.3" y="261" width="0.3" height="15.0" fill="rgb(242,171,40)" rx="2" ry="2" />
+<text  x="990.26" y="271.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (6 samples, 0.16%)</title><rect x="1181.2" y="469" width="1.9" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="1184.20" y="479.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::state::deliver_impl (2 samples, 0.05%)</title><rect x="312.7" y="245" width="0.6" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="315.70" y="255.5" ></text>
+</g>
+<g >
+<title>run_with_metrics&lt;caf::scheduled_actor::resume (3,723 samples, 99.17%)</title><rect x="10.0" y="405" width="1170.3" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="13.00" y="415.5" >run_with_metrics&lt;caf::scheduled_actor::resume</text>
+</g>
+<g >
+<title>operator new (38 samples, 1.01%)</title><rect x="413.9" y="213" width="12.0" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="416.92" y="223.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::prepend (2 samples, 0.05%)</title><rect x="514.5" y="245" width="0.6" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="517.50" y="255.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (1 samples, 0.03%)</title><rect x="691.2" y="293" width="0.3" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="694.16" y="303.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::~intrusive_ptr (2 samples, 0.05%)</title><rect x="491.9" y="261" width="0.6" height="15.0" fill="rgb(242,171,40)" rx="2" ry="2" />
+<text  x="494.87" y="271.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::operator= (1 samples, 0.03%)</title><rect x="434.7" y="261" width="0.3" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="437.66" y="271.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::assign (1 samples, 0.03%)</title><rect x="314.3" y="245" width="0.3" height="15.0" fill="rgb(213,37,8)" rx="2" ry="2" />
+<text  x="317.27" y="255.5" ></text>
+</g>
+<g >
+<title>cfree (3 samples, 0.08%)</title><rect x="1165.8" y="373" width="0.9" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1168.80" y="383.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (3,723 samples, 99.17%)</title><rect x="10.0" y="469" width="1170.3" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="13.00" y="479.5" >[libc.so.6]</text>
+</g>
+<g >
+<title>void caf::detail::default_function::destroy&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; &gt; (1 samples, 0.03%)</title><rect x="98.6" y="133" width="0.4" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+<text  x="101.64" y="143.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (2 samples, 0.05%)</title><rect x="148.3" y="229" width="0.6" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="151.31" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::fetch_more (38 samples, 1.01%)</title><rect x="625.5" y="229" width="11.9" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="628.46" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::push_back (4 samples, 0.11%)</title><rect x="197.3" y="229" width="1.3" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
+<text  x="200.34" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (3 samples, 0.08%)</title><rect x="1186.2" y="277" width="1.0" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1189.23" y="287.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::unstash (11 samples, 0.29%)</title><rect x="1028.1" y="341" width="3.5" height="15.0" fill="rgb(252,219,52)" rx="2" ry="2" />
+<text  x="1031.12" y="351.5" ></text>
+</g>
+<g >
+<title>operator (1 samples, 0.03%)</title><rect x="398.5" y="197" width="0.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="401.51" y="207.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (7 samples, 0.19%)</title><rect x="1186.2" y="341" width="2.2" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1189.23" y="351.5" ></text>
+</g>
+<g >
+<title>non-virtual thunk to caf::scheduled_actor::resume (13 samples, 0.35%)</title><rect x="1185.9" y="405" width="4.1" height="15.0" fill="rgb(207,12,3)" rx="2" ry="2" />
+<text  x="1188.91" y="415.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (42 samples, 1.12%)</title><rect x="456.4" y="197" width="13.2" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="459.35" y="207.5" ></text>
+</g>
+<g >
+<title>std::chrono::_V2::steady_clock::now (7 samples, 0.19%)</title><rect x="291.6" y="245" width="2.2" height="15.0" fill="rgb(249,203,48)" rx="2" ry="2" />
+<text  x="294.64" y="255.5" ></text>
+</g>
+<g >
+<title>std::atomic&lt;caf::mailbox_element*&gt;::compare_exchange_strong (94 samples, 2.50%)</title><rect x="10.0" y="341" width="29.5" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="13.00" y="351.5" >st..</text>
+</g>
+<g >
+<title>void caf::detail::default_function::destroy&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; &gt; (6 samples, 0.16%)</title><rect x="973.7" y="325" width="1.9" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+<text  x="976.74" y="335.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_assign (35 samples, 0.93%)</title><rect x="280.6" y="245" width="11.0" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="283.64" y="255.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (7 samples, 0.19%)</title><rect x="62.5" y="229" width="2.2" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="65.49" y="239.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::state::deliver_impl (6 samples, 0.16%)</title><rect x="469.6" y="213" width="1.8" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="472.55" y="223.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (1 samples, 0.03%)</title><rect x="1186.9" y="261" width="0.3" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="1189.86" y="271.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (48 samples, 1.28%)</title><rect x="255.2" y="229" width="15.1" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="258.18" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (8 samples, 0.21%)</title><rect x="144.5" y="261" width="2.5" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="147.53" y="271.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;client (1 samples, 0.03%)</title><rect x="313.3" y="213" width="0.3" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="316.33" y="223.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::unique_ptr (1 samples, 0.03%)</title><rect x="1188.4" y="325" width="0.3" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1191.43" y="335.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33  (2 samples, 0.05%)</title><rect x="48.3" y="325" width="0.7" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="51.35" y="335.5" ></text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::unlock (1 samples, 0.03%)</title><rect x="692.1" y="245" width="0.3" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="695.10" y="255.5" ></text>
+</g>
+<g >
+<title>operator new (37 samples, 0.99%)</title><rect x="400.4" y="229" width="11.6" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="403.40" y="239.5" ></text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (1 samples, 0.03%)</title><rect x="611.3" y="213" width="0.3" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="614.32" y="223.5" ></text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (3 samples, 0.08%)</title><rect x="637.4" y="213" width="0.9" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="640.41" y="223.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::consume (1 samples, 0.03%)</title><rect x="356.1" y="261" width="0.3" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="359.08" y="271.5" ></text>
+</g>
+<g >
+<title>operator (2 samples, 0.05%)</title><rect x="1187.5" y="309" width="0.6" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="1190.49" y="319.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0, 1&gt; (2 samples, 0.05%)</title><rect x="279.4" y="229" width="0.6" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="282.38" y="239.5" ></text>
+</g>
+<g >
+<title>~scope_guard (2 samples, 0.05%)</title><rect x="624.8" y="229" width="0.7" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="627.83" y="239.5" ></text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (2 samples, 0.05%)</title><rect x="121.9" y="117" width="0.6" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="124.90" y="127.5" ></text>
+</g>
+<g >
+<title>caf::message::~message (2 samples, 0.05%)</title><rect x="148.3" y="181" width="0.6" height="15.0" fill="rgb(252,217,52)" rx="2" ry="2" />
+<text  x="151.31" y="191.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::~intrusive_ptr (48 samples, 1.28%)</title><rect x="198.6" y="229" width="15.1" height="15.0" fill="rgb(242,171,40)" rx="2" ry="2" />
+<text  x="201.60" y="239.5" ></text>
+</g>
+<g >
+<title>void std::_Destroy_aux&lt;false&gt;::__destroy&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;*&gt; (1 samples, 0.03%)</title><rect x="1092.6" y="245" width="0.3" height="15.0" fill="rgb(214,42,10)" rx="2" ry="2" />
+<text  x="1095.56" y="255.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (79 samples, 2.10%)</title><rect x="1097.6" y="357" width="24.8" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="1100.59" y="367.5" >c..</text>
+</g>
+<g >
+<title>_start (14 samples, 0.37%)</title><rect x="1185.6" y="469" width="4.4" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
+<text  x="1188.60" y="479.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (1 samples, 0.03%)</title><rect x="254.9" y="229" width="0.3" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="257.86" y="239.5" ></text>
+</g>
+<g >
+<title>operator (2 samples, 0.05%)</title><rect x="638.3" y="213" width="0.7" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="641.35" y="223.5" ></text>
+</g>
+<g >
+<title>caf::message::size (2 samples, 0.05%)</title><rect x="312.7" y="213" width="0.6" height="15.0" fill="rgb(241,166,39)" rx="2" ry="2" />
+<text  x="315.70" y="223.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::~unique_ptr (3 samples, 0.08%)</title><rect x="1022.8" y="165" width="0.9" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="1025.78" y="175.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (1 samples, 0.03%)</title><rect x="86.4" y="133" width="0.3" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="89.38" y="143.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_access&lt;caf::detail::message_data&gt;::release (3 samples, 0.08%)</title><rect x="1022.8" y="53" width="0.9" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="1025.78" y="63.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init_impl&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (1 samples, 0.03%)</title><rect x="123.5" y="37" width="0.3" height="15.0" fill="rgb(228,110,26)" rx="2" ry="2" />
+<text  x="126.47" y="47.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (68 samples, 1.81%)</title><rect x="492.8" y="277" width="21.4" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="495.81" y="287.5" >c..</text>
+</g>
+<g >
+<title>operator (6 samples, 0.16%)</title><rect x="982.5" y="325" width="1.9" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="985.54" y="335.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (94 samples, 2.50%)</title><rect x="10.0" y="309" width="29.5" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="13.00" y="319.5" >pt..</text>
+</g>
+<g >
+<title>caf::logger::thread_local_aid (2 samples, 0.05%)</title><rect x="327.5" y="261" width="0.6" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
+<text  x="330.47" y="271.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::run (7 samples, 0.19%)</title><rect x="1066.8" y="357" width="2.2" height="15.0" fill="rgb(240,163,39)" rx="2" ry="2" />
+<text  x="1069.78" y="367.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0&gt; (3 samples, 0.08%)</title><rect x="1058.0" y="325" width="0.9" height="15.0" fill="rgb(236,143,34)" rx="2" ry="2" />
+<text  x="1060.98" y="335.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (4 samples, 0.11%)</title><rect x="1063.0" y="325" width="1.3" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="1066.01" y="335.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;::~vector (1 samples, 0.03%)</title><rect x="1092.6" y="293" width="0.3" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
+<text  x="1095.56" y="303.5" ></text>
+</g>
+<g >
+<title>caf::detail::behavior_impl::timeout (1 samples, 0.03%)</title><rect x="426.5" y="213" width="0.3" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="429.49" y="223.5" ></text>
+</g>
+<g >
+<title>operator new (38 samples, 1.01%)</title><rect x="625.5" y="197" width="11.9" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="628.46" y="207.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt; (1 samples, 0.03%)</title><rect x="123.5" y="133" width="0.3" height="15.0" fill="rgb(214,44,10)" rx="2" ry="2" />
+<text  x="126.47" y="143.5" ></text>
+</g>
+<g >
+<title>void caf::policy::work_stealing::internal_enqueue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (1 samples, 0.03%)</title><rect x="1187.2" y="261" width="0.3" height="15.0" fill="rgb(241,167,39)" rx="2" ry="2" />
+<text  x="1190.17" y="271.5" ></text>
+</g>
+<g >
+<title>caf::actor::actor (1 samples, 0.03%)</title><rect x="86.4" y="181" width="0.3" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="89.38" y="191.5" ></text>
+</g>
+<g >
+<title>void std::__invoke_impl&lt;void, caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (31 samples, 0.83%)</title><rect x="474.0" y="69" width="9.7" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="476.95" y="79.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (54 samples, 1.44%)</title><rect x="295.7" y="245" width="17.0" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="298.73" y="255.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (1 samples, 0.03%)</title><rect x="691.8" y="309" width="0.3" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="694.78" y="319.5" ></text>
+</g>
+<g >
+<title>caf::disposable::erase_disposed (1 samples, 0.03%)</title><rect x="1184.3" y="453" width="0.4" height="15.0" fill="rgb(205,3,0)" rx="2" ry="2" />
+<text  x="1187.34" y="463.5" ></text>
+</g>
+<g >
+<title>operator (84 samples, 2.24%)</title><rect x="704.4" y="261" width="26.4" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="707.36" y="271.5" >o..</text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::intrusive_ptr (1 samples, 0.03%)</title><rect x="412.0" y="213" width="0.3" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="415.03" y="223.5" ></text>
+</g>
+<g >
+<title>caf::resumable* caf::policy::work_stealing::dequeue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (10 samples, 0.27%)</title><rect x="1122.4" y="357" width="3.2" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="1125.42" y="367.5" ></text>
+</g>
+<g >
+<title>operator (1 samples, 0.03%)</title><rect x="472.1" y="101" width="0.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="475.07" y="111.5" ></text>
+</g>
+<g >
+<title>caf::resumable* caf::policy::work_stealing::dequeue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (44 samples, 1.17%)</title><rect x="359.5" y="245" width="13.9" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="362.54" y="255.5" ></text>
+</g>
+<g >
+<title>invoke (4 samples, 0.11%)</title><rect x="426.8" y="245" width="1.3" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="429.80" y="255.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (4 samples, 0.11%)</title><rect x="1183.1" y="469" width="1.2" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="1186.08" y="479.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (2 samples, 0.05%)</title><rect x="143.9" y="261" width="0.6" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="146.91" y="271.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (1 samples, 0.03%)</title><rect x="1184.3" y="469" width="0.4" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="1187.34" y="479.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::try_take_head (37 samples, 0.99%)</title><rect x="472.1" y="197" width="11.6" height="15.0" fill="rgb(231,121,29)" rx="2" ry="2" />
+<text  x="475.07" y="207.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::prepend (10 samples, 0.27%)</title><rect x="934.8" y="293" width="3.1" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="937.76" y="303.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (33 samples, 0.88%)</title><rect x="383.1" y="245" width="10.4" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="386.11" y="255.5" ></text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::lock (38 samples, 1.01%)</title><rect x="214.0" y="165" width="11.9" height="15.0" fill="rgb(226,99,23)" rx="2" ry="2" />
+<text  x="217.00" y="175.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::state::~state (2 samples, 0.05%)</title><rect x="359.9" y="165" width="0.6" height="15.0" fill="rgb(238,154,36)" rx="2" ry="2" />
+<text  x="362.85" y="175.5" ></text>
+</g>
+<g >
+<title>caf::message::~message (3 samples, 0.08%)</title><rect x="1022.8" y="101" width="0.9" height="15.0" fill="rgb(252,217,52)" rx="2" ry="2" />
+<text  x="1025.78" y="111.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (4 samples, 0.11%)</title><rect x="1186.2" y="293" width="1.3" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1189.23" y="303.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (1 samples, 0.03%)</title><rect x="122.8" y="133" width="0.4" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="125.84" y="143.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22  (1 samples, 0.03%)</title><rect x="1185.9" y="357" width="0.3" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="1188.91" y="367.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22  (3 samples, 0.08%)</title><rect x="527.1" y="229" width="0.9" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="530.08" y="239.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (2 samples, 0.05%)</title><rect x="326.5" y="229" width="0.7" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="329.53" y="239.5" ></text>
+</g>
+<g >
+<title>operator new (39 samples, 1.04%)</title><rect x="109.6" y="117" width="12.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="112.64" y="127.5" ></text>
+</g>
+<g >
+<title>caf::message caf::make_message&lt;caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (1 samples, 0.03%)</title><rect x="123.5" y="117" width="0.3" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
+<text  x="126.47" y="127.5" ></text>
+</g>
+<g >
+<title>invoke (2 samples, 0.05%)</title><rect x="127.2" y="181" width="0.7" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="130.25" y="191.5" ></text>
+</g>
+<g >
+<title>invoke (2 samples, 0.05%)</title><rect x="279.4" y="245" width="0.6" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="282.38" y="255.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::reset (42 samples, 1.12%)</title><rect x="130.7" y="229" width="13.2" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="133.70" y="239.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;client (23 samples, 0.61%)</title><rect x="57.5" y="245" width="7.2" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="60.46" y="255.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0, 1&gt; (76 samples, 2.02%)</title><rect x="99.9" y="181" width="23.9" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="102.90" y="191.5" >i..</text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::lock (37 samples, 0.99%)</title><rect x="472.1" y="165" width="11.6" height="15.0" fill="rgb(226,99,23)" rx="2" ry="2" />
+<text  x="475.07" y="175.5" ></text>
+</g>
+<g >
+<title>std::thread::_State_impl&lt;std::thread::_Invoker&lt;std::tuple&lt;caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (37 samples, 0.99%)</title><rect x="361.7" y="165" width="11.7" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="364.74" y="175.5" ></text>
+</g>
+<g >
+<title>void caf::policy::work_stealing::internal_enqueue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (10 samples, 0.27%)</title><rect x="934.8" y="309" width="3.1" height="15.0" fill="rgb(241,167,39)" rx="2" ry="2" />
+<text  x="937.76" y="319.5" ></text>
+</g>
+<g >
+<title>std::thread::_Invoker&lt;std::tuple&lt;caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (37 samples, 0.99%)</title><rect x="361.7" y="149" width="11.7" height="15.0" fill="rgb(206,7,1)" rx="2" ry="2" />
+<text  x="364.74" y="159.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (1 samples, 0.03%)</title><rect x="431.2" y="245" width="0.3" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="434.20" y="255.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (37 samples, 0.99%)</title><rect x="88.3" y="149" width="11.6" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="91.27" y="159.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_create (2 samples, 0.05%)</title><rect x="425.9" y="213" width="0.6" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="428.86" y="223.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_access&lt;caf::actor_control_block&gt;::release (163 samples, 4.34%)</title><rect x="435.0" y="245" width="51.2" height="15.0" fill="rgb(226,101,24)" rx="2" ry="2" />
+<text  x="437.98" y="255.5" >caf::..</text>
+</g>
+<g >
+<title>operator (2 samples, 0.05%)</title><rect x="279.4" y="213" width="0.6" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="282.38" y="223.5" ></text>
+</g>
+<g >
+<title>malloc (33 samples, 0.88%)</title><rect x="626.4" y="181" width="10.4" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="629.40" y="191.5" ></text>
+</g>
+<g >
+<title>void std::thread::_Invoker&lt;std::tuple&lt;caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (31 samples, 0.83%)</title><rect x="474.0" y="101" width="9.7" height="15.0" fill="rgb(246,190,45)" rx="2" ry="2" />
+<text  x="476.95" y="111.5" ></text>
+</g>
+<g >
+<title>malloc@plt (4 samples, 0.11%)</title><rect x="95.8" y="85" width="1.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="98.81" y="95.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::push_front (1 samples, 0.03%)</title><rect x="1187.2" y="229" width="0.3" height="15.0" fill="rgb(214,45,10)" rx="2" ry="2" />
+<text  x="1190.17" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (1 samples, 0.03%)</title><rect x="985.1" y="341" width="0.3" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="988.06" y="351.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::detail::message_data&gt;::intrusive_ptr (2 samples, 0.05%)</title><rect x="979.4" y="293" width="0.6" height="15.0" fill="rgb(249,206,49)" rx="2" ry="2" />
+<text  x="982.40" y="303.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::~unique_ptr (116 samples, 3.09%)</title><rect x="987.3" y="325" width="36.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="990.26" y="335.5" >std..</text>
+</g>
+<g >
+<title>caf::message caf::make_message&lt;unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (3 samples, 0.08%)</title><rect x="293.8" y="229" width="1.0" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="296.84" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::fetch_more (111 samples, 2.96%)</title><rect x="987.6" y="181" width="34.9" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="990.57" y="191.5" >ca..</text>
+</g>
+<g >
+<title>caf::resumable* caf::policy::work_stealing::dequeue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (7 samples, 0.19%)</title><rect x="1066.8" y="341" width="2.2" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="1069.78" y="351.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (1 samples, 0.03%)</title><rect x="651.9" y="229" width="0.3" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="654.86" y="239.5" ></text>
+</g>
+<g >
+<title>caf::message::message (2 samples, 0.05%)</title><rect x="979.4" y="325" width="0.6" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="982.40" y="335.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (27 samples, 0.72%)</title><rect x="965.3" y="309" width="8.4" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="968.25" y="319.5" ></text>
+</g>
+<g >
+<title>operator (2 samples, 0.05%)</title><rect x="240.1" y="213" width="0.6" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="243.09" y="223.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (1 samples, 0.03%)</title><rect x="691.2" y="261" width="0.3" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="694.16" y="271.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::finalize (2 samples, 0.05%)</title><rect x="984.4" y="341" width="0.7" height="15.0" fill="rgb(211,30,7)" rx="2" ry="2" />
+<text  x="987.43" y="351.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (5 samples, 0.13%)</title><rect x="650.3" y="229" width="1.6" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="653.29" y="239.5" ></text>
+</g>
+<g >
+<title>caf::message::message (1 samples, 0.03%)</title><rect x="238.8" y="197" width="0.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="241.83" y="207.5" ></text>
+</g>
+<g >
+<title>operator (1 samples, 0.03%)</title><rect x="491.6" y="261" width="0.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="494.56" y="271.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (14 samples, 0.37%)</title><rect x="1185.6" y="437" width="4.4" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1188.60" y="447.5" ></text>
+</g>
+<g >
+<title>caf::message::types (2 samples, 0.05%)</title><rect x="1187.5" y="293" width="0.6" height="15.0" fill="rgb(253,221,53)" rx="2" ry="2" />
+<text  x="1190.49" y="303.5" ></text>
+</g>
+<g >
+<title>invoke (1 samples, 0.03%)</title><rect x="123.2" y="133" width="0.3" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="126.16" y="143.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::begin (2 samples, 0.05%)</title><rect x="514.5" y="213" width="0.6" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
+<text  x="517.50" y="223.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_dispose (1 samples, 0.03%)</title><rect x="98.6" y="101" width="0.4" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="101.64" y="111.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (1 samples, 0.03%)</title><rect x="1092.6" y="341" width="0.3" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="1095.56" y="351.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock@plt (2 samples, 0.05%)</title><rect x="252.3" y="213" width="0.7" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="255.35" y="223.5" ></text>
+</g>
+<g >
+<title>caf::message::types (2 samples, 0.05%)</title><rect x="312.7" y="197" width="0.6" height="15.0" fill="rgb(253,221,53)" rx="2" ry="2" />
+<text  x="315.70" y="207.5" ></text>
+</g>
+<g >
+<title>operator delete (9 samples, 0.24%)</title><rect x="1140.6" y="357" width="2.9" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="1143.65" y="367.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::detail::message_data&gt;::~intrusive_ptr (115 samples, 3.06%)</title><rect x="987.6" y="229" width="36.1" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
+<text  x="990.57" y="239.5" >caf..</text>
+</g>
+<g >
+<title>invoke (71 samples, 1.89%)</title><rect x="1070.2" y="357" width="22.4" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="1073.24" y="367.5" >i..</text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::~unique_lock (10 samples, 0.27%)</title><rect x="1122.4" y="325" width="3.2" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
+<text  x="1125.42" y="335.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt; (1 samples, 0.03%)</title><rect x="98.3" y="133" width="0.3" height="15.0" fill="rgb(214,44,10)" rx="2" ry="2" />
+<text  x="101.33" y="143.5" ></text>
+</g>
+<g >
+<title>std::mutex::lock (38 samples, 1.01%)</title><rect x="214.0" y="149" width="11.9" height="15.0" fill="rgb(244,180,43)" rx="2" ry="2" />
+<text  x="217.00" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (8 samples, 0.21%)</title><rect x="1169.3" y="373" width="2.5" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="1172.25" y="383.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0, 1&gt; (1 samples, 0.03%)</title><rect x="1166.7" y="357" width="0.4" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="1169.74" y="367.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (31 samples, 0.83%)</title><rect x="515.1" y="165" width="9.8" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="518.13" y="175.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_data (2 samples, 0.05%)</title><rect x="975.0" y="261" width="0.6" height="15.0" fill="rgb(206,6,1)" rx="2" ry="2" />
+<text  x="978.00" y="271.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (1 samples, 0.03%)</title><rect x="691.2" y="213" width="0.3" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="694.16" y="223.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::run (31 samples, 0.83%)</title><rect x="515.1" y="277" width="9.8" height="15.0" fill="rgb(240,163,39)" rx="2" ry="2" />
+<text  x="518.13" y="287.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (1 samples, 0.03%)</title><rect x="611.3" y="229" width="0.3" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="614.32" y="239.5" ></text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::lock (44 samples, 1.17%)</title><rect x="359.5" y="197" width="13.9" height="15.0" fill="rgb(226,99,23)" rx="2" ry="2" />
+<text  x="362.54" y="207.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (1 samples, 0.03%)</title><rect x="238.8" y="229" width="0.3" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="241.83" y="239.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (2 samples, 0.05%)</title><rect x="435.3" y="181" width="0.6" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="438.29" y="191.5" ></text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (1 samples, 0.03%)</title><rect x="213.7" y="213" width="0.3" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="216.69" y="223.5" ></text>
+</g>
+<g >
+<title>std::__invoke_result&lt;caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (37 samples, 0.99%)</title><rect x="361.7" y="117" width="11.7" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="364.74" y="127.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (1 samples, 0.03%)</title><rect x="917.2" y="341" width="0.3" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="920.16" y="351.5" ></text>
+</g>
+<g >
+<title>invoke (1,995 samples, 53.14%)</title><rect x="65.3" y="325" width="627.1" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="68.32" y="335.5" >invoke</text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (1 samples, 0.03%)</title><rect x="99.9" y="117" width="0.3" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="102.90" y="127.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (2 samples, 0.05%)</title><rect x="225.9" y="229" width="0.7" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="228.95" y="239.5" ></text>
+</g>
+<g >
+<title>operator (76 samples, 2.02%)</title><rect x="99.9" y="165" width="23.9" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="102.90" y="175.5" >o..</text>
+</g>
+<g >
+<title>memcpy@plt (2 samples, 0.05%)</title><rect x="432.5" y="229" width="0.6" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="435.46" y="239.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (70 samples, 1.86%)</title><rect x="100.5" y="133" width="22.0" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="103.53" y="143.5" >c..</text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (6 samples, 0.16%)</title><rect x="1064.3" y="325" width="1.9" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="1067.27" y="335.5" ></text>
+</g>
+<g >
+<title>std::__uniq_ptr_impl&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::__uniq_ptr_impl (1 samples, 0.03%)</title><rect x="1189.7" y="325" width="0.3" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="1192.69" y="335.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::~intrusive_cow_ptr (115 samples, 3.06%)</title><rect x="987.6" y="245" width="36.1" height="15.0" fill="rgb(208,13,3)" rx="2" ry="2" />
+<text  x="990.57" y="255.5" >caf..</text>
+</g>
+<g >
+<title>bool caf::message::match_elements&lt;caf::sys_atom, caf::get_atom, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; &gt; (1 samples, 0.03%)</title><rect x="672.6" y="293" width="0.3" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="675.61" y="303.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::finalize (1 samples, 0.03%)</title><rect x="690.8" y="293" width="0.4" height="15.0" fill="rgb(211,30,7)" rx="2" ry="2" />
+<text  x="693.84" y="303.5" ></text>
+</g>
+<g >
+<title>malloc (1 samples, 0.03%)</title><rect x="373.4" y="261" width="0.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="376.37" y="271.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (1 samples, 0.03%)</title><rect x="270.3" y="245" width="0.3" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="273.27" y="255.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (3,723 samples, 99.17%)</title><rect x="10.0" y="453" width="1170.3" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="13.00" y="463.5" >[libc.so.6]</text>
+</g>
+<g >
+<title>caf::scheduled_actor::set_receive_timeout (14 samples, 0.37%)</title><rect x="1023.7" y="341" width="4.4" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="1026.72" y="351.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::intrusive_ptr (2 samples, 0.05%)</title><rect x="1182.5" y="437" width="0.6" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="1185.46" y="447.5" ></text>
+</g>
+<g >
+<title>clock_gettime (6 samples, 0.16%)</title><rect x="292.0" y="229" width="1.8" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="294.96" y="239.5" ></text>
+</g>
+<g >
+<title>caf::message::message (1 samples, 0.03%)</title><rect x="434.3" y="261" width="0.4" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="437.35" y="271.5" ></text>
+</g>
+<g >
+<title>caf::intrusive::linked_list&lt;caf::mailbox_element&gt;::pop_front (2 samples, 0.05%)</title><rect x="57.5" y="213" width="0.6" height="15.0" fill="rgb(238,155,37)" rx="2" ry="2" />
+<text  x="60.46" y="223.5" ></text>
+</g>
+<g >
+<title>__gnu_cxx::__normal_iterator&lt;caf::behavior*, std::vector&lt;caf::behavior, std::allocator&lt;caf::behavior&gt; &gt; &gt;::operator- (2 samples, 0.05%)</title><rect x="638.3" y="165" width="0.7" height="15.0" fill="rgb(244,183,43)" rx="2" ry="2" />
+<text  x="641.35" y="175.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::state::cancel (55 samples, 1.47%)</title><rect x="337.5" y="245" width="17.3" height="15.0" fill="rgb(206,8,1)" rx="2" ry="2" />
+<text  x="340.53" y="255.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (10 samples, 0.27%)</title><rect x="934.8" y="325" width="3.1" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="937.76" y="335.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (6 samples, 0.16%)</title><rect x="483.7" y="229" width="1.9" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="486.70" y="239.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (2 samples, 0.05%)</title><rect x="932.9" y="325" width="0.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="935.88" y="335.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::activate (1 samples, 0.03%)</title><rect x="1189.4" y="357" width="0.3" height="15.0" fill="rgb(218,60,14)" rx="2" ry="2" />
+<text  x="1192.37" y="367.5" ></text>
+</g>
+<g >
+<title>void std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_construct&lt;char*&gt; (3 samples, 0.08%)</title><rect x="99.0" y="133" width="0.9" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="101.96" y="143.5" ></text>
+</g>
+<g >
+<title>void caf::detail::default_function::destroy&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; &gt; (1 samples, 0.03%)</title><rect x="1066.2" y="341" width="0.3" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+<text  x="1069.15" y="351.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (6 samples, 0.16%)</title><rect x="147.0" y="261" width="1.9" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="150.05" y="271.5" ></text>
+</g>
+<g >
+<title>malloc (9 samples, 0.24%)</title><rect x="127.9" y="181" width="2.8" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="130.87" y="191.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22  (1 samples, 0.03%)</title><rect x="1186.2" y="229" width="0.3" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="1189.23" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (11 samples, 0.29%)</title><rect x="1186.2" y="373" width="3.5" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1189.23" y="383.5" ></text>
+</g>
+<g >
+<title>caf::message::~message (2 samples, 0.05%)</title><rect x="64.7" y="245" width="0.6" height="15.0" fill="rgb(252,217,52)" rx="2" ry="2" />
+<text  x="67.69" y="255.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::~intrusive_ptr (36 samples, 0.96%)</title><rect x="599.1" y="229" width="11.3" height="15.0" fill="rgb(242,171,40)" rx="2" ry="2" />
+<text  x="602.06" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::pop_front (16 samples, 0.43%)</title><rect x="920.0" y="341" width="5.0" height="15.0" fill="rgb(207,11,2)" rx="2" ry="2" />
+<text  x="922.99" y="351.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::prepend (1 samples, 0.03%)</title><rect x="692.1" y="277" width="0.3" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="695.10" y="287.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::intrusive_ptr (28 samples, 0.75%)</title><rect x="528.0" y="245" width="8.8" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="531.02" y="255.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::intrusive_cow_ptr (6 samples, 0.16%)</title><rect x="55.3" y="261" width="1.8" height="15.0" fill="rgb(221,78,18)" rx="2" ry="2" />
+<text  x="58.26" y="271.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (23 samples, 0.61%)</title><rect x="1081.9" y="325" width="7.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1084.87" y="335.5" ></text>
+</g>
+<g >
+<title>caf::detail::invoke_result_visitor::operator (76 samples, 2.02%)</title><rect x="99.9" y="149" width="23.9" height="15.0" fill="rgb(242,174,41)" rx="2" ry="2" />
+<text  x="102.90" y="159.5" >c..</text>
+</g>
+<g >
+<title>void caf::detail::message_data::init_impl&lt;unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (2 samples, 0.05%)</title><rect x="485.6" y="181" width="0.6" height="15.0" fill="rgb(221,75,17)" rx="2" ry="2" />
+<text  x="488.58" y="191.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (1 samples, 0.03%)</title><rect x="87.6" y="197" width="0.4" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="90.64" y="207.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (44 samples, 1.17%)</title><rect x="412.7" y="245" width="13.8" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="415.66" y="255.5" ></text>
+</g>
+<g >
+<title>cfree (4 samples, 0.11%)</title><rect x="1069.0" y="357" width="1.2" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1071.98" y="367.5" ></text>
+</g>
+<g >
+<title>caf::resumable* caf::policy::work_stealing::dequeue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (31 samples, 0.83%)</title><rect x="515.1" y="261" width="9.8" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="518.13" y="271.5" ></text>
+</g>
+<g >
+<title>[libstdc++.so.6.0.33] (3,723 samples, 99.17%)</title><rect x="10.0" y="437" width="1170.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="13.00" y="447.5" >[libstdc++.so.6.0.33]</text>
+</g>
+<g >
+<title>caf::message caf::make_message&lt;unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (1 samples, 0.03%)</title><rect x="670.1" y="229" width="0.3" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="673.10" y="239.5" ></text>
+</g>
+<g >
+<title>operator new (2 samples, 0.05%)</title><rect x="1185.0" y="453" width="0.6" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1187.97" y="463.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0&gt; (1 samples, 0.03%)</title><rect x="40.2" y="341" width="0.3" height="15.0" fill="rgb(236,143,34)" rx="2" ry="2" />
+<text  x="43.18" y="351.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::push_front (1 samples, 0.03%)</title><rect x="270.3" y="197" width="0.3" height="15.0" fill="rgb(214,45,10)" rx="2" ry="2" />
+<text  x="273.27" y="207.5" ></text>
+</g>
+<g >
+<title>~scope_guard (30 samples, 0.80%)</title><rect x="504.8" y="261" width="9.4" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="507.76" y="271.5" ></text>
+</g>
+<g >
+<title>std::allocator_traits&lt;std::allocator&lt;std::_List_node&lt;caf::resumable*&gt; &gt; &gt;::allocate (1 samples, 0.03%)</title><rect x="1187.2" y="165" width="0.3" height="15.0" fill="rgb(242,171,40)" rx="2" ry="2" />
+<text  x="1190.17" y="175.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;echo (1 samples, 0.03%)</title><rect x="670.7" y="309" width="0.3" height="15.0" fill="rgb(221,75,17)" rx="2" ry="2" />
+<text  x="673.72" y="319.5" ></text>
+</g>
+<g >
+<title>caf::actor::operator (1 samples, 0.03%)</title><rect x="526.8" y="245" width="0.3" height="15.0" fill="rgb(211,32,7)" rx="2" ry="2" />
+<text  x="529.76" y="255.5" ></text>
+</g>
+<g >
+<title>std::mutex::unlock (10 samples, 0.27%)</title><rect x="1122.4" y="293" width="3.2" height="15.0" fill="rgb(227,105,25)" rx="2" ry="2" />
+<text  x="1125.42" y="303.5" ></text>
+</g>
+<g >
+<title>non-virtual thunk to caf::scheduled_actor::intrusive_ptr_release_impl (2 samples, 0.05%)</title><rect x="1058.9" y="341" width="0.7" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="1061.92" y="351.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (457 samples, 12.17%)</title><rect x="526.8" y="277" width="143.6" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="529.76" y="287.5" >std::enable_if&lt;!</text>
+</g>
+<g >
+<title>operator (3 samples, 0.08%)</title><rect x="933.8" y="309" width="1.0" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="936.82" y="319.5" ></text>
+</g>
+<g >
+<title>cfree (28 samples, 0.75%)</title><rect x="270.6" y="245" width="8.8" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="273.58" y="255.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_dispose (1 samples, 0.03%)</title><rect x="430.9" y="229" width="0.3" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="433.89" y="239.5" ></text>
+</g>
+<g >
+<title>malloc (1 samples, 0.03%)</title><rect x="109.3" y="117" width="0.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="112.33" y="127.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (4 samples, 0.11%)</title><rect x="356.4" y="261" width="1.3" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="359.39" y="271.5" ></text>
+</g>
+<g >
+<title>caf::mailbox_element::~mailbox_element (3 samples, 0.08%)</title><rect x="1022.8" y="117" width="0.9" height="15.0" fill="rgb(246,190,45)" rx="2" ry="2" />
+<text  x="1025.78" y="127.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::finalize (1 samples, 0.03%)</title><rect x="39.5" y="373" width="0.4" height="15.0" fill="rgb(211,30,7)" rx="2" ry="2" />
+<text  x="42.55" y="383.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt; (2 samples, 0.05%)</title><rect x="485.6" y="229" width="0.6" height="15.0" fill="rgb(214,44,10)" rx="2" ry="2" />
+<text  x="488.58" y="239.5" ></text>
+</g>
+<g >
+<title>operator new (3 samples, 0.08%)</title><rect x="1180.3" y="437" width="0.9" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1183.26" y="447.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (1 samples, 0.03%)</title><rect x="394.7" y="245" width="0.4" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="397.74" y="255.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (1 samples, 0.03%)</title><rect x="98.0" y="133" width="0.3" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="101.01" y="143.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;echo (1 samples, 0.03%)</title><rect x="100.2" y="133" width="0.3" height="15.0" fill="rgb(221,75,17)" rx="2" ry="2" />
+<text  x="103.21" y="143.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::try_block (94 samples, 2.50%)</title><rect x="10.0" y="373" width="29.5" height="15.0" fill="rgb(248,197,47)" rx="2" ry="2" />
+<text  x="13.00" y="383.5" >ca..</text>
+</g>
+<g >
+<title>~scope_guard (40 samples, 1.07%)</title><rect x="413.9" y="229" width="12.6" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="416.92" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (5 samples, 0.13%)</title><rect x="357.7" y="261" width="1.5" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="360.65" y="271.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (3 samples, 0.08%)</title><rect x="86.7" y="197" width="0.9" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="89.70" y="207.5" ></text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (6 samples, 0.16%)</title><rect x="40.8" y="341" width="1.9" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="43.80" y="351.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::respond_to (1 samples, 0.03%)</title><rect x="1022.5" y="181" width="0.3" height="15.0" fill="rgb(234,134,32)" rx="2" ry="2" />
+<text  x="1025.46" y="191.5" ></text>
+</g>
+<g >
+<title>operator (38 samples, 1.01%)</title><rect x="492.8" y="245" width="12.0" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="495.81" y="255.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_erase (2 samples, 0.05%)</title><rect x="1068.4" y="293" width="0.6" height="15.0" fill="rgb(209,19,4)" rx="2" ry="2" />
+<text  x="1071.35" y="303.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (3 samples, 0.08%)</title><rect x="1096.6" y="357" width="1.0" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1099.64" y="367.5" ></text>
+</g>
+<g >
+<title>caf::logger::thread_local_aid (1 samples, 0.03%)</title><rect x="437.8" y="229" width="0.3" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
+<text  x="440.81" y="239.5" ></text>
+</g>
+<g >
+<title>caf::message::message (3 samples, 0.08%)</title><rect x="637.4" y="197" width="0.9" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="640.41" y="207.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (32 samples, 0.85%)</title><rect x="1045.7" y="325" width="10.1" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1048.72" y="335.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_create (3 samples, 0.08%)</title><rect x="97.1" y="101" width="0.9" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="100.07" y="111.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::~unique_ptr (1 samples, 0.03%)</title><rect x="1092.6" y="357" width="0.3" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="1095.56" y="367.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::state::state (3 samples, 0.08%)</title><rect x="671.7" y="293" width="0.9" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
+<text  x="674.67" y="303.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22  (2 samples, 0.05%)</title><rect x="48.3" y="309" width="0.7" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="51.35" y="319.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init_impl&lt;unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (2 samples, 0.05%)</title><rect x="485.6" y="165" width="0.6" height="15.0" fill="rgb(217,55,13)" rx="2" ry="2" />
+<text  x="488.58" y="175.5" ></text>
+</g>
+<g >
+<title>malloc (13 samples, 0.35%)</title><rect x="91.7" y="85" width="4.1" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="94.73" y="95.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::state::deliver_impl (1 samples, 0.03%)</title><rect x="354.8" y="245" width="0.3" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="357.82" y="255.5" ></text>
+</g>
+<g >
+<title>std::__uniq_ptr_impl&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::__uniq_ptr_impl (2 samples, 0.05%)</title><rect x="381.2" y="197" width="0.7" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="384.23" y="207.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::~unique_ptr (1 samples, 0.03%)</title><rect x="691.2" y="277" width="0.3" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="694.16" y="287.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::detail::message_data&gt;::~intrusive_ptr (2 samples, 0.05%)</title><rect x="148.3" y="149" width="0.6" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
+<text  x="151.31" y="159.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (38 samples, 1.01%)</title><rect x="214.0" y="229" width="11.9" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="217.00" y="239.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (6 samples, 0.16%)</title><rect x="483.7" y="213" width="1.9" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="486.70" y="223.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::consume (2,049 samples, 54.58%)</title><rect x="48.3" y="341" width="644.1" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="51.35" y="351.5" >caf::scheduled_actor::consume</text>
+</g>
+<g >
+<title>std::chrono::_V2::system_clock::now (1 samples, 0.03%)</title><rect x="1165.5" y="357" width="0.3" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="1168.48" y="367.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_invoke_result_visitor&lt;caf::scheduled_actor&gt;::default_invoke_result_visitor (1 samples, 0.03%)</title><rect x="356.1" y="229" width="0.3" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+<text  x="359.08" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;echo (357 samples, 9.51%)</title><rect x="320.9" y="277" width="112.2" height="15.0" fill="rgb(221,75,17)" rx="2" ry="2" />
+<text  x="323.87" y="287.5" >caf::detail::..</text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::fetch_more (2 samples, 0.05%)</title><rect x="336.9" y="245" width="0.6" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="339.90" y="255.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::~intrusive_ptr (163 samples, 4.34%)</title><rect x="435.0" y="261" width="51.2" height="15.0" fill="rgb(242,171,40)" rx="2" ry="2" />
+<text  x="437.98" y="271.5" >caf::..</text>
+</g>
+<g >
+<title>caf::response_promise::respond_to (106 samples, 2.82%)</title><rect x="438.1" y="229" width="33.3" height="15.0" fill="rgb(234,134,32)" rx="2" ry="2" />
+<text  x="441.12" y="239.5" >ca..</text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (3 samples, 0.08%)</title><rect x="689.9" y="293" width="0.9" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="692.90" y="303.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt; (1 samples, 0.03%)</title><rect x="670.1" y="245" width="0.3" height="15.0" fill="rgb(214,44,10)" rx="2" ry="2" />
+<text  x="673.10" y="255.5" ></text>
+</g>
+<g >
+<title>caf::mailbox_element::~mailbox_element (1 samples, 0.03%)</title><rect x="691.2" y="229" width="0.3" height="15.0" fill="rgb(246,190,45)" rx="2" ry="2" />
+<text  x="694.16" y="239.5" ></text>
+</g>
+<g >
+<title>malloc@plt (2 samples, 0.05%)</title><rect x="636.8" y="181" width="0.6" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="639.78" y="191.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (2 samples, 0.05%)</title><rect x="514.5" y="277" width="0.6" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="517.50" y="287.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_access&lt;caf::actor_control_block&gt;::release (36 samples, 0.96%)</title><rect x="599.1" y="213" width="11.3" height="15.0" fill="rgb(226,101,24)" rx="2" ry="2" />
+<text  x="602.06" y="223.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;client (5 samples, 0.13%)</title><rect x="1089.1" y="309" width="1.6" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="1092.10" y="319.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (1 samples, 0.03%)</title><rect x="526.8" y="261" width="0.3" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="529.76" y="271.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::intrusive_ptr (7 samples, 0.19%)</title><rect x="62.5" y="197" width="2.2" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="65.49" y="207.5" ></text>
+</g>
+<g >
+<title>void caf::detail::default_function::destroy&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; &gt; (1 samples, 0.03%)</title><rect x="431.5" y="245" width="0.3" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+<text  x="434.52" y="255.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (1 samples, 0.03%)</title><rect x="359.5" y="165" width="0.4" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="362.54" y="175.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::state::~state (163 samples, 4.34%)</title><rect x="435.0" y="277" width="51.2" height="15.0" fill="rgb(238,154,36)" rx="2" ry="2" />
+<text  x="437.98" y="287.5" >caf::..</text>
+</g>
+<g >
+<title>std::enable_if&lt;! (15 samples, 0.40%)</title><rect x="316.2" y="261" width="4.7" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="319.16" y="271.5" ></text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::unique_lock (37 samples, 0.99%)</title><rect x="472.1" y="181" width="11.6" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="475.07" y="191.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_dispose (1 samples, 0.03%)</title><rect x="431.5" y="213" width="0.3" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="434.52" y="223.5" ></text>
+</g>
+<g >
+<title>invoke (1 samples, 0.03%)</title><rect x="1166.7" y="373" width="0.4" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="1169.74" y="383.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::run (1 samples, 0.03%)</title><rect x="149.2" y="261" width="0.4" height="15.0" fill="rgb(240,163,39)" rx="2" ry="2" />
+<text  x="152.25" y="271.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (2 samples, 0.05%)</title><rect x="473.3" y="133" width="0.7" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="476.32" y="143.5" ></text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::unique_lock (44 samples, 1.17%)</title><rect x="359.5" y="213" width="13.9" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="362.54" y="223.5" ></text>
+</g>
+<g >
+<title>caf::detail::operator== (1 samples, 0.03%)</title><rect x="359.5" y="117" width="0.4" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="362.54" y="127.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (48 samples, 1.28%)</title><rect x="198.6" y="197" width="15.1" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="201.60" y="207.5" ></text>
+</g>
+<g >
+<title>void std::_Destroy&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;*&gt; (1 samples, 0.03%)</title><rect x="1092.6" y="261" width="0.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="1095.56" y="271.5" ></text>
+</g>
+<g >
+<title>std::thread::_State_impl&lt;std::thread::_Invoker&lt;std::tuple&lt;caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (31 samples, 0.83%)</title><rect x="474.0" y="133" width="9.7" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="476.95" y="143.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;::~vector (4 samples, 0.11%)</title><rect x="381.9" y="229" width="1.2" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
+<text  x="384.85" y="239.5" ></text>
+</g>
+<g >
+<title>non-virtual thunk to caf::scheduled_actor::intrusive_ptr_release_impl (2 samples, 0.05%)</title><rect x="472.7" y="133" width="0.6" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="475.70" y="143.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::detach (2 samples, 0.05%)</title><rect x="1182.5" y="421" width="0.6" height="15.0" fill="rgb(209,21,5)" rx="2" ry="2" />
+<text  x="1185.46" y="431.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (1 samples, 0.03%)</title><rect x="213.7" y="229" width="0.3" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="216.69" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_invoke_result_visitor&lt;caf::scheduled_actor&gt;::~default_invoke_result_visitor (3 samples, 0.08%)</title><rect x="933.8" y="293" width="1.0" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="936.82" y="303.5" ></text>
+</g>
+<g >
+<title>caf::mailbox_element::~mailbox_element (116 samples, 3.09%)</title><rect x="987.3" y="277" width="36.4" height="15.0" fill="rgb(246,190,45)" rx="2" ry="2" />
+<text  x="990.26" y="287.5" >caf..</text>
+</g>
+<g >
+<title>void std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_insert&lt;caf::resumable* const&amp;&gt; (1 samples, 0.03%)</title><rect x="1187.2" y="213" width="0.3" height="15.0" fill="rgb(242,174,41)" rx="2" ry="2" />
+<text  x="1190.17" y="223.5" ></text>
+</g>
+<g >
+<title>operator (24 samples, 0.64%)</title><rect x="692.4" y="341" width="7.6" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="695.41" y="351.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::prepend (38 samples, 1.01%)</title><rect x="214.0" y="197" width="11.9" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="217.00" y="207.5" ></text>
+</g>
+<g >
+<title>caf::mailbox_element::~mailbox_element (6 samples, 0.16%)</title><rect x="1064.3" y="293" width="1.9" height="15.0" fill="rgb(246,190,45)" rx="2" ry="2" />
+<text  x="1067.27" y="303.5" ></text>
+</g>
+<g >
+<title>caf::intrusive::linked_list&lt;caf::mailbox_element&gt;::empty (2 samples, 0.05%)</title><rect x="57.5" y="197" width="0.6" height="15.0" fill="rgb(227,104,24)" rx="2" ry="2" />
+<text  x="60.46" y="207.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::~intrusive_ptr (4 samples, 0.11%)</title><rect x="426.8" y="149" width="1.3" height="15.0" fill="rgb(242,171,40)" rx="2" ry="2" />
+<text  x="429.80" y="159.5" ></text>
+</g>
+<g >
+<title>operator new (35 samples, 0.93%)</title><rect x="227.8" y="197" width="11.0" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="230.83" y="207.5" ></text>
+</g>
+<g >
+<title>std::_List_node&lt;caf::resumable*&gt;* std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_create_node&lt;caf::resumable* const&amp;&gt; (1 samples, 0.03%)</title><rect x="1187.2" y="197" width="0.3" height="15.0" fill="rgb(210,27,6)" rx="2" ry="2" />
+<text  x="1190.17" y="207.5" ></text>
+</g>
+<g >
+<title>std::mutex::unlock (1 samples, 0.03%)</title><rect x="692.1" y="229" width="0.3" height="15.0" fill="rgb(227,105,25)" rx="2" ry="2" />
+<text  x="695.10" y="239.5" ></text>
+</g>
+<g >
+<title>operator delete (9 samples, 0.24%)</title><rect x="1059.6" y="341" width="2.8" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="1062.55" y="351.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::fetch_more (1 samples, 0.03%)</title><rect x="455.7" y="213" width="0.3" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="458.72" y="223.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (10 samples, 0.27%)</title><rect x="380.0" y="245" width="3.1" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="382.97" y="255.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (3,723 samples, 99.17%)</title><rect x="10.0" y="389" width="1170.3" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="13.00" y="399.5" >caf::scheduled_actor::resume</text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::try_take_head (31 samples, 0.83%)</title><rect x="515.1" y="245" width="9.8" height="15.0" fill="rgb(231,121,29)" rx="2" ry="2" />
+<text  x="518.13" y="255.5" ></text>
+</g>
+<g >
+<title>caf::intrusive::lifo_inbox&lt;caf::mailbox_element&gt;::take_head (38 samples, 1.01%)</title><rect x="625.5" y="213" width="11.9" height="15.0" fill="rgb(236,146,35)" rx="2" ry="2" />
+<text  x="628.46" y="223.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_invoke_result_visitor&lt;caf::scheduled_actor&gt;::operator (1 samples, 0.03%)</title><rect x="327.2" y="261" width="0.3" height="15.0" fill="rgb(242,173,41)" rx="2" ry="2" />
+<text  x="330.16" y="271.5" ></text>
+</g>
+<g >
+<title>caf::message caf::make_message&lt;unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (6 samples, 0.16%)</title><rect x="1090.7" y="325" width="1.9" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="1093.67" y="335.5" ></text>
+</g>
+<g >
+<title>malloc@plt (3 samples, 0.08%)</title><rect x="411.1" y="213" width="0.9" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="414.09" y="223.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (1 samples, 0.03%)</title><rect x="1188.4" y="341" width="0.3" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="1191.43" y="351.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::~basic_string (1 samples, 0.03%)</title><rect x="430.9" y="245" width="0.3" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="433.89" y="255.5" ></text>
+</g>
+<g >
+<title>std::mutex::lock (37 samples, 0.99%)</title><rect x="472.1" y="149" width="11.6" height="15.0" fill="rgb(244,180,43)" rx="2" ry="2" />
+<text  x="475.07" y="159.5" ></text>
+</g>
+<g >
+<title>operator (3 samples, 0.08%)</title><rect x="1058.0" y="309" width="0.9" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="1060.98" y="319.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::respond_to (2 samples, 0.05%)</title><rect x="979.4" y="341" width="0.6" height="15.0" fill="rgb(234,134,32)" rx="2" ry="2" />
+<text  x="982.40" y="351.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::intrusive_ptr (2 samples, 0.05%)</title><rect x="143.9" y="245" width="0.6" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="146.91" y="255.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;client (1 samples, 0.03%)</title><rect x="313.3" y="197" width="0.3" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="316.33" y="207.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0&gt; (84 samples, 2.24%)</title><rect x="704.4" y="277" width="26.4" height="15.0" fill="rgb(236,143,34)" rx="2" ry="2" />
+<text  x="707.36" y="287.5" >i..</text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (3 samples, 0.08%)</title><rect x="697.8" y="309" width="0.9" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="700.76" y="319.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (56 samples, 1.49%)</title><rect x="652.2" y="229" width="17.6" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="655.18" y="239.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::_List_base&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_get_node (1 samples, 0.03%)</title><rect x="1187.2" y="181" width="0.3" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="1190.17" y="191.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (41 samples, 1.09%)</title><rect x="611.6" y="229" width="12.9" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="614.63" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::run (37 samples, 0.99%)</title><rect x="472.1" y="229" width="11.6" height="15.0" fill="rgb(240,163,39)" rx="2" ry="2" />
+<text  x="475.07" y="239.5" ></text>
+</g>
+<g >
+<title>auto caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (31 samples, 0.83%)</title><rect x="474.0" y="53" width="9.7" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="476.95" y="63.5" ></text>
+</g>
+<g >
+<title>cfree (63 samples, 1.68%)</title><rect x="1036.0" y="341" width="19.8" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1038.98" y="351.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::intrusive_ptr (2 samples, 0.05%)</title><rect x="121.9" y="101" width="0.6" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="124.90" y="111.5" ></text>
+</g>
+<g >
+<title> (1 samples, 0.03%)</title><rect x="526.8" y="229" width="0.3" height="15.0" fill="rgb(232,128,30)" rx="2" ry="2" />
+<text  x="529.76" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::operator== (1 samples, 0.03%)</title><rect x="1166.7" y="325" width="0.4" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="1169.74" y="335.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22  (1,925 samples, 51.28%)</title><rect x="65.3" y="293" width="605.1" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="68.32" y="303.5" >/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/ap..</text>
+</g>
+<g >
+<title>caf::scheduled_actor::consume (5 samples, 0.13%)</title><rect x="239.1" y="229" width="1.6" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="242.15" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (1 samples, 0.03%)</title><rect x="1092.6" y="373" width="0.3" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="1095.56" y="383.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;echo (2 samples, 0.05%)</title><rect x="39.9" y="357" width="0.6" height="15.0" fill="rgb(221,75,17)" rx="2" ry="2" />
+<text  x="42.86" y="367.5" ></text>
+</g>
+<g >
+<title>__vdso_clock_gettime (6 samples, 0.16%)</title><rect x="292.0" y="213" width="1.8" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+<text  x="294.96" y="223.5" ></text>
+</g>
+<g >
+<title>caf::logger::thread_local_aid (12 samples, 0.32%)</title><rect x="975.6" y="341" width="3.8" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
+<text  x="978.63" y="351.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::~intrusive_cow_ptr (2 samples, 0.05%)</title><rect x="64.7" y="229" width="0.6" height="15.0" fill="rgb(208,13,3)" rx="2" ry="2" />
+<text  x="67.69" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (14 samples, 0.37%)</title><rect x="1031.6" y="341" width="4.4" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="1034.58" y="351.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (2 samples, 0.05%)</title><rect x="90.5" y="133" width="0.6" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="93.47" y="143.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::~intrusive_cow_ptr (2 samples, 0.05%)</title><rect x="148.3" y="165" width="0.6" height="15.0" fill="rgb(208,13,3)" rx="2" ry="2" />
+<text  x="151.31" y="175.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_create (5 samples, 0.13%)</title><rect x="290.1" y="229" width="1.5" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="293.07" y="239.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (4 samples, 0.11%)</title><rect x="1139.4" y="325" width="1.2" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="1142.39" y="335.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::intrusive_cow_ptr (3 samples, 0.08%)</title><rect x="637.4" y="181" width="0.9" height="15.0" fill="rgb(221,78,18)" rx="2" ry="2" />
+<text  x="640.41" y="191.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::detail::message_data&gt;::intrusive_ptr (3 samples, 0.08%)</title><rect x="637.4" y="165" width="0.9" height="15.0" fill="rgb(249,206,49)" rx="2" ry="2" />
+<text  x="640.41" y="175.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22  (3 samples, 0.08%)</title><rect x="435.0" y="213" width="0.9" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="437.98" y="223.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0&gt; (1 samples, 0.03%)</title><rect x="670.7" y="293" width="0.3" height="15.0" fill="rgb(236,143,34)" rx="2" ry="2" />
+<text  x="673.72" y="303.5" ></text>
+</g>
+<g >
+<title>std::__detail::_List_node_base::_M_hook (4 samples, 0.11%)</title><rect x="253.6" y="213" width="1.3" height="15.0" fill="rgb(244,179,42)" rx="2" ry="2" />
+<text  x="256.61" y="223.5" ></text>
+</g>
+<g >
+<title>caf::behavior::timeout (3 samples, 0.08%)</title><rect x="355.1" y="229" width="1.0" height="15.0" fill="rgb(205,1,0)" rx="2" ry="2" />
+<text  x="358.14" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::fetch_more (35 samples, 0.93%)</title><rect x="227.8" y="229" width="11.0" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="230.83" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (3,723 samples, 99.17%)</title><rect x="10.0" y="421" width="1170.3" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="13.00" y="431.5" >caf::scheduled_actor::resume</text>
+</g>
+<g >
+<title>std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::push_front (2 samples, 0.05%)</title><rect x="514.5" y="229" width="0.6" height="15.0" fill="rgb(214,45,10)" rx="2" ry="2" />
+<text  x="517.50" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (1 samples, 0.03%)</title><rect x="1184.7" y="469" width="0.3" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="1187.66" y="479.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (1 samples, 0.03%)</title><rect x="1188.1" y="325" width="0.3" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="1191.11" y="335.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::respond_to (89 samples, 2.37%)</title><rect x="328.1" y="261" width="28.0" height="15.0" fill="rgb(234,134,32)" rx="2" ry="2" />
+<text  x="331.10" y="271.5" >c..</text>
+</g>
+<g >
+<title>operator (25 samples, 0.67%)</title><rect x="57.5" y="277" width="7.8" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="60.46" y="287.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::prepend (41 samples, 1.09%)</title><rect x="611.6" y="197" width="12.9" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="614.63" y="207.5" ></text>
+</g>
+<g >
+<title>__vdso_clock_gettime (4 samples, 0.11%)</title><rect x="314.9" y="229" width="1.3" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+<text  x="317.90" y="239.5" ></text>
+</g>
+<g >
+<title>void caf::policy::work_stealing::internal_enqueue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (1 samples, 0.03%)</title><rect x="270.3" y="229" width="0.3" height="15.0" fill="rgb(241,167,39)" rx="2" ry="2" />
+<text  x="273.27" y="239.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (6 samples, 0.16%)</title><rect x="40.8" y="357" width="1.9" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="43.80" y="367.5" ></text>
+</g>
+<g >
+<title>std::__atomic_base&lt;int&gt;::load (98 samples, 2.61%)</title><rect x="700.0" y="309" width="30.8" height="15.0" fill="rgb(251,216,51)" rx="2" ry="2" />
+<text  x="702.96" y="319.5" >st..</text>
+</g>
+<g >
+<title>apply_args&lt;client (23 samples, 0.61%)</title><rect x="57.5" y="261" width="7.2" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="60.46" y="271.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::categorize (1 samples, 0.03%)</title><rect x="672.6" y="309" width="0.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="675.61" y="319.5" ></text>
+</g>
+<g >
+<title>caf::detail::intrusive_ptr_release (3 samples, 0.08%)</title><rect x="1022.8" y="37" width="0.9" height="15.0" fill="rgb(225,94,22)" rx="2" ry="2" />
+<text  x="1025.78" y="47.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (4 samples, 0.11%)</title><rect x="1186.2" y="325" width="1.3" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1189.23" y="335.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::~intrusive_ptr (2 samples, 0.05%)</title><rect x="127.2" y="85" width="0.7" height="15.0" fill="rgb(242,171,40)" rx="2" ry="2" />
+<text  x="130.25" y="95.5" ></text>
+</g>
+<g >
+<title>caf::type_id_list::compare (1 samples, 0.03%)</title><rect x="472.1" y="69" width="0.3" height="15.0" fill="rgb(213,38,9)" rx="2" ry="2" />
+<text  x="475.07" y="79.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (1 samples, 0.03%)</title><rect x="1189.7" y="373" width="0.3" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="1192.69" y="383.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;echo (1 samples, 0.03%)</title><rect x="86.4" y="261" width="0.3" height="15.0" fill="rgb(221,75,17)" rx="2" ry="2" />
+<text  x="89.38" y="271.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (42 samples, 1.12%)</title><rect x="65.3" y="277" width="13.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="68.32" y="287.5" ></text>
+</g>
+<g >
+<title>free@plt (1 samples, 0.03%)</title><rect x="1055.8" y="341" width="0.3" height="15.0" fill="rgb(229,112,26)" rx="2" ry="2" />
+<text  x="1058.78" y="351.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;::~vector (1 samples, 0.03%)</title><rect x="485.3" y="197" width="0.3" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
+<text  x="488.27" y="207.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (761 samples, 20.27%)</title><rect x="81.7" y="277" width="239.2" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="84.67" y="287.5" >caf::detail::default_behavior_i..</text>
+</g>
+<g >
+<title>caf::response_promise::state::~state (17 samples, 0.45%)</title><rect x="42.7" y="357" width="5.3" height="15.0" fill="rgb(238,154,36)" rx="2" ry="2" />
+<text  x="45.69" y="367.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::pop_front (2 samples, 0.05%)</title><rect x="57.5" y="229" width="0.6" height="15.0" fill="rgb(207,11,2)" rx="2" ry="2" />
+<text  x="60.46" y="239.5" ></text>
+</g>
+<g >
+<title>void std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_insert&lt;caf::resumable* const&amp;&gt; (14 samples, 0.37%)</title><rect x="1031.6" y="277" width="4.4" height="15.0" fill="rgb(242,174,41)" rx="2" ry="2" />
+<text  x="1034.58" y="287.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::_List_base&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_inc_size (1 samples, 0.03%)</title><rect x="270.3" y="165" width="0.3" height="15.0" fill="rgb(240,164,39)" rx="2" ry="2" />
+<text  x="273.27" y="175.5" ></text>
+</g>
+<g >
+<title>caf::disposable::erase_disposed (2 samples, 0.05%)</title><rect x="59.0" y="229" width="0.7" height="15.0" fill="rgb(205,3,0)" rx="2" ry="2" />
+<text  x="62.04" y="239.5" ></text>
+</g>
+<g >
+<title>std::__uniq_ptr_data&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt;, true, true&gt;::__uniq_ptr_data (1 samples, 0.03%)</title><rect x="1188.4" y="309" width="0.3" height="15.0" fill="rgb(248,199,47)" rx="2" ry="2" />
+<text  x="1191.43" y="319.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (2 samples, 0.05%)</title><rect x="491.9" y="277" width="0.6" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="494.87" y="287.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (10 samples, 0.27%)</title><rect x="1186.2" y="357" width="3.2" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1189.23" y="367.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::unique_ptr (1 samples, 0.03%)</title><rect x="1189.7" y="357" width="0.3" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1192.69" y="367.5" ></text>
+</g>
+<g >
+<title>std::mutex::lock (44 samples, 1.17%)</title><rect x="359.5" y="181" width="13.9" height="15.0" fill="rgb(244,180,43)" rx="2" ry="2" />
+<text  x="362.54" y="191.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (1 samples, 0.03%)</title><rect x="472.1" y="133" width="0.3" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="475.07" y="143.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (13 samples, 0.35%)</title><rect x="1185.9" y="389" width="4.1" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1188.91" y="399.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (116 samples, 3.09%)</title><rect x="987.3" y="309" width="36.4" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="990.26" y="319.5" >std..</text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (6 samples, 0.16%)</title><rect x="253.0" y="229" width="1.9" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="255.98" y="239.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (3 samples, 0.08%)</title><rect x="360.8" y="165" width="0.9" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="363.79" y="175.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::respond_to (1 samples, 0.03%)</title><rect x="412.3" y="245" width="0.4" height="15.0" fill="rgb(234,134,32)" rx="2" ry="2" />
+<text  x="415.34" y="255.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt; (3 samples, 0.08%)</title><rect x="293.8" y="245" width="1.0" height="15.0" fill="rgb(214,44,10)" rx="2" ry="2" />
+<text  x="296.84" y="255.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33  (3 samples, 0.08%)</title><rect x="527.1" y="245" width="0.9" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="530.08" y="255.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::~unique_ptr (6 samples, 0.16%)</title><rect x="1064.3" y="341" width="1.9" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="1067.27" y="351.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (1 samples, 0.03%)</title><rect x="1189.1" y="341" width="0.3" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1192.06" y="351.5" ></text>
+</g>
+<g >
+<title>caf::detail::intrusive_ptr_release (115 samples, 3.06%)</title><rect x="987.6" y="197" width="36.1" height="15.0" fill="rgb(225,94,22)" rx="2" ry="2" />
+<text  x="990.57" y="207.5" >caf..</text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::basic_string (2 samples, 0.05%)</title><rect x="313.6" y="261" width="0.7" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+<text  x="316.64" y="271.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_is_local (1 samples, 0.03%)</title><rect x="98.6" y="85" width="0.4" height="15.0" fill="rgb(241,168,40)" rx="2" ry="2" />
+<text  x="101.64" y="95.5" ></text>
+</g>
+<g >
+<title>operator new (4 samples, 0.11%)</title><rect x="1181.2" y="453" width="1.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1184.20" y="463.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::set_receive_timeout (1 samples, 0.03%)</title><rect x="1066.5" y="357" width="0.3" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="1069.47" y="367.5" ></text>
+</g>
+<g >
+<title>std::__uniq_ptr_impl&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::__uniq_ptr_impl (1 samples, 0.03%)</title><rect x="1188.4" y="293" width="0.3" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="1191.43" y="303.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::categorize (1 samples, 0.03%)</title><rect x="48.0" y="357" width="0.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="51.03" y="367.5" ></text>
+</g>
+<g >
+<title>caf::mailbox_element::mailbox_element (5 samples, 0.13%)</title><rect x="398.8" y="229" width="1.6" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="401.83" y="239.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33  (1 samples, 0.03%)</title><rect x="1185.9" y="373" width="0.3" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="1188.91" y="383.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::~basic_string (1 samples, 0.03%)</title><rect x="1066.2" y="325" width="0.3" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="1069.15" y="335.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (1 samples, 0.03%)</title><rect x="1186.5" y="245" width="0.4" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1189.54" y="255.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::~basic_string (2 samples, 0.05%)</title><rect x="975.0" y="309" width="0.6" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="978.00" y="319.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;echo (1 samples, 0.03%)</title><rect x="86.4" y="197" width="0.3" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="89.38" y="207.5" ></text>
+</g>
+<g >
+<title>caf::abstract_channel::flags (98 samples, 2.61%)</title><rect x="700.0" y="325" width="30.8" height="15.0" fill="rgb(221,76,18)" rx="2" ry="2" />
+<text  x="702.96" y="335.5" >ca..</text>
+</g>
+<g >
+<title>caf::message caf::make_message&lt;unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (2 samples, 0.05%)</title><rect x="485.6" y="213" width="0.6" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="488.58" y="223.5" ></text>
+</g>
+<g >
+<title>malloc (31 samples, 0.83%)</title><rect x="229.1" y="181" width="9.7" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="232.09" y="191.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::operator= (1 samples, 0.03%)</title><rect x="314.3" y="261" width="0.3" height="15.0" fill="rgb(226,100,24)" rx="2" ry="2" />
+<text  x="317.27" y="271.5" ></text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (1 samples, 0.03%)</title><rect x="412.0" y="229" width="0.3" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="415.03" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_invoke_result_visitor&lt;caf::scheduled_actor&gt;::~default_invoke_result_visitor (6 samples, 0.16%)</title><rect x="982.5" y="309" width="1.9" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="985.54" y="319.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0, 1&gt; (1 samples, 0.03%)</title><rect x="313.3" y="245" width="0.3" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="316.33" y="255.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::consume (2 samples, 0.05%)</title><rect x="638.3" y="229" width="0.7" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="641.35" y="239.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::detail::message_data&gt;::intrusive_ptr (1 samples, 0.03%)</title><rect x="238.8" y="165" width="0.3" height="15.0" fill="rgb(249,206,49)" rx="2" ry="2" />
+<text  x="241.83" y="175.5" ></text>
+</g>
+<g >
+<title>pthread_cond_timedwait (7 samples, 0.19%)</title><rect x="1143.5" y="357" width="2.2" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="1146.48" y="367.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (6 samples, 0.16%)</title><rect x="1062.4" y="341" width="1.9" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="1065.38" y="351.5" ></text>
+</g>
+<g >
+<title>std::mutex::lock (41 samples, 1.09%)</title><rect x="611.6" y="149" width="12.9" height="15.0" fill="rgb(244,180,43)" rx="2" ry="2" />
+<text  x="614.63" y="159.5" ></text>
+</g>
+<g >
+<title>caf::message::types (1 samples, 0.03%)</title><rect x="490.3" y="245" width="0.3" height="15.0" fill="rgb(253,221,53)" rx="2" ry="2" />
+<text  x="493.30" y="255.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_Alloc_hider::_Alloc_hider (2 samples, 0.05%)</title><rect x="313.6" y="245" width="0.7" height="15.0" fill="rgb(212,32,7)" rx="2" ry="2" />
+<text  x="316.64" y="255.5" ></text>
+</g>
+<g >
+<title>client (461 samples, 12.28%)</title><rect x="149.9" y="261" width="144.9" height="15.0" fill="rgb(235,141,33)" rx="2" ry="2" />
+<text  x="152.88" y="271.5" >client</text>
+</g>
+<g >
+<title>operator (1 samples, 0.03%)</title><rect x="1166.7" y="341" width="0.4" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="1169.74" y="351.5" ></text>
+</g>
+<g >
+<title>void caf::detail::default_function::destroy&lt;caf::actor&gt; (27 samples, 0.72%)</title><rect x="965.3" y="325" width="8.4" height="15.0" fill="rgb(251,216,51)" rx="2" ry="2" />
+<text  x="968.25" y="335.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init_impl&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (6 samples, 0.16%)</title><rect x="1090.7" y="261" width="1.9" height="15.0" fill="rgb(212,36,8)" rx="2" ry="2" />
+<text  x="1093.67" y="271.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (1 samples, 0.03%)</title><rect x="280.3" y="245" width="0.3" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="283.32" y="255.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init&lt;caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (1 samples, 0.03%)</title><rect x="123.5" y="101" width="0.3" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="126.47" y="111.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (1 samples, 0.03%)</title><rect x="1092.6" y="325" width="0.3" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="1095.56" y="335.5" ></text>
+</g>
+<g >
+<title>operator new (19 samples, 0.51%)</title><rect x="91.1" y="101" width="6.0" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="94.10" y="111.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::respond_to (3 samples, 0.08%)</title><rect x="671.7" y="309" width="0.9" height="15.0" fill="rgb(234,134,32)" rx="2" ry="2" />
+<text  x="674.67" y="319.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::run_actions (9 samples, 0.24%)</title><rect x="59.7" y="229" width="2.8" height="15.0" fill="rgb(221,77,18)" rx="2" ry="2" />
+<text  x="62.66" y="239.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (15 samples, 0.40%)</title><rect x="316.2" y="245" width="4.7" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="319.16" y="255.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::categorize (30 samples, 0.80%)</title><rect x="680.5" y="293" width="9.4" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="683.47" y="303.5" ></text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.03%)</title><rect x="121.6" y="101" width="0.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="124.59" y="111.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (36 samples, 0.96%)</title><rect x="639.0" y="229" width="11.3" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="641.98" y="239.5" ></text>
+</g>
+<g >
+<title>caf::detail::message_data::message_data (3 samples, 0.08%)</title><rect x="393.8" y="245" width="0.9" height="15.0" fill="rgb(242,170,40)" rx="2" ry="2" />
+<text  x="396.80" y="255.5" ></text>
+</g>
+<g >
+<title>caf::actor::~actor (4 samples, 0.11%)</title><rect x="426.8" y="165" width="1.3" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="429.80" y="175.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::detail::message_data&gt;::detach (2 samples, 0.05%)</title><rect x="979.4" y="277" width="0.6" height="15.0" fill="rgb(253,223,53)" rx="2" ry="2" />
+<text  x="982.40" y="287.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (122 samples, 3.25%)</title><rect x="985.4" y="341" width="38.3" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="988.37" y="351.5" >caf..</text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33  (3 samples, 0.08%)</title><rect x="326.2" y="261" width="1.0" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="329.22" y="271.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::operator= (42 samples, 1.12%)</title><rect x="130.7" y="245" width="13.2" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="133.70" y="255.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt; (2 samples, 0.05%)</title><rect x="1182.5" y="405" width="0.6" height="15.0" fill="rgb(214,44,10)" rx="2" ry="2" />
+<text  x="1185.46" y="415.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::run (10 samples, 0.27%)</title><rect x="1122.4" y="277" width="3.2" height="15.0" fill="rgb(240,163,39)" rx="2" ry="2" />
+<text  x="1125.42" y="287.5" ></text>
+</g>
+<g >
+<title>malloc (31 samples, 0.83%)</title><rect x="111.8" y="101" width="9.8" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="114.84" y="111.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::state::cancel (42 samples, 1.12%)</title><rect x="130.7" y="261" width="13.2" height="15.0" fill="rgb(206,8,1)" rx="2" ry="2" />
+<text  x="133.70" y="271.5" ></text>
+</g>
+<g >
+<title>invoke (9 samples, 0.24%)</title><rect x="1056.1" y="341" width="2.8" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="1059.09" y="351.5" ></text>
+</g>
+<g >
+<title>bool std::operator!=&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; (1 samples, 0.03%)</title><rect x="670.4" y="309" width="0.3" height="15.0" fill="rgb(208,14,3)" rx="2" ry="2" />
+<text  x="673.41" y="319.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_is_local (2 samples, 0.05%)</title><rect x="975.0" y="277" width="0.6" height="15.0" fill="rgb(241,168,40)" rx="2" ry="2" />
+<text  x="978.00" y="287.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::set_receive_timeout (3 samples, 0.08%)</title><rect x="355.1" y="245" width="1.0" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="358.14" y="255.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_is_local (1 samples, 0.03%)</title><rect x="431.5" y="197" width="0.3" height="15.0" fill="rgb(241,168,40)" rx="2" ry="2" />
+<text  x="434.52" y="207.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::respond_to (1 samples, 0.03%)</title><rect x="434.7" y="277" width="0.3" height="15.0" fill="rgb(234,134,32)" rx="2" ry="2" />
+<text  x="437.66" y="287.5" ></text>
+</g>
+<g >
+<title>operator (5 samples, 0.13%)</title><rect x="1089.1" y="325" width="1.6" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="1092.10" y="335.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::operator bool (1 samples, 0.03%)</title><rect x="490.3" y="229" width="0.3" height="15.0" fill="rgb(219,68,16)" rx="2" ry="2" />
+<text  x="493.30" y="239.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;caf::behavior, std::allocator&lt;caf::behavior&gt; &gt;::back (2 samples, 0.05%)</title><rect x="638.3" y="181" width="0.7" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
+<text  x="641.35" y="191.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (1 samples, 0.03%)</title><rect x="624.5" y="229" width="0.3" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="627.52" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::categorize (5 samples, 0.13%)</title><rect x="489.4" y="277" width="1.5" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="492.36" y="287.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::push_back (1 samples, 0.03%)</title><rect x="598.7" y="229" width="0.4" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
+<text  x="601.74" y="239.5" ></text>
+</g>
+<g >
+<title>void std::thread::_Invoker&lt;std::tuple&lt;caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (37 samples, 0.99%)</title><rect x="361.7" y="133" width="11.7" height="15.0" fill="rgb(246,190,45)" rx="2" ry="2" />
+<text  x="364.74" y="143.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (1 samples, 0.03%)</title><rect x="1185.6" y="421" width="0.3" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1188.60" y="431.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::unique_ptr (2 samples, 0.05%)</title><rect x="381.2" y="229" width="0.7" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="384.23" y="239.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::intrusive_cow_ptr (1 samples, 0.03%)</title><rect x="238.8" y="181" width="0.3" height="15.0" fill="rgb(221,78,18)" rx="2" ry="2" />
+<text  x="241.83" y="191.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0, 1&gt; (1 samples, 0.03%)</title><rect x="398.5" y="213" width="0.3" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="401.51" y="223.5" ></text>
+</g>
+<g >
+<title>caf::actor::~actor (2 samples, 0.05%)</title><rect x="127.2" y="101" width="0.7" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="130.25" y="111.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::detail::message_data&gt;::intrusive_ptr (6 samples, 0.16%)</title><rect x="40.8" y="293" width="1.9" height="15.0" fill="rgb(249,206,49)" rx="2" ry="2" />
+<text  x="43.80" y="303.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::consume (60 samples, 1.60%)</title><rect x="672.9" y="309" width="18.9" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="675.92" y="319.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0, 1&gt; (1 samples, 0.03%)</title><rect x="472.1" y="117" width="0.3" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="475.07" y="127.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::activate (6 samples, 0.16%)</title><rect x="980.0" y="341" width="1.9" height="15.0" fill="rgb(218,60,14)" rx="2" ry="2" />
+<text  x="983.03" y="351.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init_impl&lt;unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (1 samples, 0.03%)</title><rect x="123.5" y="53" width="0.3" height="15.0" fill="rgb(233,129,31)" rx="2" ry="2" />
+<text  x="126.47" y="63.5" ></text>
+</g>
+<g >
+<title>caf::mailbox_element::mailbox_element (1 samples, 0.03%)</title><rect x="434.3" y="277" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="437.35" y="287.5" ></text>
+</g>
+<g >
+<title>caf::abstract_actor::id (8 samples, 0.21%)</title><rect x="917.5" y="341" width="2.5" height="15.0" fill="rgb(229,110,26)" rx="2" ry="2" />
+<text  x="920.47" y="351.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::intrusive_ptr (140 samples, 3.73%)</title><rect x="86.7" y="229" width="44.0" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="89.70" y="239.5" >caf:..</text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (52 samples, 1.39%)</title><rect x="49.0" y="325" width="16.3" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="51.98" y="335.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (41 samples, 1.09%)</title><rect x="611.6" y="133" width="12.9" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="614.63" y="143.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (34 samples, 0.91%)</title><rect x="241.7" y="213" width="10.6" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="244.66" y="223.5" ></text>
+</g>
+<g >
+<title>void std::_Destroy&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;*, caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; (1 samples, 0.03%)</title><rect x="1092.6" y="277" width="0.3" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="1095.56" y="287.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_invoke_result_visitor&lt;caf::scheduled_actor&gt;::operator (6 samples, 0.16%)</title><rect x="435.9" y="229" width="1.9" height="15.0" fill="rgb(242,173,41)" rx="2" ry="2" />
+<text  x="438.92" y="239.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::operator= (1 samples, 0.03%)</title><rect x="1022.5" y="165" width="0.3" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="1025.46" y="175.5" ></text>
+</g>
+<g >
+<title>~scope_guard (1 samples, 0.03%)</title><rect x="1184.7" y="453" width="0.3" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="1187.66" y="463.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (6 samples, 0.16%)</title><rect x="1064.3" y="309" width="1.9" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="1067.27" y="319.5" ></text>
+</g>
+<g >
+<title>main (13 samples, 0.35%)</title><rect x="1185.9" y="421" width="4.1" height="15.0" fill="rgb(243,179,42)" rx="2" ry="2" />
+<text  x="1188.91" y="431.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (280 samples, 7.46%)</title><rect x="536.8" y="245" width="88.0" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="539.82" y="255.5" >caf::sched..</text>
+</g>
+<g >
+<title>caf::intrusive::lifo_inbox&lt;caf::mailbox_element&gt;::try_block (94 samples, 2.50%)</title><rect x="10.0" y="357" width="29.5" height="15.0" fill="rgb(207,11,2)" rx="2" ry="2" />
+<text  x="13.00" y="367.5" >ca..</text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (1 samples, 0.03%)</title><rect x="238.8" y="213" width="0.3" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="241.83" y="223.5" ></text>
+</g>
+<g >
+<title>~scope_guard (22 samples, 0.59%)</title><rect x="91.1" y="117" width="6.9" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="94.10" y="127.5" ></text>
+</g>
+<g >
+<title>cfree (52 samples, 1.39%)</title><rect x="1072.8" y="341" width="16.3" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1075.75" y="351.5" ></text>
+</g>
+<g >
+<title>caf::detail::operator== (1 samples, 0.03%)</title><rect x="490.0" y="245" width="0.3" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="492.98" y="255.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0&gt; (2 samples, 0.05%)</title><rect x="127.2" y="165" width="0.7" height="15.0" fill="rgb(236,143,34)" rx="2" ry="2" />
+<text  x="130.25" y="175.5" ></text>
+</g>
+<g >
+<title>void std::__invoke_impl&lt;void, caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (37 samples, 0.99%)</title><rect x="361.7" y="101" width="11.7" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="364.74" y="111.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (456 samples, 12.15%)</title><rect x="527.1" y="261" width="143.3" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="530.08" y="271.5" >void caf::detail::..</text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::prepend (1 samples, 0.03%)</title><rect x="270.3" y="213" width="0.3" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="273.27" y="223.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_dispose (2 samples, 0.05%)</title><rect x="975.0" y="293" width="0.6" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="978.00" y="303.5" ></text>
+</g>
+<g >
+<title>std::__uniq_ptr_data&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt;, true, true&gt;::__uniq_ptr_data (1 samples, 0.03%)</title><rect x="1186.9" y="229" width="0.3" height="15.0" fill="rgb(248,199,47)" rx="2" ry="2" />
+<text  x="1189.86" y="239.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;echo (1 samples, 0.03%)</title><rect x="40.2" y="309" width="0.3" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="43.18" y="319.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::consume (3 samples, 0.08%)</title><rect x="490.9" y="277" width="1.0" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="493.93" y="287.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (8 samples, 0.21%)</title><rect x="676.7" y="293" width="2.5" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="679.70" y="303.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22  (1 samples, 0.03%)</title><rect x="227.5" y="213" width="0.3" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="230.52" y="223.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (37 samples, 0.99%)</title><rect x="361.7" y="69" width="11.7" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="364.74" y="79.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::prepend (14 samples, 0.37%)</title><rect x="1031.6" y="309" width="4.4" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="1034.58" y="319.5" ></text>
+</g>
+<g >
+<title>std::__uniq_ptr_data&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt;, true, true&gt;::__uniq_ptr_data (1 samples, 0.03%)</title><rect x="1189.7" y="341" width="0.3" height="15.0" fill="rgb(248,199,47)" rx="2" ry="2" />
+<text  x="1192.69" y="351.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (14 samples, 0.37%)</title><rect x="700.0" y="293" width="4.4" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="702.96" y="303.5" ></text>
+</g>
+<g >
+<title>caf::const_typed_message_view&lt;unsigned long, unsigned long, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; &gt;::const_typed_message_view (1 samples, 0.03%)</title><rect x="398.5" y="181" width="0.3" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="401.51" y="191.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::pop_front (7 samples, 0.19%)</title><rect x="1066.8" y="309" width="2.2" height="15.0" fill="rgb(244,183,43)" rx="2" ry="2" />
+<text  x="1069.78" y="319.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::intrusive_cow_ptr (1 samples, 0.03%)</title><rect x="434.3" y="245" width="0.4" height="15.0" fill="rgb(221,78,18)" rx="2" ry="2" />
+<text  x="437.35" y="255.5" ></text>
+</g>
+<g >
+<title>caf::actor::~actor (27 samples, 0.72%)</title><rect x="1171.8" y="357" width="8.5" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="1174.77" y="367.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::unstash (1 samples, 0.03%)</title><rect x="691.5" y="293" width="0.3" height="15.0" fill="rgb(252,219,52)" rx="2" ry="2" />
+<text  x="694.47" y="303.5" ></text>
+</g>
+<g >
+<title>std::__invoke_result&lt;caf::actor_system::launch_thread&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::start (31 samples, 0.83%)</title><rect x="474.0" y="85" width="9.7" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="476.95" y="95.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (7 samples, 0.19%)</title><rect x="62.5" y="213" width="2.2" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="65.49" y="223.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;echo (1 samples, 0.03%)</title><rect x="86.4" y="213" width="0.3" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="89.38" y="223.5" ></text>
+</g>
+<g >
+<title>caf::abstract_actor::getf (98 samples, 2.61%)</title><rect x="700.0" y="341" width="30.8" height="15.0" fill="rgb(227,102,24)" rx="2" ry="2" />
+<text  x="702.96" y="351.5" >ca..</text>
+</g>
+<g >
+<title>invoke (60 samples, 1.60%)</title><rect x="294.8" y="261" width="18.8" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="297.78" y="271.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::unique_ptr (1 samples, 0.03%)</title><rect x="1186.9" y="245" width="0.3" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1189.86" y="255.5" ></text>
+</g>
+<g >
+<title>std::__uniq_ptr_data&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt;, true, true&gt;::__uniq_ptr_data (2 samples, 0.05%)</title><rect x="381.2" y="213" width="0.7" height="15.0" fill="rgb(248,199,47)" rx="2" ry="2" />
+<text  x="384.23" y="223.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (38 samples, 1.01%)</title><rect x="88.0" y="197" width="11.9" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="90.95" y="207.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (14 samples, 0.37%)</title><rect x="700.0" y="277" width="4.4" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="702.96" y="287.5" ></text>
+</g>
+<g >
+<title>operator new (1 samples, 0.03%)</title><rect x="1184.7" y="437" width="0.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1187.66" y="447.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::pop_front (1 samples, 0.03%)</title><rect x="40.5" y="357" width="0.3" height="15.0" fill="rgb(207,11,2)" rx="2" ry="2" />
+<text  x="43.49" y="367.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (1 samples, 0.03%)</title><rect x="490.6" y="245" width="0.3" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="493.61" y="255.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (59 samples, 1.57%)</title><rect x="1145.7" y="357" width="18.5" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="1148.68" y="367.5" ></text>
+</g>
+<g >
+<title>void caf::policy::work_stealing::internal_enqueue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (38 samples, 1.01%)</title><rect x="214.0" y="213" width="11.9" height="15.0" fill="rgb(241,167,39)" rx="2" ry="2" />
+<text  x="217.00" y="223.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::pop_front (31 samples, 0.83%)</title><rect x="515.1" y="229" width="9.8" height="15.0" fill="rgb(244,183,43)" rx="2" ry="2" />
+<text  x="518.13" y="239.5" ></text>
+</g>
+<g >
+<title>invoke (25 samples, 0.67%)</title><rect x="57.5" y="309" width="7.8" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="60.46" y="319.5" ></text>
+</g>
+<g >
+<title>caf::behavior::timeout (1 samples, 0.03%)</title><rect x="426.5" y="229" width="0.3" height="15.0" fill="rgb(205,1,0)" rx="2" ry="2" />
+<text  x="429.49" y="239.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_is_local (1 samples, 0.03%)</title><rect x="430.9" y="213" width="0.3" height="15.0" fill="rgb(241,168,40)" rx="2" ry="2" />
+<text  x="433.89" y="223.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (7 samples, 0.19%)</title><rect x="1167.1" y="373" width="2.2" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="1170.05" y="383.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33  (1 samples, 0.03%)</title><rect x="1186.2" y="245" width="0.3" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="1189.23" y="255.5" ></text>
+</g>
+<g >
+<title>operator delete (8 samples, 0.21%)</title><rect x="962.7" y="325" width="2.6" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="965.74" y="335.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (3 samples, 0.08%)</title><rect x="226.6" y="245" width="0.9" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="229.57" y="255.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (2 samples, 0.05%)</title><rect x="326.5" y="213" width="0.7" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="329.53" y="223.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock@plt (4 samples, 0.11%)</title><rect x="1164.2" y="357" width="1.3" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="1167.22" y="367.5" ></text>
+</g>
+<g >
+<title>caf::intrusive::lifo_inbox&lt;caf::mailbox_element&gt;::take_head (3 samples, 0.08%)</title><rect x="1180.3" y="453" width="0.9" height="15.0" fill="rgb(236,146,35)" rx="2" ry="2" />
+<text  x="1183.26" y="463.5" ></text>
+</g>
+<g >
+<title>std::__atomic_base&lt;caf::mailbox_element*&gt;::compare_exchange_strong (94 samples, 2.50%)</title><rect x="10.0" y="325" width="29.5" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="13.00" y="335.5" >st..</text>
+</g>
+<g >
+<title>invoke_impl&lt;0, 1&gt; (5 samples, 0.13%)</title><rect x="1089.1" y="341" width="1.6" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="1092.10" y="351.5" ></text>
+</g>
+<g >
+<title>caf::detail::behavior_impl::timeout (3 samples, 0.08%)</title><rect x="355.1" y="213" width="1.0" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="358.14" y="223.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::fetch_more (2 samples, 0.05%)</title><rect x="671.0" y="309" width="0.7" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="674.04" y="319.5" ></text>
+</g>
+<g >
+<title>malloc (12 samples, 0.32%)</title><rect x="286.3" y="213" width="3.8" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="289.30" y="223.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (2 samples, 0.05%)</title><rect x="225.9" y="213" width="0.7" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="228.95" y="223.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;::~vector (6 samples, 0.16%)</title><rect x="1064.3" y="277" width="1.9" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
+<text  x="1067.27" y="287.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_assign (2 samples, 0.05%)</title><rect x="1185.0" y="469" width="0.6" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="1187.97" y="479.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::try_take_head (10 samples, 0.27%)</title><rect x="1122.4" y="341" width="3.2" height="15.0" fill="rgb(231,121,29)" rx="2" ry="2" />
+<text  x="1125.42" y="351.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::consume (8 samples, 0.21%)</title><rect x="981.9" y="341" width="2.5" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="984.91" y="351.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (36 samples, 0.96%)</title><rect x="599.1" y="197" width="11.3" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="602.06" y="207.5" ></text>
+</g>
+<g >
+<title>caf::mailbox_element::~mailbox_element (1 samples, 0.03%)</title><rect x="1092.6" y="309" width="0.3" height="15.0" fill="rgb(246,190,45)" rx="2" ry="2" />
+<text  x="1095.56" y="319.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (37 samples, 0.99%)</title><rect x="88.3" y="165" width="11.6" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="91.27" y="175.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::try_take_head (7 samples, 0.19%)</title><rect x="1066.8" y="325" width="2.2" height="15.0" fill="rgb(231,121,29)" rx="2" ry="2" />
+<text  x="1069.78" y="335.5" ></text>
+</g>
+<g >
+<title>std::_List_node&lt;caf::resumable*&gt;* std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_create_node&lt;caf::resumable* const&amp;&gt; (14 samples, 0.37%)</title><rect x="1031.6" y="261" width="4.4" height="15.0" fill="rgb(210,27,6)" rx="2" ry="2" />
+<text  x="1034.58" y="271.5" ></text>
+</g>
+<g >
+<title>caf::message::message (6 samples, 0.16%)</title><rect x="40.8" y="325" width="1.9" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="43.80" y="335.5" ></text>
+</g>
+<g >
+<title>caf::type_id_list::compare (1 samples, 0.03%)</title><rect x="359.5" y="101" width="0.4" height="15.0" fill="rgb(213,38,9)" rx="2" ry="2" />
+<text  x="362.54" y="111.5" ></text>
+</g>
+<g >
+<title>caf::detail::operator!= (1 samples, 0.03%)</title><rect x="491.6" y="245" width="0.3" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="494.56" y="255.5" ></text>
+</g>
+<g >
+<title>operator delete (1 samples, 0.03%)</title><rect x="280.0" y="245" width="0.3" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="283.01" y="255.5" ></text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::lock (41 samples, 1.09%)</title><rect x="611.6" y="165" width="12.9" height="15.0" fill="rgb(226,99,23)" rx="2" ry="2" />
+<text  x="614.63" y="175.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (6 samples, 0.16%)</title><rect x="1070.9" y="341" width="1.9" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1073.87" y="351.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt; (20 samples, 0.53%)</title><rect x="373.7" y="261" width="6.3" height="15.0" fill="rgb(214,44,10)" rx="2" ry="2" />
+<text  x="376.68" y="271.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (3 samples, 0.08%)</title><rect x="637.4" y="229" width="0.9" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="640.41" y="239.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (55 samples, 1.47%)</title><rect x="395.1" y="245" width="17.2" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="398.06" y="255.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::push_back (4 samples, 0.11%)</title><rect x="1183.1" y="453" width="1.2" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
+<text  x="1186.08" y="463.5" ></text>
+</g>
+<g >
+<title>cfree (1 samples, 0.03%)</title><rect x="149.6" y="261" width="0.3" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="152.56" y="271.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_access&lt;caf::detail::message_data&gt;::release (115 samples, 3.06%)</title><rect x="987.6" y="213" width="36.1" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="990.57" y="223.5" >caf..</text>
+</g>
+<g >
+<title>caf::scheduled_actor::update_watched_disposables (136 samples, 3.62%)</title><rect x="227.5" y="245" width="42.8" height="15.0" fill="rgb(213,40,9)" rx="2" ry="2" />
+<text  x="230.52" y="255.5" >caf:..</text>
+</g>
+<g >
+<title>std::allocator_traits&lt;std::allocator&lt;std::_List_node&lt;caf::resumable*&gt; &gt; &gt;::deallocate (31 samples, 0.83%)</title><rect x="515.1" y="181" width="9.8" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="518.13" y="191.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::consume (3 samples, 0.08%)</title><rect x="933.8" y="325" width="1.0" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="936.82" y="335.5" ></text>
+</g>
+<g >
+<title>malloc (31 samples, 0.83%)</title><rect x="401.3" y="213" width="9.8" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="404.34" y="223.5" ></text>
+</g>
+<g >
+<title>operator new (15 samples, 0.40%)</title><rect x="285.4" y="229" width="4.7" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="288.35" y="239.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::~unique_ptr (2 samples, 0.05%)</title><rect x="148.3" y="245" width="0.6" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="151.31" y="255.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (3,349 samples, 89.21%)</title><rect x="39.9" y="373" width="1052.7" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="42.86" y="383.5" >caf::scheduled_actor::reactivate</text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::detach (140 samples, 3.73%)</title><rect x="86.7" y="213" width="44.0" height="15.0" fill="rgb(209,21,5)" rx="2" ry="2" />
+<text  x="89.70" y="223.5" >caf:..</text>
+</g>
+<g >
+<title>caf::detail::message_data::~message_data (3 samples, 0.08%)</title><rect x="58.1" y="229" width="0.9" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
+<text  x="61.09" y="239.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;echo (1 samples, 0.03%)</title><rect x="40.2" y="293" width="0.3" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="43.18" y="303.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::categorize (4 samples, 0.11%)</title><rect x="698.7" y="325" width="1.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="701.70" y="335.5" ></text>
+</g>
+<g >
+<title>caf::detail::operator== (2 samples, 0.05%)</title><rect x="279.4" y="197" width="0.6" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="282.38" y="207.5" ></text>
+</g>
+<g >
+<title>invoke (6 samples, 0.16%)</title><rect x="524.9" y="277" width="1.9" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="527.87" y="287.5" ></text>
+</g>
+<g >
+<title>__gnu_cxx::__normal_iterator&lt;caf::behavior*, std::vector&lt;caf::behavior, std::allocator&lt;caf::behavior&gt; &gt; &gt;::operator- (2 samples, 0.05%)</title><rect x="240.1" y="165" width="0.6" height="15.0" fill="rgb(244,183,43)" rx="2" ry="2" />
+<text  x="243.09" y="175.5" ></text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (140 samples, 3.73%)</title><rect x="86.7" y="245" width="44.0" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="89.70" y="255.5" >std:..</text>
+</g>
+<g >
+<title>std::__uniq_ptr_impl&lt;caf::mailbox_element, std::default_delete&lt;caf::mailbox_element&gt; &gt;::__uniq_ptr_impl (1 samples, 0.03%)</title><rect x="1186.9" y="213" width="0.3" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="1189.86" y="223.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init_impl&lt;unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (6 samples, 0.16%)</title><rect x="1090.7" y="277" width="1.9" height="15.0" fill="rgb(217,55,13)" rx="2" ry="2" />
+<text  x="1093.67" y="287.5" ></text>
+</g>
+<g >
+<title>caf::detail::invoke_result_visitor::~invoke_result_visitor (3 samples, 0.08%)</title><rect x="679.5" y="293" width="1.0" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
+<text  x="682.53" y="303.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (6 samples, 0.16%)</title><rect x="55.3" y="309" width="1.8" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="58.26" y="319.5" ></text>
+</g>
+<g >
+<title>caf::resumable* caf::policy::work_stealing::dequeue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (1 samples, 0.03%)</title><rect x="149.2" y="245" width="0.4" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="152.25" y="255.5" ></text>
+</g>
+<g >
+<title>non-virtual thunk to caf::scheduled_actor::intrusive_ptr_release_impl (13 samples, 0.35%)</title><rect x="1136.6" y="357" width="4.0" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="1139.56" y="367.5" ></text>
+</g>
+<g >
+<title>cfree (35 samples, 0.93%)</title><rect x="1125.6" y="357" width="11.0" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1128.56" y="367.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::state::cancel (43 samples, 1.15%)</title><rect x="456.0" y="213" width="13.6" height="15.0" fill="rgb(206,8,1)" rx="2" ry="2" />
+<text  x="459.04" y="223.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (3 samples, 0.08%)</title><rect x="1022.8" y="133" width="0.9" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="1025.78" y="143.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::_List_base&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_put_node (31 samples, 0.83%)</title><rect x="515.1" y="197" width="9.8" height="15.0" fill="rgb(226,96,23)" rx="2" ry="2" />
+<text  x="518.13" y="207.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;echo (4 samples, 0.11%)</title><rect x="426.8" y="181" width="1.3" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="429.80" y="191.5" ></text>
+</g>
+<g >
+<title>operator (1 samples, 0.03%)</title><rect x="86.4" y="229" width="0.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="89.38" y="239.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22 (3 samples, 0.08%)</title><rect x="86.7" y="181" width="0.9" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="89.70" y="191.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (1 samples, 0.03%)</title><rect x="1188.7" y="341" width="0.4" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="1191.74" y="351.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::detail::message_data&gt;::~intrusive_ptr (3 samples, 0.08%)</title><rect x="1022.8" y="69" width="0.9" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
+<text  x="1025.78" y="79.5" ></text>
+</g>
+<g >
+<title>caf::detail::message_data::message_data (3 samples, 0.08%)</title><rect x="86.7" y="165" width="0.9" height="15.0" fill="rgb(242,170,40)" rx="2" ry="2" />
+<text  x="89.70" y="175.5" ></text>
+</g>
+<g >
+<title>operator (30 samples, 0.80%)</title><rect x="504.8" y="245" width="9.4" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="507.76" y="255.5" ></text>
+</g>
+<g >
+<title>std::allocator_traits&lt;std::allocator&lt;std::_List_node&lt;caf::resumable*&gt; &gt; &gt;::deallocate (2 samples, 0.05%)</title><rect x="1068.4" y="261" width="0.6" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="1071.35" y="271.5" ></text>
+</g>
+<g >
+<title>caf::response_promise::state::~state (1 samples, 0.03%)</title><rect x="472.4" y="133" width="0.3" height="15.0" fill="rgb(238,154,36)" rx="2" ry="2" />
+<text  x="475.38" y="143.5" ></text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::unique_lock (41 samples, 1.09%)</title><rect x="611.6" y="181" width="12.9" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="614.63" y="191.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::_List_base&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_put_node (2 samples, 0.05%)</title><rect x="1068.4" y="277" width="0.6" height="15.0" fill="rgb(226,96,23)" rx="2" ry="2" />
+<text  x="1071.35" y="287.5" ></text>
+</g>
+<g >
+<title>void std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_construct&lt;char*&gt; (4 samples, 0.11%)</title><rect x="431.8" y="245" width="1.3" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="434.83" y="255.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (1,068 samples, 28.45%)</title><rect x="730.8" y="357" width="335.7" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="733.76" y="367.5" >caf::scheduled_actor::resume</text>
+</g>
+<g >
+<title>malloc (30 samples, 0.80%)</title><rect x="416.4" y="197" width="9.5" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="419.43" y="207.5" ></text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (1 samples, 0.03%)</title><rect x="933.5" y="309" width="0.3" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="936.51" y="319.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::enqueue (216 samples, 5.75%)</title><rect x="158.7" y="245" width="67.9" height="15.0" fill="rgb(243,175,41)" rx="2" ry="2" />
+<text  x="161.68" y="255.5" >caf::sc..</text>
+</g>
+<g >
+<title>caf::detail::default_behavior_impl&lt;std::tuple&lt;client (2 samples, 0.05%)</title><rect x="1186.2" y="261" width="0.7" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="1189.23" y="271.5" ></text>
+</g>
+<g >
+<title>operator (1 samples, 0.03%)</title><rect x="40.2" y="325" width="0.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="43.18" y="335.5" ></text>
+</g>
+<g >
+<title>caf::mailbox_element::mailbox_element (9 samples, 0.24%)</title><rect x="106.5" y="117" width="2.8" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="109.50" y="127.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init&lt;unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (2 samples, 0.05%)</title><rect x="485.6" y="197" width="0.6" height="15.0" fill="rgb(238,154,36)" rx="2" ry="2" />
+<text  x="488.58" y="207.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;caf::behavior, std::allocator&lt;caf::behavior&gt; &gt;::back (2 samples, 0.05%)</title><rect x="240.1" y="181" width="0.6" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
+<text  x="243.09" y="191.5" ></text>
+</g>
+<g >
+<title>caf_echo (14 samples, 0.37%)</title><rect x="1185.6" y="485" width="4.4" height="15.0" fill="rgb(243,179,42)" rx="2" ry="2" />
+<text  x="1188.60" y="495.5" ></text>
+</g>
+<g >
+<title>std::__detail::_List_node_base::_M_hook (1 samples, 0.03%)</title><rect x="651.6" y="213" width="0.3" height="15.0" fill="rgb(244,179,42)" rx="2" ry="2" />
+<text  x="654.55" y="223.5" ></text>
+</g>
+<g >
+<title>caf::message::types (3 samples, 0.08%)</title><rect x="1058.0" y="293" width="0.9" height="15.0" fill="rgb(253,221,53)" rx="2" ry="2" />
+<text  x="1060.98" y="303.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (4 samples, 0.11%)</title><rect x="88.3" y="133" width="1.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="91.27" y="143.5" ></text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (2 samples, 0.05%)</title><rect x="1182.5" y="453" width="0.6" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="1185.46" y="463.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::resume (39 samples, 1.04%)</title><rect x="240.7" y="229" width="12.3" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="243.72" y="239.5" ></text>
+</g>
+<g >
+<title>invoke (84 samples, 2.24%)</title><rect x="704.4" y="293" width="26.4" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="707.36" y="303.5" >i..</text>
+</g>
+<g >
+<title>std::enable_if&lt; (22 samples, 0.59%)</title><rect x="123.8" y="197" width="6.9" height="15.0" fill="rgb(214,44,10)" rx="2" ry="2" />
+<text  x="126.79" y="207.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr_release (31 samples, 0.83%)</title><rect x="474.0" y="37" width="9.7" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="476.95" y="47.5" ></text>
+</g>
+<g >
+<title>invoke_impl&lt;0, 1&gt; (2 samples, 0.05%)</title><rect x="1187.5" y="325" width="0.6" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="1190.49" y="335.5" ></text>
+</g>
+<g >
+<title>std::__detail::_MakeUniq&lt;caf::mailbox_element&gt;::__single_object std::make_unique&lt;caf::mailbox_element, caf::intrusive_ptr&lt;caf::actor_control_block&gt;, caf::message_id&amp;, std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;, caf::message&gt; (6 samples, 0.16%)</title><rect x="55.3" y="293" width="1.8" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="58.26" y="303.5" ></text>
+</g>
+<g >
+<title>caf::scheduler::worker&lt;caf::policy::work_stealing&gt;::exec_later (1 samples, 0.03%)</title><rect x="1187.2" y="277" width="0.3" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="1190.17" y="287.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock@plt (2 samples, 0.05%)</title><rect x="649.7" y="213" width="0.6" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="652.66" y="223.5" ></text>
+</g>
+<g >
+<title>caf::type_id_list::compare (1 samples, 0.03%)</title><rect x="672.6" y="261" width="0.3" height="15.0" fill="rgb(213,38,9)" rx="2" ry="2" />
+<text  x="675.61" y="271.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt; (159 samples, 4.24%)</title><rect x="383.1" y="261" width="50.0" height="15.0" fill="rgb(214,44,10)" rx="2" ry="2" />
+<text  x="386.11" y="271.5" >std::..</text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::intrusive_ptr (1 samples, 0.03%)</title><rect x="86.4" y="165" width="0.3" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="89.38" y="175.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:22  (3 samples, 0.08%)</title><rect x="326.2" y="245" width="1.0" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="329.22" y="255.5" ></text>
+</g>
+<g >
+<title>std::__detail::_List_node_base::_M_unhook (10 samples, 0.27%)</title><rect x="1122.4" y="261" width="3.2" height="15.0" fill="rgb(227,104,24)" rx="2" ry="2" />
+<text  x="1125.42" y="271.5" ></text>
+</g>
+<g >
+<title>caf::detail::operator== (1 samples, 0.03%)</title><rect x="672.6" y="277" width="0.3" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="675.61" y="287.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_cow_ptr&lt;caf::detail::message_data&gt;::intrusive_cow_ptr (6 samples, 0.16%)</title><rect x="40.8" y="309" width="1.9" height="15.0" fill="rgb(221,78,18)" rx="2" ry="2" />
+<text  x="43.80" y="319.5" ></text>
+</g>
+<g >
+<title>caf::mailbox_element::mailbox_element (3 samples, 0.08%)</title><rect x="610.4" y="229" width="0.9" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="613.37" y="239.5" ></text>
+</g>
+<g >
+<title>void caf::detail::profiled_send&lt;caf::event_based_actor, caf::actor_control_block*, caf::actor, caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (2 samples, 0.05%)</title><rect x="1062.4" y="325" width="0.6" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="1065.38" y="335.5" ></text>
+</g>
+<g >
+<title>std::allocator_traits&lt;std::allocator&lt;std::_List_node&lt;caf::resumable*&gt; &gt; &gt;::allocate (14 samples, 0.37%)</title><rect x="1031.6" y="229" width="4.4" height="15.0" fill="rgb(242,171,40)" rx="2" ry="2" />
+<text  x="1034.58" y="239.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;! (2 samples, 0.05%)</title><rect x="435.3" y="197" width="0.6" height="15.0" fill="rgb(251,213,51)" rx="2" ry="2" />
+<text  x="438.29" y="207.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::reactivate (1 samples, 0.03%)</title><rect x="492.5" y="277" width="0.3" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="495.50" y="287.5" ></text>
+</g>
+<g >
+<title>bool caf::message::match_elements&lt;caf::sys_atom, caf::get_atom, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; &gt; (3 samples, 0.08%)</title><rect x="490.0" y="261" width="0.9" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="492.98" y="271.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (16 samples, 0.43%)</title><rect x="1131.5" y="341" width="5.1" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1134.53" y="351.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::consume (2 samples, 0.05%)</title><rect x="471.4" y="229" width="0.7" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="474.44" y="239.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::set_receive_timeout (1 samples, 0.03%)</title><rect x="514.2" y="277" width="0.3" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="517.19" y="287.5" ></text>
+</g>
+<g >
+<title>apply_args&lt;echo (2 samples, 0.05%)</title><rect x="127.2" y="133" width="0.7" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="130.25" y="143.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (3 samples, 0.08%)</title><rect x="1022.8" y="149" width="0.9" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="1025.78" y="159.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (4 samples, 0.11%)</title><rect x="1144.4" y="341" width="1.3" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1147.42" y="351.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::finalize (1 samples, 0.03%)</title><rect x="57.1" y="309" width="0.4" height="15.0" fill="rgb(211,30,7)" rx="2" ry="2" />
+<text  x="60.15" y="319.5" ></text>
+</g>
+<g >
+<title>caf::message::message (6 samples, 0.16%)</title><rect x="55.3" y="277" width="1.8" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="58.26" y="287.5" ></text>
+</g>
+<g >
+<title>void caf::policy::work_stealing::internal_enqueue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (2 samples, 0.05%)</title><rect x="514.5" y="261" width="0.6" height="15.0" fill="rgb(241,167,39)" rx="2" ry="2" />
+<text  x="517.50" y="271.5" ></text>
+</g>
+<g >
+<title>operator (4 samples, 0.11%)</title><rect x="426.8" y="213" width="1.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="429.80" y="223.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (140 samples, 3.73%)</title><rect x="86.7" y="261" width="44.0" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="89.70" y="271.5" >caf:..</text>
+</g>
+<g >
+<title>std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_erase (31 samples, 0.83%)</title><rect x="515.1" y="213" width="9.8" height="15.0" fill="rgb(209,19,4)" rx="2" ry="2" />
+<text  x="518.13" y="223.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::~basic_string (1 samples, 0.03%)</title><rect x="431.5" y="229" width="0.3" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="434.52" y="239.5" ></text>
+</g>
+<g >
+<title>__libc_start_main (14 samples, 0.37%)</title><rect x="1185.6" y="453" width="4.4" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
+<text  x="1188.60" y="463.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::list&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::push_front (14 samples, 0.37%)</title><rect x="1031.6" y="293" width="4.4" height="15.0" fill="rgb(214,45,10)" rx="2" ry="2" />
+<text  x="1034.58" y="303.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init_impl&lt;caf::actor, unsigned long&amp;, unsigned long&amp;, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;&amp;&gt; (1 samples, 0.03%)</title><rect x="123.5" y="85" width="0.3" height="15.0" fill="rgb(253,221,52)" rx="2" ry="2" />
+<text  x="126.47" y="95.5" ></text>
+</g>
+<g >
+<title>void caf::detail::message_data::init_impl&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;&gt; (2 samples, 0.05%)</title><rect x="485.6" y="149" width="0.6" height="15.0" fill="rgb(212,36,8)" rx="2" ry="2" />
+<text  x="488.58" y="159.5" ></text>
+</g>
+<g >
+<title>caf::intrusive::lifo_inbox&lt;caf::mailbox_element&gt;::take_head (35 samples, 0.93%)</title><rect x="227.8" y="213" width="11.0" height="15.0" fill="rgb(236,146,35)" rx="2" ry="2" />
+<text  x="230.83" y="223.5" ></text>
+</g>
+<g >
+<title>void caf::policy::work_stealing::internal_enqueue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (1 samples, 0.03%)</title><rect x="692.1" y="293" width="0.3" height="15.0" fill="rgb(241,167,39)" rx="2" ry="2" />
+<text  x="695.10" y="303.5" ></text>
+</g>
+<g >
+<title>caf::scheduled_actor::consume (2,073 samples, 55.22%)</title><rect x="48.3" y="357" width="651.7" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="51.35" y="367.5" >caf::scheduled_actor::consume</text>
+</g>
+<g >
+<title>clock_gettime (4 samples, 0.11%)</title><rect x="314.9" y="245" width="1.3" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="317.90" y="255.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::pop_front (1 samples, 0.03%)</title><rect x="679.2" y="293" width="0.3" height="15.0" fill="rgb(207,11,2)" rx="2" ry="2" />
+<text  x="682.21" y="303.5" ></text>
+</g>
+<g >
+<title>caf::make_mailbox_element (1 samples, 0.03%)</title><rect x="933.5" y="325" width="0.3" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+<text  x="936.51" y="335.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_dispose (1 samples, 0.03%)</title><rect x="1066.2" y="309" width="0.3" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="1069.15" y="319.5" ></text>
+</g>
+<g >
+<title>operator (1 samples, 0.03%)</title><rect x="359.5" y="133" width="0.4" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="362.54" y="143.5" ></text>
+</g>
+<g >
+<title>/tmp/actor-benchmark-deps-20260907/actor-framework-0.19.6/libcaf_core/caf/detail/apply_args.hpp:33 (3 samples, 0.08%)</title><rect x="697.8" y="325" width="0.9" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="700.76" y="335.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_invoke_result_visitor&lt;caf::scheduled_actor&gt;::default_invoke_result_visitor (2 samples, 0.05%)</title><rect x="471.4" y="197" width="0.7" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+<text  x="474.44" y="207.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (1 samples, 0.03%)</title><rect x="669.8" y="245" width="0.3" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="672.78" y="255.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt;, std::allocator&lt;caf::intrusive_ptr&lt;caf::actor_control_block&gt; &gt; &gt;::~vector (2 samples, 0.05%)</title><rect x="473.3" y="117" width="0.7" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
+<text  x="476.32" y="127.5" ></text>
+</g>
+<g >
+<title>operator (2 samples, 0.05%)</title><rect x="127.2" y="149" width="0.7" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="130.25" y="159.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::_List_base&lt;caf::resumable*, std::allocator&lt;caf::resumable*&gt; &gt;::_M_get_node (14 samples, 0.37%)</title><rect x="1031.6" y="245" width="4.4" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="1034.58" y="255.5" ></text>
+</g>
+<g >
+<title>caf::detail::operator== (1 samples, 0.03%)</title><rect x="472.1" y="85" width="0.3" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="475.07" y="95.5" ></text>
+</g>
+<g >
+<title>non-virtual thunk to caf::scheduled_actor::intrusive_ptr_release_impl (1 samples, 0.03%)</title><rect x="360.5" y="165" width="0.3" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="363.48" y="175.5" ></text>
+</g>
+<g >
+<title>caf::intrusive_ptr&lt;caf::actor_control_block&gt;::set_ptr (7 samples, 0.19%)</title><rect x="62.5" y="181" width="2.2" height="15.0" fill="rgb(227,105,25)" rx="2" ry="2" />
+<text  x="65.49" y="191.5" ></text>
+</g>
+<g >
+<title>caf::detail::double_ended_queue&lt;caf::resumable&gt;::prepend (1 samples, 0.03%)</title><rect x="1187.2" y="245" width="0.3" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="1190.17" y="255.5" ></text>
+</g>
+<g >
+<title>void caf::policy::work_stealing::internal_enqueue&lt;caf::scheduler::worker&lt;caf::policy::work_stealing&gt; &gt; (14 samples, 0.37%)</title><rect x="1031.6" y="325" width="4.4" height="15.0" fill="rgb(241,167,39)" rx="2" ry="2" />
+<text  x="1034.58" y="335.5" ></text>
+</g>
+<g >
+<title>caf::detail::default_mailbox::fetch_more (3 samples, 0.08%)</title><rect x="1180.3" y="469" width="0.9" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="1183.26" y="479.5" ></text>
+</g>
+<g >
+<title>operator (1 samples, 0.03%)</title><rect x="313.3" y="229" width="0.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="316.33" y="239.5" ></text>
+</g>
+<g >
+<title>caf::local_actor::context (1 samples, 0.03%)</title><rect x="431.2" y="229" width="0.3" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
+<text  x="434.20" y="239.5" ></text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::~unique_lock (1 samples, 0.03%)</title><rect x="692.1" y="261" width="0.3" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
+<text  x="695.10" y="271.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;caf::mailbox_element&gt;::operator (116 samples, 3.09%)</title><rect x="987.3" y="293" width="36.4" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
+<text  x="990.26" y="303.5" >std..</text>
+</g>
+</g>
+</svg>

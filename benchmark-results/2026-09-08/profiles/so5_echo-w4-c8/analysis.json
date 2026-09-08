@@ -1,0 +1,286 @@
+{
+  "name": "so5_echo-w4-c8",
+  "samples": 4186,
+  "script_samples": 4186,
+  "unknown_stack_samples": 4182,
+  "unknown_stack_percent": 99.90444338270426,
+  "unknown_leaf_percent": 4.300047778308648,
+  "top_leaf": [
+    [
+      "so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock",
+      1764
+    ],
+    [
+      "std::_Function_handler<void ",
+      271
+    ],
+    [
+      "so_5::agent_t::handler_finder_msg_tracing_disabled",
+      240
+    ],
+    [
+      "[libc.so.6]",
+      180
+    ],
+    [
+      "so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t>::schedule",
+      175
+    ],
+    [
+      "std::atomic<bool>::load",
+      155
+    ],
+    [
+      "so_5::impl::vector_based_subscr_storage::storage_t::find_handler",
+      124
+    ],
+    [
+      "so_5::agent_t::find_event_handler_for_current_state",
+      112
+    ],
+    [
+      "so_5::intrusive_ptr_t<so_5::message_t>::~intrusive_ptr_t",
+      100
+    ],
+    [
+      "so_5::read_lock_guard_t<so_5::rw_spinlock_t<so_5::pause_backoff_t> >::read_lock_guard_t",
+      98
+    ],
+    [
+      "so_5::disp::thread_pool::impl::basic_event_queue_t::push",
+      81
+    ],
+    [
+      "std::lock_guard<so_5::spinlock_t<so_5::pause_backoff_t> >::lock_guard",
+      78
+    ],
+    [
+      "so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message",
+      77
+    ],
+    [
+      "std::allocator_traits<std::allocator<char> >::deallocate",
+      70
+    ],
+    [
+      "so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t>::try_switch_to_another",
+      63
+    ],
+    [
+      "Client::issue",
+      60
+    ],
+    [
+      "/usr/include/c++/13/bits/predefined_ops.h:318 ",
+      51
+    ],
+    [
+      "so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::process_queue",
+      50
+    ],
+    [
+      "Echo::so_define_agent",
+      45
+    ],
+    [
+      "so_5::agent_t::push_event",
+      44
+    ],
+    [
+      "__dynamic_cast",
+      41
+    ],
+    [
+      "malloc",
+      38
+    ],
+    [
+      "std::atomic<bool>::exchange",
+      34
+    ],
+    [
+      "cfree",
+      29
+    ],
+    [
+      "so_5::rw_spinlock_t<so_5::pause_backoff_t>::lock_shared",
+      20
+    ]
+  ],
+  "top_inclusive": [
+    [
+      "[libc.so.6]",
+      4182
+    ],
+    [
+      "std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start",
+      4178
+    ],
+    [
+      "void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start",
+      4178
+    ],
+    [
+      "std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start",
+      4178
+    ],
+    [
+      "[libstdc++.so.6.0.33]",
+      4178
+    ],
+    [
+      "void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start",
+      4178
+    ],
+    [
+      "std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start",
+      4178
+    ],
+    [
+      "std::function<void ",
+      4178
+    ],
+    [
+      "so_5::disp::std_work_thread_impl::std_work_thread_t::start",
+      4178
+    ],
+    [
+      "void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start",
+      4178
+    ],
+    [
+      "std::_Function_handler<void ",
+      3765
+    ],
+    [
+      "so_5::agent_t::demand_handler_on_message",
+      2180
+    ],
+    [
+      "so_5::agent_t::process_message",
+      2169
+    ],
+    [
+      "so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock",
+      1958
+    ],
+    [
+      "so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message",
+      1878
+    ],
+    [
+      "void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message",
+      1801
+    ],
+    [
+      "so_5::impl::message_sink_without_message_limit_t::push_event",
+      1703
+    ],
+    [
+      "so_5::agent_t::call_push_event",
+      1703
+    ],
+    [
+      "std::enable_if<is_invocable_r_v<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start",
+      1541
+    ],
+    [
+      "so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start",
+      1541
+    ],
+    [
+      "void std::__invoke_impl<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start",
+      1541
+    ],
+    [
+      "so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::body",
+      1541
+    ],
+    [
+      "so_5::agent_t::push_event",
+      1450
+    ],
+    [
+      "so_5::disp::thread_pool::impl::basic_event_queue_t::push",
+      1233
+    ],
+    [
+      "so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::do_queue_processing",
+      1219
+    ]
+  ],
+  "measurement_instrumented": {
+    "framework": "sobjectizer-5.8.3",
+    "mode": "event",
+    "workers": 4,
+    "clients": 8,
+    "window": 1,
+    "payload_bytes": 64,
+    "batch": 1,
+    "hotspot": false,
+    "rounds_per_client": 860921,
+    "warmup_per_client": 128,
+    "round_trips": 6887368,
+    "seconds": 5.259041224,
+    "rps": 1309624.265,
+    "messages_per_second": 2619248.531,
+    "rtt_samples": 430464,
+    "rtt_p50_us": 5.852,
+    "rtt_p95_us": 7.156,
+    "rtt_p99_us": 8.908,
+    "cpu_seconds": 21.035163,
+    "peak_rss_kib": 7280,
+    "voluntary_context_switches": 6,
+    "involuntary_context_switches": 32
+  },
+  "files": {
+    "buildids.txt": {
+      "bytes": 298,
+      "sha256": "38894ddc4aaa91eca4c82c030c2945e7183a3dd24067d1510a4717a39402d004"
+    },
+    "stacks.folded": {
+      "bytes": 384032,
+      "sha256": "6dc0e7ddee7513e33fe3975146b72fa0e92730a33906b06135753158aa9a27cb"
+    },
+    "perf.script": {
+      "bytes": 24437886,
+      "sha256": "bb03837ff71f226c2cf37604e7387bd15b4439caa355ae74d2a01646c12b28c1"
+    },
+    "perf.report.txt": {
+      "bytes": 168239,
+      "sha256": "b646ca75576398c1dd018ebc5675b4f7739b5cc5569a70d9935a21bd8b93d4d3"
+    },
+    "record.json": {
+      "bytes": 1311,
+      "sha256": "bcd372b4fcaa0fd95b8b04edd0a9b923962baa3a77a806f3895d4893d47053e5"
+    },
+    "perf.data": {
+      "bytes": 35357612,
+      "sha256": "9a6cee4e568e6aa7f3dc9c61133e8c243514b795ab8340e558fc0573483729bb"
+    },
+    "buildids.txt.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "perf.script.stderr": {
+      "bytes": 17262,
+      "sha256": "8327e1e3633c7717c4b59bfe79b6c3513de61749799d46fd9b5428bc29f66956"
+    },
+    "flamegraph.svg": {
+      "bytes": 149974,
+      "sha256": "d3ae1c529f192d21d63897c215145f22a672f870679332ae28bc5b5f5d621174"
+    },
+    "perf.report.txt.stderr": {
+      "bytes": 17286,
+      "sha256": "2d173796812bdeb2a0af2db8f8c77c1eacfa09dfb8a2e28fcfcc41917e3377fc"
+    },
+    "flamegraph.svg.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stacks.folded.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

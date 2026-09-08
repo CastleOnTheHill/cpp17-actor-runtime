@@ -1,0 +1,494 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 992  of event 'cpu-clock:u'
+# Event count (approx.): 4984924000
+#
+# Overhead  Command      Shared Object        Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+# ........  ...........  ...................  ....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    15.32%  native_echo  libc.so.6            [.] pthread_mutex_unlock
+            |
+            ---pthread_mutex_unlock
+               |          
+               |--5.34%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          |          
+               |          |--2.92%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |          0x7f49f0d09db3
+               |          |          0x7f49f0a79b83
+               |          |          0x7f49f0b06d6b
+               |          |          
+               |           --2.42%--Client::issue()
+               |                     Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |                     actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |                     0x7f49f0d09db3
+               |                     0x7f49f0a79b83
+               |                     0x7f49f0b06d6b
+               |          
+               |--3.33%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |          
+               |          |--2.32%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |          0x7f49f0d09db3
+               |          |          0x7f49f0a79b83
+               |          |          0x7f49f0b06d6b
+               |          |          
+               |           --1.01%--std::mutex::lock() (inlined)
+               |                     std::lock_guard<std::mutex>::lock_guard(std::mutex&) (inlined)
+               |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |                     0x7f49f0d09db3
+               |                     0x7f49f0a79b83
+               |                     0x7f49f0b06d6b
+               |          
+               |--3.23%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f49f0d09db3
+               |          0x7f49f0a79b83
+               |          0x7f49f0b06d6b
+               |          
+                --2.82%--actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+                          |          
+                           --2.72%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                                     actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                                     |          
+                                     |--1.51%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                                     |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                                     |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                                     |          0x7f49f0d09db3
+                                     |          0x7f49f0a79b83
+                                     |          0x7f49f0b06d6b
+                                     |          
+                                      --1.21%--Client::issue()
+                                                Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                                                actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                                                actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                                                0x7f49f0d09db3
+                                                0x7f49f0a79b83
+                                                0x7f49f0b06d6b
+
+    14.92%  native_echo  libc.so.6            [.] pthread_mutex_lock
+            |
+            ---pthread_mutex_lock
+               |          
+               |--5.85%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          |          
+               |          |--3.63%--Client::issue()
+               |          |          Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |          0x7f49f0d09db3
+               |          |          0x7f49f0a79b83
+               |          |          0x7f49f0b06d6b
+               |          |          
+               |           --2.22%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |                     actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |                     0x7f49f0d09db3
+               |                     0x7f49f0a79b83
+               |                     0x7f49f0b06d6b
+               |          
+               |--2.72%--actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          |          
+               |          |--1.92%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |          0x7f49f0d09db3
+               |          |          0x7f49f0a79b83
+               |          |          0x7f49f0b06d6b
+               |          |          
+               |           --0.81%--Client::issue()
+               |                     Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |                     actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |                     0x7f49f0d09db3
+               |                     0x7f49f0a79b83
+               |                     0x7f49f0b06d6b
+               |          
+               |--2.52%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f49f0d09db3
+               |          0x7f49f0a79b83
+               |          0x7f49f0b06d6b
+               |          
+               |--1.51%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f49f0d09db3
+               |          0x7f49f0a79b83
+               |          0x7f49f0b06d6b
+               |          
+               |--1.11%--0x7f49f0d09db3
+               |          0x7f49f0a79b83
+               |          0x7f49f0b06d6b
+               |          
+               |--0.71%--actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+               |          actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          |          
+               |           --0.50%--Client::issue()
+               |                     Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |                     actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |                     0x7f49f0d09db3
+               |                     0x7f49f0a79b83
+               |                     0x7f49f0b06d6b
+               |          
+                --0.50%--std::mutex::lock() (inlined)
+                          std::lock_guard<std::mutex>::lock_guard(std::mutex&) (inlined)
+                          0x7f49f0d09db3
+                          0x7f49f0a79b83
+                          0x7f49f0b06d6b
+
+     7.86%  native_echo  native_echo          [.] actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+            |          
+             --7.06%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                       actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                       |          
+                       |--4.33%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                       |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       |          0x7f49f0d09db3
+                       |          0x7f49f0a79b83
+                       |          0x7f49f0b06d6b
+                       |          
+                        --2.62%--Client::issue()
+                                  Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                                  actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                                  actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                                  0x7f49f0d09db3
+                                  0x7f49f0a79b83
+                                  0x7f49f0b06d6b
+
+     7.06%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+            |          
+             --6.96%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       0x7f49f0d09db3
+                       0x7f49f0a79b83
+                       0x7f49f0b06d6b
+
+     6.05%  native_echo  libc.so.6            [.] 0x0000000000099035
+            |
+            ---0x7f49f0a76035
+               |          
+               |--4.94%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          |          
+               |          |--2.62%--Client::issue()
+               |          |          Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |          0x7f49f0d09db3
+               |          |          0x7f49f0a79b83
+               |          |          0x7f49f0b06d6b
+               |          |          
+               |           --2.32%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |                     actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |                     0x7f49f0d09db3
+               |                     0x7f49f0a79b83
+               |                     0x7f49f0b06d6b
+               |          
+                --0.50%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f49f0d09db3
+                          0x7f49f0a79b83
+                          0x7f49f0b06d6b
+
+     4.44%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+            |          
+            |--2.52%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+            |          0x7f49f0d09db3
+            |          0x7f49f0a79b83
+            |          0x7f49f0b06d6b
+            |          
+             --1.81%--std::enable_if<__and_v<std::__not_<std::is_same<std::optional<actor_runtime::Job>, std::remove_cv<std::remove_reference<actor_runtime::Job>::type>::type> >, std::__not_<std::__and_<std::is_scalar<actor_runtime::Job>, std::is_same<actor_runtime::Job, std::decay<actor_runtime::Job>::type> > >, std::is_constructible<actor_runtime::Job, actor_runtime::Job>, std::is_assignable<actor_runtime::Job&, actor_runtime::Job> >, std::optional<actor_runtime::Job>&>::type std::optional<actor_runtime::Job>::operator=<actor_runtime::Job>(actor_runtime::Job&&) (inlined)
+                       0x7f49f0d09db3
+                       0x7f49f0a79b83
+                       0x7f49f0b06d6b
+
+     4.33%  native_echo  native_echo          [.] std::any::_Manager_external<bench::Packet>::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+            |          
+             --4.13%--std::any::_Manager_external<bench::Packet>::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+                       |          
+                       |--1.81%--std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+                       |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+                       |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       |          0x7f49f0d09db3
+                       |          0x7f49f0a79b83
+                       |          0x7f49f0b06d6b
+                       |          
+                       |--1.31%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                       |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       |          0x7f49f0d09db3
+                       |          0x7f49f0a79b83
+                       |          0x7f49f0b06d6b
+                       |          
+                       |--0.50%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                       |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                       |          
+                        --0.50%--actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+
+     4.23%  native_echo  libc.so.6            [.] 0x0000000000099050
+            |
+            ---0x7f49f0a76050
+               |          
+                --3.93%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                          |          
+                          |--2.12%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                          |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          |          0x7f49f0d09db3
+                          |          0x7f49f0a79b83
+                          |          0x7f49f0b06d6b
+                          |          
+                           --1.81%--Client::issue()
+                                     Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                                     actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                                     0x7f49f0d09db3
+                                     0x7f49f0a79b83
+                                     0x7f49f0b06d6b
+
+     3.33%  native_echo  libc.so.6            [.] pthread_mutex_trylock
+            |
+            ---pthread_mutex_trylock
+               |          
+                --2.92%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f49f0d09db3
+                          0x7f49f0a79b83
+                          0x7f49f0b06d6b
+
+     2.92%  native_echo  libc.so.6            [.] cfree
+            |
+            ---cfree
+               |          
+               |--0.91%--std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+               |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f49f0d09db3
+               |          0x7f49f0a79b83
+               |          0x7f49f0b06d6b
+               |          
+               |--0.81%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f49f0d09db3
+               |          0x7f49f0a79b83
+               |          0x7f49f0b06d6b
+               |          
+                --0.60%--std::mutex::unlock() (inlined)
+                          std::lock_guard<std::mutex>::~lock_guard() (inlined)
+                          std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f49f0d09db3
+                          0x7f49f0a79b83
+                          0x7f49f0b06d6b
+
+     2.52%  native_echo  libc.so.6            [.] malloc
+            |
+            ---malloc
+               |          
+                --2.22%--operator new(unsigned long)
+                          |          
+                           --1.31%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                                     actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                                     |          
+                                      --0.91%--Client::issue()
+                                                Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                                                actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                                                actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                                                0x7f49f0d09db3
+                                                0x7f49f0a79b83
+                                                0x7f49f0b06d6b
+
+     2.52%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+            |
+            ---actor_runtime::ActorSystem::Impl::notifyMessage(std::shared_ptr<actor_runtime::ActorControl> const&, std::shared_ptr<actor_runtime::Message const> const&)
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f49f0d09db3
+               0x7f49f0a79b83
+               0x7f49f0b06d6b
+
+     2.12%  native_echo  native_echo          [.] Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+            |          
+            |--1.21%--std::mutex::lock() (inlined)
+            |          std::lock_guard<std::mutex>::lock_guard(std::mutex&) (inlined)
+            |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+            |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+            |          0x7f49f0d09db3
+            |          0x7f49f0a79b83
+            |          0x7f49f0b06d6b
+            |          
+             --0.81%--Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                       actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       0x7f49f0d09db3
+                       0x7f49f0a79b83
+                       0x7f49f0b06d6b
+
+     2.02%  native_echo  native_echo          [.] actor_runtime::Job::~Job()
+            |          
+             --1.92%--actor_runtime::Job::~Job()
+                       actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       0x7f49f0d09db3
+                       0x7f49f0a79b83
+                       0x7f49f0b06d6b
+
+     1.71%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+            |
+            ---actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+               actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          
+               |--1.01%--Client::issue()
+               |          Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f49f0d09db3
+               |          0x7f49f0a79b83
+               |          0x7f49f0b06d6b
+               |          
+                --0.71%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f49f0d09db3
+                          0x7f49f0a79b83
+                          0x7f49f0b06d6b
+
+     1.51%  native_echo  native_echo          [.] std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(unsigned long const&) [clone .isra.0]
+            |
+            ---std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(unsigned long const&) [clone .isra.0]
+               actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+               |          
+               |--0.91%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f49f0d09db3
+               |          0x7f49f0a79b83
+               |          0x7f49f0b06d6b
+               |          
+                --0.60%--Client::issue()
+                          Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f49f0d09db3
+                          0x7f49f0a79b83
+                          0x7f49f0b06d6b
+
+     1.41%  native_echo  libc.so.6            [.] 0x00000000000990b7
+            |
+            ---0x7f49f0a760b7
+               |          
+                --1.01%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                          |          
+                           --0.60%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                                     actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                                     0x7f49f0d09db3
+                                     0x7f49f0a79b83
+                                     0x7f49f0b06d6b
+
+     1.31%  native_echo  libc.so.6            [.] 0x0000000000188c11
+            |
+            ---0x7f49f0b65c11
+               std::any::_Manager_external<bench::Packet>::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+               Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f49f0d09db3
+               0x7f49f0a79b83
+               0x7f49f0b06d6b
+
+     1.31%  native_echo  native_echo          [.] std::shared_ptr<actor_runtime::Message const>& std::deque<std::shared_ptr<actor_runtime::Message const>, std::allocator<std::shared_ptr<actor_runtime::Message const> > >::emplace_back<std::shared_ptr<actor_runtime::Message const> >(std::shared_ptr<actor_runtime::Message const>&&) [clone .isra.0]
+            |          
+             --1.21%--std::shared_ptr<actor_runtime::Message const>& std::deque<std::shared_ptr<actor_runtime::Message const>, std::allocator<std::shared_ptr<actor_runtime::Message const> > >::emplace_back<std::shared_ptr<actor_runtime::Message const> >(std::shared_ptr<actor_runtime::Message const>&&) [clone .isra.0]
+                       actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                       actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                       |          
+                       |--0.60%--Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                       |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                       |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                       |          0x7f49f0d09db3
+                       |          0x7f49f0a79b83
+                       |          0x7f49f0b06d6b
+                       |          
+                        --0.60%--Client::issue()
+                                  Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                                  actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                                  actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                                  0x7f49f0d09db3
+                                  0x7f49f0a79b83
+                                  0x7f49f0b06d6b
+
+     1.21%  native_echo  native_echo          [.] std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+            |          
+             --1.11%--std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+                       |          
+                       |--0.60%--actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                       |          actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+                       |          
+                        --0.50%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                                  actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                                  0x7f49f0d09db3
+                                  0x7f49f0a79b83
+                                  0x7f49f0b06d6b
+
+     1.11%  native_echo  libstdc++.so.6.0.33  [.] operator delete(void*)
+            |
+            ---operator delete(void*)
+
+     1.11%  native_echo  native_echo          [.] actor_runtime::Job& std::deque<actor_runtime::Job, std::allocator<actor_runtime::Job> >::emplace_back<actor_runtime::Job>(actor_runtime::Job&&) [clone .isra.0]
+            |          
+             --0.71%--actor_runtime::Job& std::deque<actor_runtime::Job, std::allocator<actor_runtime::Job> >::emplace_back<actor_runtime::Job>(actor_runtime::Job&&) [clone .isra.0]
+                       std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                       actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+                       actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+
+     0.60%  native_echo  libstdc++.so.6.0.33  [.] operator new(unsigned long)
+            |
+            ---operator new(unsigned long)
+
+     0.60%  native_echo  native_echo          [.] std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+            |
+            ---std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f49f0d09db3
+               0x7f49f0a79b83
+               0x7f49f0b06d6b
+
+     0.50%  native_echo  libc.so.6            [.] 0x000000000009902e
+            |
+            ---0x7f49f0a7602e
+               actor_runtime::ActorSystem::send(unsigned long, unsigned long, std::any, unsigned long)
+               actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+
+     0.50%  native_echo  libc.so.6            [.] 0x00000000001884b6
+            |
+            ---0x7f49f0b654b6
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f49f0d09db3
+               0x7f49f0a79b83
+               0x7f49f0b06d6b
+
+     0.50%  native_echo  native_echo          [.] actor_runtime::ActorRef::send(unsigned long, std::any, unsigned long) const
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

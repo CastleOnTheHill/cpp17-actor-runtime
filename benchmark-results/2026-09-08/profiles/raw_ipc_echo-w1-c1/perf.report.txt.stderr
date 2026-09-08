@@ -1,0 +1,4 @@
+addr2line /home/arvin/.debug/.build-id/4d/81acf7eb00614edcf2b522404d778e5f9c4e3a/elf: could not read sentinel record
+addr2line /home/arvin/.debug/.build-id/4d/81acf7eb00614edcf2b522404d778e5f9c4e3a/elf: could not read sentinel record
+addr2line /home/arvin/.debug/.build-id/4d/81acf7eb00614edcf2b522404d778e5f9c4e3a/elf: could not read first record
+addr2line /home/arvin/.debug/.build-id/4d/81acf7eb00614edcf2b522404d778e5f9c4e3a/elf: unexpected record instead of sentineladdr2line /home/arvin/.debug/.build-id/4d/81acf7eb00614edcf2b522404d778e5f9c4e3a/elf: could not read sentinel record

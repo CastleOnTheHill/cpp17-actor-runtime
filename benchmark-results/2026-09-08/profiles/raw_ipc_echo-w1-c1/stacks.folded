@@ -1,0 +1,14 @@
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];/usr/include/c++/13/bits/invoke.h:61  1
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];_M_run;operator;_M_invoke<0>;__invoke<main;__invoke_impl<void, main 1
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];_M_run;recv 3
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];_M_run;recv;[libc.so.6] 1
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];bool std::operator!=<unsigned char, std::allocator<unsigned char> >;bool std::operator==<unsigned char, std::allocator<unsigned char> >;std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign;operator new 1
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];bool std::operator!=<unsigned char, std::allocator<unsigned char> >;bool std::operator==<unsigned char, std::allocator<unsigned char> >;std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign;operator new;malloc 1
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];bool std::operator!=<unsigned char, std::allocator<unsigned char> >;bool std::operator==<unsigned char, std::allocator<unsigned char> >;std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign;std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_create 1
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda 2
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda;[libc.so.6] 1
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda;_M_run;operator;_M_invoke<0>;__invoke<main;__invoke_impl<void, main 1
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda;__send 3
+raw_ipc_echo;[libc.so.6];[libc.so.6];[libstdc++.so.6.0.33];std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda;operator delete 1
+raw_ipc_echo;_M_run;operator;_M_invoke<0>;__invoke<main;__libc_start_main;[libc.so.6];main;recv;_M_run;operator;_M_invoke<0>;__invoke<main;__invoke_impl<void, main 1
+raw_ipc_echo;_M_run;operator;_M_invoke<0>;__invoke<main;__libc_start_main;[libc.so.6];main;recv;recvfrom 3

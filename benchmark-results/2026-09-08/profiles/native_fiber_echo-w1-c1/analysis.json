@@ -1,0 +1,286 @@
+{
+  "name": "native_fiber_echo-w1-c1",
+  "samples": 897,
+  "script_samples": 897,
+  "unknown_stack_samples": 892,
+  "unknown_stack_percent": 99.44258639910814,
+  "unknown_leaf_percent": 4.013377926421405,
+  "top_leaf": [
+    [
+      "swapcontext",
+      122
+    ],
+    [
+      "pthread_mutex_unlock",
+      91
+    ],
+    [
+      "pthread_mutex_lock",
+      71
+    ],
+    [
+      "actor_runtime::ActorSystem::send",
+      46
+    ],
+    [
+      "cfree",
+      42
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::processJob",
+      39
+    ],
+    [
+      "[libc.so.6]",
+      36
+    ],
+    [
+      "malloc",
+      34
+    ],
+    [
+      "pthread_mutex_trylock",
+      29
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::notifyMessage",
+      28
+    ],
+    [
+      "std::any::_Manager_external<std::shared_ptr<actor_runtime::Message const> >::_S_manage",
+      27
+    ],
+    [
+      "Client::onMessage",
+      24
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::triggerWait",
+      20
+    ],
+    [
+      "std::_Hashtable<unsigned long, std::pair<unsigned long const, std::unique_ptr<actor_runtime::Fiber, std::default_delete<actor_runtime::Fiber> > >, std::allocator<std::pair<unsigned long const, std::unique_ptr<actor_runtime::Fiber, std::default_delete<actor_runtime::Fiber> > > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find",
+      19
+    ],
+    [
+      "actor_runtime::CoroutineContext::await",
+      18
+    ],
+    [
+      "actor_runtime::Job::~Job",
+      17
+    ],
+    [
+      "std::any::_Manager_external<bench::Packet>::_S_manage",
+      17
+    ],
+    [
+      "operator new",
+      15
+    ],
+    [
+      "std::_Sp_counted_base<",
+      15
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::installWait",
+      14
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::resumeFiber",
+      13
+    ],
+    [
+      "std::_Function_handler<std::unique_ptr<actor_runtime::RuntimeWaitNode, std::default_delete<actor_runtime::RuntimeWaitNode> > ",
+      12
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::enqueueGlobal",
+      10
+    ],
+    [
+      "std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find",
+      10
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::workerLoop",
+      9
+    ]
+  ],
+  "top_inclusive": [
+    [
+      "[libc.so.6]",
+      890
+    ],
+    [
+      "[libstdc++.so.6.0.33]",
+      532
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::workerLoop",
+      518
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::processJob",
+      364
+    ],
+    [
+      "actor_runtime::(anonymous namespace)::fiberTrampoline",
+      351
+    ],
+    [
+      "std::_Function_handler<std::any ",
+      351
+    ],
+    [
+      "Client::onMessage",
+      348
+    ],
+    [
+      "actor_runtime::ActorRef::send",
+      188
+    ],
+    [
+      "actor_runtime::ActorSystem::send",
+      175
+    ],
+    [
+      "actor_runtime::CoroutineContext::await",
+      169
+    ],
+    [
+      "swapcontext",
+      122
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::notifyMessage",
+      116
+    ],
+    [
+      "std::function<std::any ",
+      99
+    ],
+    [
+      "Echo::onMessage",
+      96
+    ],
+    [
+      "pthread_mutex_unlock",
+      91
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::resumeFiber",
+      78
+    ],
+    [
+      "cfree",
+      76
+    ],
+    [
+      "pthread_mutex_lock",
+      71
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::triggerWait",
+      58
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::installWait",
+      55
+    ],
+    [
+      "operator new",
+      54
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::enqueueGlobal",
+      41
+    ],
+    [
+      "std::any::_Manager_external<std::shared_ptr<actor_runtime::Message const> >::_S_manage",
+      38
+    ],
+    [
+      "std::any::_Manager_external<bench::Packet>::_S_manage",
+      38
+    ],
+    [
+      "malloc",
+      34
+    ]
+  ],
+  "measurement_instrumented": {
+    "framework": "actor-runtime",
+    "mode": "fiber",
+    "workers": 1,
+    "clients": 1,
+    "window": 1,
+    "payload_bytes": 64,
+    "batch": 1,
+    "hotspot": false,
+    "rounds_per_client": 3964723,
+    "warmup_per_client": 128,
+    "round_trips": 3964723,
+    "seconds": 5.08899362,
+    "rps": 779078.0056,
+    "messages_per_second": 1558156.011,
+    "rtt_samples": 247796,
+    "rtt_p50_us": 1.035,
+    "rtt_p95_us": 2.236,
+    "rtt_p99_us": 2.535,
+    "cpu_seconds": 5.088899,
+    "peak_rss_kib": 4024,
+    "voluntary_context_switches": 1,
+    "involuntary_context_switches": 7
+  },
+  "files": {
+    "buildids.txt": {
+      "bytes": 307,
+      "sha256": "c2f7bfc21e9560c792227ff2978608509b8bdc2a05134306d1c8ff8769846203"
+    },
+    "stacks.folded": {
+      "bytes": 57777,
+      "sha256": "458eab410408476aa4251e4e19dc3c86c329bb76cb8278a293debebd2a3fe1c2"
+    },
+    "perf.script": {
+      "bytes": 904611,
+      "sha256": "672c40b5c1ee793d426c6c6bc89c233d61d8ef6495bb80a68fa104094071c292"
+    },
+    "perf.report.txt": {
+      "bytes": 45410,
+      "sha256": "4e2dd40648e6d6e2ccae51428931804ab015228797dc74eca3734099740451ac"
+    },
+    "record.json": {
+      "bytes": 1330,
+      "sha256": "09e5f7be84e886d6b0ac341e388ce728d832d3b301f41b8141bc8794d987ff85"
+    },
+    "perf.data": {
+      "bytes": 7594972,
+      "sha256": "c01af7c4530486813793bd671d06097c21bea3b8eacfd89a1c600c40bbbb938f"
+    },
+    "buildids.txt.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "perf.script.stderr": {
+      "bytes": 26118,
+      "sha256": "09ff004f4e4e2e8badf109e0790b9e5f9172cfa931c4956e15220a38fa26f1ed"
+    },
+    "flamegraph.svg": {
+      "bytes": 83778,
+      "sha256": "47721dcbe6d7df6511634d47a9149cc1cc2cae29cfe6ef460e5eb500e69b6316"
+    },
+    "perf.report.txt.stderr": {
+      "bytes": 25671,
+      "sha256": "65e3bdf7394d1ef3c4540810fad7d27b735856f7f1151f658670aae942647432"
+    },
+    "flamegraph.svg.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stacks.folded.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

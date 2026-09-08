@@ -1,0 +1,286 @@
+{
+  "name": "native_ipc_echo-w1-c1",
+  "samples": 142,
+  "script_samples": 142,
+  "unknown_stack_samples": 142,
+  "unknown_stack_percent": 100.0,
+  "unknown_leaf_percent": 23.239436619718308,
+  "top_leaf": [
+    [
+      "[libc.so.6]",
+      33
+    ],
+    [
+      "malloc",
+      15
+    ],
+    [
+      "operator delete",
+      7
+    ],
+    [
+      "pthread_mutex_unlock",
+      6
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::processJob",
+      5
+    ],
+    [
+      "operator new",
+      5
+    ],
+    [
+      "pthread_mutex_lock",
+      5
+    ],
+    [
+      "cfree",
+      5
+    ],
+    [
+      "actor_runtime::(anonymous namespace)::address",
+      3
+    ],
+    [
+      "actor_runtime::validateName",
+      3
+    ],
+    [
+      "sendmsg",
+      3
+    ],
+    [
+      "pthread_cond_clockwait",
+      3
+    ],
+    [
+      "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_create",
+      3
+    ],
+    [
+      "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace",
+      2
+    ],
+    [
+      "std::any::_Manager_external<std::vector<unsigned char, std::allocator<unsigned char> > >::_S_manage",
+      2
+    ],
+    [
+      "pthread_cond_broadcast",
+      2
+    ],
+    [
+      "pthread_mutex_trylock",
+      2
+    ],
+    [
+      "std::chrono::_V2::steady_clock::now",
+      2
+    ],
+    [
+      "__vdso_clock_gettime",
+      2
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::sendBytes",
+      2
+    ],
+    [
+      "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate",
+      2
+    ],
+    [
+      "pthread_cond_signal",
+      2
+    ],
+    [
+      "std::shared_ptr<actor_runtime::Message const>& std::deque<std::shared_ptr<actor_runtime::Message const>, std::allocator<std::shared_ptr<actor_runtime::Message const> > >::emplace_back<std::shared_ptr<actor_runtime::Message const> >",
+      2
+    ],
+    [
+      "actor_runtime::IpcTransport::loop",
+      2
+    ],
+    [
+      "__poll",
+      2
+    ]
+  ],
+  "top_inclusive": [
+    [
+      "[libc.so.6]",
+      101
+    ],
+    [
+      "[libstdc++.so.6.0.33]",
+      95
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::workerLoop",
+      57
+    ],
+    [
+      "std::_Sp_counted_base<",
+      56
+    ],
+    [
+      "[unknown]",
+      47
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::processJob",
+      42
+    ],
+    [
+      "std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda",
+      37
+    ],
+    [
+      "ar_client_request",
+      35
+    ],
+    [
+      "actor_runtime::IpcTransport::loop",
+      34
+    ],
+    [
+      "actor_runtime::ActorSystem::Impl::sendBytes",
+      33
+    ],
+    [
+      "std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, ",
+      26
+    ],
+    [
+      "cEcho",
+      25
+    ],
+    [
+      "void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>",
+      22
+    ],
+    [
+      "std::shared_ptr<actor_runtime::Message const>::~shared_ptr",
+      22
+    ],
+    [
+      "std::__shared_count<",
+      22
+    ],
+    [
+      "std::__shared_ptr<actor_runtime::Message const, ",
+      22
+    ],
+    [
+      "void std::_Destroy<actor_runtime::Message const>",
+      22
+    ],
+    [
+      "actor_runtime::ActorSystem::replyBytes",
+      21
+    ],
+    [
+      "operator new",
+      20
+    ],
+    [
+      "actor_runtime::(anonymous namespace)::address",
+      19
+    ],
+    [
+      "std::_Function_handler<int ",
+      18
+    ],
+    [
+      "malloc",
+      17
+    ],
+    [
+      "actor_runtime::IpcTransport::send",
+      16
+    ],
+    [
+      "pthread_cond_clockwait",
+      16
+    ],
+    [
+      "std::_Function_handler<void ",
+      14
+    ]
+  ],
+  "measurement_instrumented": {
+    "framework": "actor-runtime-c-api",
+    "mode": "ipc",
+    "workers": 1,
+    "clients": 1,
+    "window": 1,
+    "payload_bytes": 64,
+    "batch": 1,
+    "hotspot": true,
+    "rounds_per_client": 50186,
+    "warmup_per_client": 128,
+    "round_trips": 50186,
+    "seconds": 4.978672702,
+    "rps": 10080.19667,
+    "messages_per_second": 20160.39334,
+    "rtt_samples": 3137,
+    "rtt_p50_us": 93.347,
+    "rtt_p95_us": 127.489,
+    "rtt_p99_us": 174.851,
+    "cpu_seconds": 2.441009,
+    "peak_rss_kib": 3496,
+    "voluntary_context_switches": 150811,
+    "involuntary_context_switches": 11
+  },
+  "files": {
+    "buildids.txt": {
+      "bytes": 305,
+      "sha256": "3c6e388cba87b78151c7e7fa4c32195f8be21f95f27b15123208c7eff8e466c5"
+    },
+    "stacks.folded": {
+      "bytes": 32124,
+      "sha256": "5b88f21f4792d37cb67dcad9220890c568b96c05405a2cb14f18a0c076bcaa99"
+    },
+    "perf.script": {
+      "bytes": 156646,
+      "sha256": "704097dd5f1ec5f45666fe7a837304ee9d2dbeec14bf07221e4ad9d0a657bef8"
+    },
+    "perf.report.txt": {
+      "bytes": 90714,
+      "sha256": "fe129a17cf49e4e52e1cdc8092b52fb7b47f5c1e55ba2abc278488f1a23cae26"
+    },
+    "record.json": {
+      "bytes": 1330,
+      "sha256": "5b99863ae05bbca844917b65703f9852c84726ddb1646661e59c666d4e776b28"
+    },
+    "perf.data": {
+      "bytes": 1224292,
+      "sha256": "c3efecd45319eef4b439a6d38d59b01af972c87adf7305a6ecfeb271cf604648"
+    },
+    "buildids.txt.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "perf.script.stderr": {
+      "bytes": 8103,
+      "sha256": "d15b54f471726b200560a6b34e4a97846ed47eced140fac70417be214e6990bc"
+    },
+    "flamegraph.svg": {
+      "bytes": 51739,
+      "sha256": "ddcfdf350ccef0011119a7314cf77a1594439ee6d78a1c407afd0bd6cc1b015a"
+    },
+    "perf.report.txt.stderr": {
+      "bytes": 7608,
+      "sha256": "4edacabc30347fd66335e7d5c001a97f9160f0e3582bc091687947af512d8ca8"
+    },
+    "flamegraph.svg.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stacks.folded.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

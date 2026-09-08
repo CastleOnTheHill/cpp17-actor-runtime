@@ -1,0 +1,864 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 4K of event 'cpu-clock:u'
+# Event count (approx.): 21035173250
+#
+# Overhead  Command   Shared Object        Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                             
+# ........  ........  ...................  ...................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    41.47%  so5_echo  so5_echo             [.] so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock()
+            |          
+            |--21.38%--so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock()
+            |          |          
+            |          |--10.92%--std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+            |          |          std::function<void ()>::operator()() const (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          |          0x7faaa0296db3
+            |          |          0x7faaa0006b83
+            |          |          0x7faaa0093d6b
+            |          |          
+            |           --10.46%--std::lock_guard<so_5::disp::mpmc_queue_traits::lock_t>::lock_guard(so_5::disp::mpmc_queue_traits::lock_t&) (inlined)
+            |                     so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t>::schedule(so_5::disp::thread_pool::impl::agent_queue_t*) (inlined)
+            |                     so_5::disp::thread_pool::impl::agent_queue_t::schedule_on_disp_queue() (inlined)
+            |                     so_5::disp::thread_pool::impl::basic_event_queue_t::push_preallocated(std::unique_ptr<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t, std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t> >) (inlined)
+            |                     so_5::disp::thread_pool::impl::basic_event_queue_t::push_preallocated(std::unique_ptr<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t, std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t> >) (inlined)
+            |                     so_5::disp::thread_pool::impl::basic_event_queue_t::push(so_5::execution_demand_t)
+            |                     so_5::agent_t::push_event(so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&)
+            |                     so_5::agent_t::call_push_event(so_5::agent_t&, so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&) (inlined)
+            |                     so_5::impl::message_sink_without_message_limit_t::push_event(unsigned long long, so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int, so_5::message_limit::impl::action_msg_tracer_t const*) (inlined)
+            |                     so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}::operator()(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&) const (inlined)
+            |                     void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}>(std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, so_5::impl::msg_tracing_helpers::tracing_disabled_base::deliver_op_tracer const&, so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}) (inlined)
+            |                     so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+            |                     |          
+            |                     |--5.35%--void so_5::low_level_api::deliver_message<Request>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Request, std::default_delete<Request> >) (inlined)
+            |                     |          void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |                     |          void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |                     |          Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+            |                     |          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |                     |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |                     |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |                     |          std::function<void ()>::operator()() const (inlined)
+            |                     |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |                     |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |                     |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |                     |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |                     |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |                     |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |                     |          0x7faaa0296db3
+            |                     |          0x7faaa0006b83
+            |                     |          0x7faaa0093d6b
+            |                     |          
+            |                      --5.11%--std::atomic<bool>::load(std::memory_order) const (inlined)
+            |                                so_5::spinlock_t<so_5::pause_backoff_t>::lock() (inlined)
+            |                                so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock() (inlined)
+            |                                so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |                                so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |                                so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |                                std::function<void ()>::operator()() const (inlined)
+            |                                so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |                                void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |                                so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |                                void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                                std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                                void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |                                std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |                                std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |                                0x7faaa0296db3
+            |                                0x7faaa0006b83
+            |                                0x7faaa0093d6b
+            |          
+             --19.64%--so_5::execution_demand_t::call_handler(std::thread::id) (inlined)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::process_queue(so_5::disp::thread_pool::impl::agent_queue_t&) (inlined)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::do_queue_processing(so_5::disp::thread_pool::impl::agent_queue_t*) (inlined)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::body() (inlined)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}::operator()() const (inlined)
+                       void std::__invoke_impl<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(std::__invoke_other, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+                       std::enable_if<is_invocable_r_v<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>, void>::type std::__invoke_r<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+                       std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&) (inlined)
+                       |          
+                       |--10.39%--std::lock_guard<so_5::disp::mpmc_queue_traits::lock_t>::lock_guard(so_5::disp::mpmc_queue_traits::lock_t&) (inlined)
+                       |          so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t>::schedule(so_5::disp::thread_pool::impl::agent_queue_t*) (inlined)
+                       |          so_5::disp::thread_pool::impl::agent_queue_t::schedule_on_disp_queue() (inlined)
+                       |          so_5::disp::thread_pool::impl::basic_event_queue_t::push_preallocated(std::unique_ptr<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t, std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t> >) (inlined)
+                       |          so_5::disp::thread_pool::impl::basic_event_queue_t::push_preallocated(std::unique_ptr<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t, std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t> >) (inlined)
+                       |          so_5::disp::thread_pool::impl::basic_event_queue_t::push(so_5::execution_demand_t)
+                       |          so_5::agent_t::push_event(so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&)
+                       |          so_5::agent_t::call_push_event(so_5::agent_t&, so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&) (inlined)
+                       |          so_5::impl::message_sink_without_message_limit_t::push_event(unsigned long long, so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int, so_5::message_limit::impl::action_msg_tracer_t const*) (inlined)
+                       |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}::operator()(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&) const (inlined)
+                       |          void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}>(std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, so_5::impl::msg_tracing_helpers::tracing_disabled_base::deliver_op_tracer const&, so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}) (inlined)
+                       |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+                       |          |          
+                       |          |--5.23%--std::atomic<bool>::load(std::memory_order) const (inlined)
+                       |          |          so_5::spinlock_t<so_5::pause_backoff_t>::lock() (inlined)
+                       |          |          so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock() (inlined)
+                       |          |          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+                       |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+                       |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                       |          |          std::function<void ()>::operator()() const (inlined)
+                       |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                       |          |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                       |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                       |          |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       |          |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       |          |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                       |          |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                       |          |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                       |          |          0x7faaa0296db3
+                       |          |          0x7faaa0006b83
+                       |          |          0x7faaa0093d6b
+                       |          |          
+                       |           --5.16%--void so_5::low_level_api::deliver_message<Request>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Request, std::default_delete<Request> >) (inlined)
+                       |                     void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+                       |                     void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+                       |                     |          
+                       |                      --5.09%--Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+                       |                                so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+                       |                                so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+                       |                                so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                       |                                std::function<void ()>::operator()() const (inlined)
+                       |                                so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                       |                                void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                       |                                so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                       |                                void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       |                                std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       |                                void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                       |                                std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                       |                                std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                       |                                0x7faaa0296db3
+                       |                                0x7faaa0006b83
+                       |                                0x7faaa0093d6b
+                       |          
+                        --9.25%--std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+                                  std::function<void ()>::operator()() const (inlined)
+                                  so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                                  void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                                  so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                                  void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                                  std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                                  void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                                  std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                                  std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                                  0x7faaa0296db3
+                                  0x7faaa0006b83
+                                  0x7faaa0093d6b
+
+    17.44%  so5_echo  so5_echo             [.] std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+            |          
+            |--9.15%--std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+            |          std::function<void ()>::operator()() const (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          0x7faaa0296db3
+            |          0x7faaa0006b83
+            |          0x7faaa0093d6b
+            |          
+            |--2.60%--so_5::intrusive_ptr_t<so_5::message_t>::~intrusive_ptr_t() (inlined)
+            |          so_5::execution_demand_t::~execution_demand_t() (inlined)
+            |          so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t::~demand_t() (inlined)
+            |          std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t>::operator()(so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t*) const (inlined)
+            |          std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t>::operator()(so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t*) const (inlined)
+            |          std::unique_ptr<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t, std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t> >::~unique_ptr() (inlined)
+            |          so_5::disp::thread_pool::impl::basic_event_queue_t::pop(unsigned long) (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::process_queue(so_5::disp::thread_pool::impl::agent_queue_t&) (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::do_queue_processing(so_5::disp::thread_pool::impl::agent_queue_t*) (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::body() (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}::operator()() const (inlined)
+            |          void std::__invoke_impl<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(std::__invoke_other, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+            |          std::enable_if<is_invocable_r_v<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>, void>::type std::__invoke_r<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+            |          std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+            |          std::function<void ()>::operator()() const (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          0x7faaa0296db3
+            |          0x7faaa0006b83
+            |          0x7faaa0093d6b
+            |          
+            |--2.34%--so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |          std::function<void ()>::operator()() const (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          0x7faaa0296db3
+            |          0x7faaa0006b83
+            |          0x7faaa0093d6b
+            |          
+            |--1.24%--/usr/include/c++/13/bits/predefined_ops.h:318 (discriminator 1) (inlined)
+            |          /usr/include/c++/13/bits/stl_algobase.h:2102 (discriminator 1) (inlined)
+            |          /usr/include/c++/13/bits/stl_algobase.h:2117 (discriminator 1) (inlined)
+            |          /usr/include/c++/13/bits/stl_algo.h:3923 (discriminator 1) (inlined)
+            |          std::function<void ()>::operator()() const (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          0x7faaa0296db3
+            |          0x7faaa0006b83
+            |          0x7faaa0093d6b
+            |          
+            |--1.08%--void so_5::low_level_api::deliver_message<Response>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Response, std::default_delete<Response> >) (inlined)
+            |          void so_5::impl::instantiator_and_sender_base<Response, false>::send<bench::Packet const&>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet const&) (inlined)
+            |          void so_5::send<Response, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet const&>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet const&) (inlined)
+            |          std::function<void ()>::operator()() const (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          0x7faaa0296db3
+            |          0x7faaa0006b83
+            |          0x7faaa0093d6b
+            |          
+             --0.86%--so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::process_queue(so_5::disp::thread_pool::impl::agent_queue_t&) (inlined)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::do_queue_processing(so_5::disp::thread_pool::impl::agent_queue_t*) (inlined)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::body() (inlined)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}::operator()() const (inlined)
+                       void std::__invoke_impl<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(std::__invoke_other, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+                       std::enable_if<is_invocable_r_v<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>, void>::type std::__invoke_r<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+                       std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+                       std::function<void ()>::operator()() const (inlined)
+                       so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                       void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                       so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                       void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                       std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                       std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                       0x7faaa0296db3
+                       0x7faaa0006b83
+                       0x7faaa0093d6b
+
+    12.26%  so5_echo  so5_echo             [.] so_5::disp::thread_pool::impl::basic_event_queue_t::push(so_5::execution_demand_t)
+            |          
+            |--4.23%--so_5::disp::thread_pool::impl::basic_event_queue_t::push(so_5::execution_demand_t)
+            |          so_5::agent_t::push_event(so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&)
+            |          so_5::agent_t::call_push_event(so_5::agent_t&, so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&) (inlined)
+            |          so_5::impl::message_sink_without_message_limit_t::push_event(unsigned long long, so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int, so_5::message_limit::impl::action_msg_tracer_t const*) (inlined)
+            |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}::operator()(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&) const (inlined)
+            |          void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}>(std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, so_5::impl::msg_tracing_helpers::tracing_disabled_base::deliver_op_tracer const&, so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}) (inlined)
+            |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+            |          |          
+            |          |--2.63%--void so_5::low_level_api::deliver_message<Request>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Request, std::default_delete<Request> >) (inlined)
+            |          |          void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |          |          void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |          |          Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+            |          |          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |          |          std::function<void ()>::operator()() const (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          |          0x7faaa0296db3
+            |          |          0x7faaa0006b83
+            |          |          0x7faaa0093d6b
+            |          |          
+            |           --1.60%--std::atomic<bool>::load(std::memory_order) const (inlined)
+            |                     so_5::spinlock_t<so_5::pause_backoff_t>::lock() (inlined)
+            |                     so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock() (inlined)
+            |                     so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |                     std::function<void ()>::operator()() const (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |                     void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |                     void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |                     std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |                     std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |                     0x7faaa0296db3
+            |                     0x7faaa0006b83
+            |                     0x7faaa0093d6b
+            |          
+            |--3.92%--std::lock_guard<so_5::spinlock_t<so_5::pause_backoff_t> >::lock_guard(so_5::spinlock_t<so_5::pause_backoff_t>&) (inlined)
+            |          so_5::disp::thread_pool::impl::basic_event_queue_t::push_preallocated(std::unique_ptr<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t, std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t> >)::{lambda()#1}::operator()() const (inlined)
+            |          so_5::disp::thread_pool::impl::basic_event_queue_t::push_preallocated(std::unique_ptr<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t, std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t> >) (inlined)
+            |          so_5::disp::thread_pool::impl::basic_event_queue_t::push(so_5::execution_demand_t)
+            |          so_5::agent_t::push_event(so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&)
+            |          so_5::agent_t::call_push_event(so_5::agent_t&, so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&) (inlined)
+            |          so_5::impl::message_sink_without_message_limit_t::push_event(unsigned long long, so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int, so_5::message_limit::impl::action_msg_tracer_t const*) (inlined)
+            |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}::operator()(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&) const (inlined)
+            |          void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}>(std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, so_5::impl::msg_tracing_helpers::tracing_disabled_base::deliver_op_tracer const&, so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}) (inlined)
+            |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+            |          |          
+            |          |--2.03%--std::atomic<bool>::load(std::memory_order) const (inlined)
+            |          |          so_5::spinlock_t<so_5::pause_backoff_t>::lock() (inlined)
+            |          |          so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock() (inlined)
+            |          |          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |          |          std::function<void ()>::operator()() const (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          |          0x7faaa0296db3
+            |          |          0x7faaa0006b83
+            |          |          0x7faaa0093d6b
+            |          |          
+            |           --1.89%--void so_5::low_level_api::deliver_message<Request>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Request, std::default_delete<Request> >) (inlined)
+            |                     void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |                     void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |                     Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+            |                     so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |                     std::function<void ()>::operator()() const (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |                     void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |                     void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |                     std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |                     std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |                     0x7faaa0296db3
+            |                     0x7faaa0006b83
+            |                     0x7faaa0093d6b
+            |          
+            |--2.25%--std::unique_ptr<Response, std::default_delete<Response> > so_5::details::make_message_instance_impl<false, Response>::make<bench::Packet const&>(bench::Packet const&) (inlined)
+            |          std::unique_ptr<so_5::message_payload_type<Response>::envelope_type, std::default_delete<so_5::message_payload_type<Response>::envelope_type> > so_5::details::make_message_instance<Response, bench::Packet const&>(bench::Packet const&) (inlined)
+            |          auto so_5::impl::instantiator_and_sender_base<Response, false>::make_instance<bench::Packet const&>(bench::Packet const&) (inlined)
+            |          void so_5::impl::instantiator_and_sender_base<Response, false>::send<bench::Packet const&>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet const&) (inlined)
+            |          void so_5::send<Response, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet const&>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet const&) (inlined)
+            |          so_5::agent_t::push_event(so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&)
+            |          so_5::agent_t::call_push_event(so_5::agent_t&, so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&) (inlined)
+            |          so_5::impl::message_sink_without_message_limit_t::push_event(unsigned long long, so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int, so_5::message_limit::impl::action_msg_tracer_t const*) (inlined)
+            |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}::operator()(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&) const (inlined)
+            |          void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}>(std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, so_5::impl::msg_tracing_helpers::tracing_disabled_base::deliver_op_tracer const&, so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}) (inlined)
+            |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+            |          |          
+            |          |--1.22%--void so_5::low_level_api::deliver_message<Request>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Request, std::default_delete<Request> >) (inlined)
+            |          |          void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |          |          void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |          |          Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+            |          |          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |          |          std::function<void ()>::operator()() const (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          |          0x7faaa0296db3
+            |          |          0x7faaa0006b83
+            |          |          0x7faaa0093d6b
+            |          |          
+            |           --1.03%--std::atomic<bool>::load(std::memory_order) const (inlined)
+            |                     so_5::spinlock_t<so_5::pause_backoff_t>::lock() (inlined)
+            |                     so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock() (inlined)
+            |                     so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |                     std::function<void ()>::operator()() const (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |                     void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |                     void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |                     std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |                     std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |                     0x7faaa0296db3
+            |                     0x7faaa0006b83
+            |                     0x7faaa0093d6b
+            |          
+             --1.67%--std::unique_ptr<so_5::message_payload_type<Request>::envelope_type, std::default_delete<so_5::message_payload_type<Request>::envelope_type> > so_5::details::make_message_instance<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+                       auto so_5::impl::instantiator_and_sender_base<Request, false>::make_instance<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+                       void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+                       void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+                       so_5::agent_t::push_event(so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&)
+                       so_5::agent_t::call_push_event(so_5::agent_t&, so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&) (inlined)
+                       so_5::impl::message_sink_without_message_limit_t::push_event(unsigned long long, so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int, so_5::message_limit::impl::action_msg_tracer_t const*) (inlined)
+                       so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}::operator()(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&) const (inlined)
+                       void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}>(std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, so_5::impl::msg_tracing_helpers::tracing_disabled_base::deliver_op_tracer const&, so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}) (inlined)
+                       so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+                       |          
+                       |--0.84%--void so_5::low_level_api::deliver_message<Request>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Request, std::default_delete<Request> >) (inlined)
+                       |          void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+                       |          void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+                       |          Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+                       |          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+                       |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+                       |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                       |          std::function<void ()>::operator()() const (inlined)
+                       |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                       |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                       |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                       |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                       |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                       |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                       |          0x7faaa0296db3
+                       |          0x7faaa0006b83
+                       |          0x7faaa0093d6b
+                       |          
+                        --0.84%--std::atomic<bool>::load(std::memory_order) const (inlined)
+                                  so_5::spinlock_t<so_5::pause_backoff_t>::lock() (inlined)
+                                  so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock() (inlined)
+                                  so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+                                  so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+                                  so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                                  std::function<void ()>::operator()() const (inlined)
+                                  so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                                  void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                                  so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                                  void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                                  std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                                  void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                                  std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                                  std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                                  0x7faaa0296db3
+                                  0x7faaa0006b83
+                                  0x7faaa0093d6b
+
+     7.12%  so5_echo  so5_echo             [.] so_5::agent_t::push_event(so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&)
+            |          
+            |--3.56%--so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t>::pop(so_5::disp::mpmc_queue_traits::condition_t&) (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::pop_agent_queue() (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::body() (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}::operator()() const (inlined)
+            |          void std::__invoke_impl<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(std::__invoke_other, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+            |          std::enable_if<is_invocable_r_v<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>, void>::type std::__invoke_r<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+            |          std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&) (inlined)
+            |          so_5::agent_t::call_push_event(so_5::agent_t&, so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&) (inlined)
+            |          so_5::impl::message_sink_without_message_limit_t::push_event(unsigned long long, so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int, so_5::message_limit::impl::action_msg_tracer_t const*) (inlined)
+            |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}::operator()(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&) const (inlined)
+            |          void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}>(std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, so_5::impl::msg_tracing_helpers::tracing_disabled_base::deliver_op_tracer const&, so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}) (inlined)
+            |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+            |          |          
+            |          |--1.86%--void so_5::low_level_api::deliver_message<Request>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Request, std::default_delete<Request> >) (inlined)
+            |          |          void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |          |          void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |          |          Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+            |          |          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |          |          std::function<void ()>::operator()() const (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          |          0x7faaa0296db3
+            |          |          0x7faaa0006b83
+            |          |          0x7faaa0093d6b
+            |          |          
+            |           --1.70%--std::atomic<bool>::load(std::memory_order) const (inlined)
+            |                     so_5::spinlock_t<so_5::pause_backoff_t>::lock() (inlined)
+            |                     so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock() (inlined)
+            |                     so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |                     std::function<void ()>::operator()() const (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |                     void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |                     void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |                     std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |                     std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |                     0x7faaa0296db3
+            |                     0x7faaa0006b83
+            |                     0x7faaa0093d6b
+            |          
+            |--1.84%--so_5::execution_demand_t::~execution_demand_t() (inlined)
+            |          so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t::~demand_t() (inlined)
+            |          std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t>::operator()(so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t*) const (inlined)
+            |          std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t>::operator()(so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t*) const (inlined)
+            |          std::unique_ptr<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t, std::default_delete<so_5::disp::thread_pool::impl::basic_event_queue_t::demand_t> >::~unique_ptr() (inlined)
+            |          so_5::disp::thread_pool::impl::basic_event_queue_t::pop(unsigned long) (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::process_queue(so_5::disp::thread_pool::impl::agent_queue_t&) (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::do_queue_processing(so_5::disp::thread_pool::impl::agent_queue_t*) (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::body() (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}::operator()() const (inlined)
+            |          void std::__invoke_impl<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(std::__invoke_other, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+            |          std::enable_if<is_invocable_r_v<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>, void>::type std::__invoke_r<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+            |          std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&) (inlined)
+            |          so_5::agent_t::call_push_event(so_5::agent_t&, so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&) (inlined)
+            |          so_5::impl::message_sink_without_message_limit_t::push_event(unsigned long long, so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int, so_5::message_limit::impl::action_msg_tracer_t const*) (inlined)
+            |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}::operator()(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&) const (inlined)
+            |          void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}>(std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, so_5::impl::msg_tracing_helpers::tracing_disabled_base::deliver_op_tracer const&, so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}) (inlined)
+            |          so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+            |          |          
+            |          |--1.03%--void so_5::low_level_api::deliver_message<Request>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Request, std::default_delete<Request> >) (inlined)
+            |          |          void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |          |          void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |          |          Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+            |          |          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |          |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |          |          std::function<void ()>::operator()() const (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          |          0x7faaa0296db3
+            |          |          0x7faaa0006b83
+            |          |          0x7faaa0093d6b
+            |          |          
+            |           --0.81%--std::atomic<bool>::load(std::memory_order) const (inlined)
+            |                     so_5::spinlock_t<so_5::pause_backoff_t>::lock() (inlined)
+            |                     so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock() (inlined)
+            |                     so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |                     std::function<void ()>::operator()() const (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |                     void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |                     void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |                     std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |                     std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |                     0x7faaa0296db3
+            |                     0x7faaa0006b83
+            |                     0x7faaa0093d6b
+            |          
+             --1.70%--so_5::agent_t::push_event(so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&)
+                       so_5::agent_t::call_push_event(so_5::agent_t&, so_5::message_limit::control_block_t const*, unsigned long long, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&) (inlined)
+                       so_5::impl::message_sink_without_message_limit_t::push_event(unsigned long long, so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int, so_5::message_limit::impl::action_msg_tracer_t const*) (inlined)
+                       so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}::operator()(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&) const (inlined)
+                       void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}>(std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, so_5::impl::msg_tracing_helpers::tracing_disabled_base::deliver_op_tracer const&, so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}) (inlined)
+                       so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+                       |          
+                       |--1.15%--std::atomic<bool>::load(std::memory_order) const (inlined)
+                       |          so_5::spinlock_t<so_5::pause_backoff_t>::lock() (inlined)
+                       |          so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock() (inlined)
+                       |          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+                       |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+                       |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                       |          std::function<void ()>::operator()() const (inlined)
+                       |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                       |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                       |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                       |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                       |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                       |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                       |          0x7faaa0296db3
+                       |          0x7faaa0006b83
+                       |          0x7faaa0093d6b
+                       |          
+                        --0.55%--void so_5::low_level_api::deliver_message<Request>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Request, std::default_delete<Request> >) (inlined)
+                                  void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+                                  void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+                                  Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+                                  so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+                                  so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+                                  so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                                  std::function<void ()>::operator()() const (inlined)
+                                  so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                                  void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                                  so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                                  void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                                  std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                                  void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                                  std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                                  std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                                  0x7faaa0296db3
+                                  0x7faaa0006b83
+                                  0x7faaa0093d6b
+
+     2.13%  so5_echo  so5_echo             [.] so_5::impl::vector_based_subscr_storage::storage_t::find_handler(unsigned long long, std::type_index const&, so_5::state_t const&) const
+            |          
+             --1.58%--so_5::impl::vector_based_subscr_storage::storage_t::find_handler(unsigned long long, std::type_index const&, so_5::state_t const&) const
+                       so_5::agent_t::find_event_handler_for_current_state(so_5::execution_demand_t&)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::process_queue(so_5::disp::thread_pool::impl::agent_queue_t&) (inlined)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::do_queue_processing(so_5::disp::thread_pool::impl::agent_queue_t*) (inlined)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::body() (inlined)
+                       so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}::operator()() const (inlined)
+                       void std::__invoke_impl<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(std::__invoke_other, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+                       std::enable_if<is_invocable_r_v<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>, void>::type std::__invoke_r<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+                       std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&) (inlined)
+                       so_5::impl::vector_based_subscr_storage::storage_t::find_handler(unsigned long long, std::type_index const&, so_5::state_t const&) const (inlined)
+                       __find_if<__gnu_cxx::__normal_iterator<const so_5::impl::subscription_storage_common::subscr_info_t*, std::vector<so_5::impl::subscription_storage_common::subscr_info_t> >, __gnu_cxx::__ops::_Iter_pred<so_5::impl::vector_based_subscr_storage::(anonymous namespace)::find<const std::vector<so_5::impl::subscription_storage_common::subscr_info_t> >(const std::vector<so_5::impl::subscription_storage_common::subscr_info_t>&, const so_5::mbox_id_t&, const std::type_index&, const so_5::state_t&)::<lambda(const std::vector<so_5::impl::subscription_storage_common::subscr_info_t>::value_type&)> > > (inlined)
+                       find_if<__gnu_cxx::__normal_iterator<const so_5::impl::subscription_storage_common::subscr_info_t*, std::vector<so_5::impl::subscription_storage_common::subscr_info_t> >, so_5::impl::vector_based_subscr_storage::(anonymous namespace)::find<const std::vector<so_5::impl::subscription_storage_common::subscr_info_t> >(const std::vector<so_5::impl::subscription_storage_common::subscr_info_t>&, const so_5::mbox_id_t&, const std::type_index&, const so_5::state_t&)::<lambda(const std::vector<so_5::impl::subscription_storage_common::subscr_info_t>::value_type&)> > (inlined)
+                       find<const std::vector<so_5::impl::subscription_storage_common::subscr_info_t> > (inlined)
+                       so_5::impl::vector_based_subscr_storage::storage_t::find_handler(unsigned long long, std::type_index const&, so_5::state_t const&) const (inlined)
+                       so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                       std::function<void ()>::operator()() const (inlined)
+                       so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                       void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                       so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                       void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                       std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                       std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                       0x7faaa0296db3
+                       0x7faaa0006b83
+                       0x7faaa0093d6b
+
+     1.91%  so5_echo  so5_echo             [.] so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+            |          
+            |--1.24%--so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t>::try_switch_to_another(so_5::disp::thread_pool::impl::agent_queue_t*) (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::do_queue_processing(so_5::disp::thread_pool::impl::agent_queue_t*) (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::body() (inlined)
+            |          so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}::operator()() const (inlined)
+            |          void std::__invoke_impl<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(std::__invoke_other, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+            |          std::enable_if<is_invocable_r_v<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>, void>::type std::__invoke_r<void, so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&>(so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}&) (inlined)
+            |          std::_Function_handler<void (), so_5::disp::thread_pool::impl::work_thread_details::work_thread_template_t<so_5::disp::thread_pool::impl::work_thread_details::no_activity_tracking_impl_t<so_5::disp::reuse::queue_of_queues_t<so_5::disp::thread_pool::impl::agent_queue_t> > >::start()::{lambda()#1}>::_M_invoke(std::_Any_data const&) (inlined)
+            |          |          
+            |           --0.91%--void so_5::low_level_api::deliver_message<Request>(so_5::message_delivery_mode_t, so_5::abstract_message_box_t&, std::type_index, std::unique_ptr<Request, std::default_delete<Request> >) (inlined)
+            |                     void so_5::impl::instantiator_and_sender_base<Request, false>::send<so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |                     void so_5::send<Request, so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet>(so_5::intrusive_ptr_t<so_5::abstract_message_box_t>&, so_5::intrusive_ptr_t<so_5::abstract_message_box_t> const&, bench::Packet&&) (inlined)
+            |                     Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+            |                     so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |                     so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |                     std::function<void ()>::operator()() const (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |                     void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |                     so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |                     void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |                     void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |                     std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |                     std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |                     0x7faaa0296db3
+            |                     0x7faaa0006b83
+            |                     0x7faaa0093d6b
+            |          
+             --0.62%--so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)
+
+     1.65%  so5_echo  so5_echo             [.] so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |
+            ---so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+               so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+               std::function<void ()>::operator()() const (inlined)
+               so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+               void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+               so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+               void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+               std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+               void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+               std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+               0x7faaa0296db3
+               0x7faaa0006b83
+               0x7faaa0093d6b
+
+     1.55%  so5_echo  so5_echo             [.] Echo::so_define_agent()::{lambda(Request const&)#1}::operator()(Request const&) const
+            |          
+             --1.34%--Echo::so_define_agent()::{lambda(Request const&)#1}::operator()(Request const&) const
+                       so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+                       so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+                       so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                       std::function<void ()>::operator()() const (inlined)
+                       so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                       void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                       so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                       void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                       std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                       std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                       0x7faaa0296db3
+                       0x7faaa0006b83
+                       0x7faaa0093d6b
+
+     1.51%  so5_echo  so5_echo             [.] so_5::agent_t::handler_finder_msg_tracing_disabled(so_5::execution_demand_t&, char const*)
+            |
+            ---so_5::agent_t::handler_finder_msg_tracing_disabled(so_5::execution_demand_t&, char const*)
+               so_5::impl::vector_based_subscr_storage::storage_t::find_handler(unsigned long long, std::type_index const&, so_5::state_t const&) const (inlined)
+               __find_if<__gnu_cxx::__normal_iterator<const so_5::impl::subscription_storage_common::subscr_info_t*, std::vector<so_5::impl::subscription_storage_common::subscr_info_t> >, __gnu_cxx::__ops::_Iter_pred<so_5::impl::vector_based_subscr_storage::(anonymous namespace)::find<const std::vector<so_5::impl::subscription_storage_common::subscr_info_t> >(const std::vector<so_5::impl::subscription_storage_common::subscr_info_t>&, const so_5::mbox_id_t&, const std::type_index&, const so_5::state_t&)::<lambda(const std::vector<so_5::impl::subscription_storage_common::subscr_info_t>::value_type&)> > > (inlined)
+               find_if<__gnu_cxx::__normal_iterator<const so_5::impl::subscription_storage_common::subscr_info_t*, std::vector<so_5::impl::subscription_storage_common::subscr_info_t> >, so_5::impl::vector_based_subscr_storage::(anonymous namespace)::find<const std::vector<so_5::impl::subscription_storage_common::subscr_info_t> >(const std::vector<so_5::impl::subscription_storage_common::subscr_info_t>&, const so_5::mbox_id_t&, const std::type_index&, const so_5::state_t&)::<lambda(const std::vector<so_5::impl::subscription_storage_common::subscr_info_t>::value_type&)> > (inlined)
+               find<const std::vector<so_5::impl::subscription_storage_common::subscr_info_t> > (inlined)
+               so_5::impl::vector_based_subscr_storage::storage_t::find_handler(unsigned long long, std::type_index const&, so_5::state_t const&) const (inlined)
+               so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+               std::function<void ()>::operator()() const (inlined)
+               so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+               void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+               so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+               void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+               std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+               void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+               std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+               0x7faaa0296db3
+               0x7faaa0006b83
+               0x7faaa0093d6b
+
+     1.48%  so5_echo  so5_echo             [.] Client::issue()
+            |          
+            |--0.74%--Client::issue()
+            |          Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+            |          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+            |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+            |          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+            |          std::function<void ()>::operator()() const (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+            |          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+            |          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+            |          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+            |          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+            |          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+            |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+            |          0x7faaa0296db3
+            |          0x7faaa0006b83
+            |          0x7faaa0093d6b
+            |          
+             --0.65%--so_5::read_lock_guard_t<so_5::rw_spinlock_t<so_5::pause_backoff_t> >::read_lock_guard_t(so_5::rw_spinlock_t<so_5::pause_backoff_t>&) (inlined)
+                       void so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_delivery<so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}>(std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, so_5::impl::msg_tracing_helpers::tracing_disabled_base::deliver_op_tracer const&, so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int)::{lambda(so_5::impl::local_mbox_details::subscription_info_with_sink_t const&)#1}) (inlined)
+                       so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::do_deliver_message(so_5::message_delivery_mode_t, std::type_index const&, so_5::intrusive_ptr_t<so_5::message_t> const&, unsigned int) (inlined)
+                       Client::so_define_agent()::{lambda(Response const&)#2}::operator()(Response const&) const
+                       so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+                       so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+                       so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                       std::function<void ()>::operator()() const (inlined)
+                       so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                       void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                       so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                       void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                       void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                       std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                       std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                       0x7faaa0296db3
+                       0x7faaa0006b83
+                       0x7faaa0093d6b
+
+     0.98%  so5_echo  libstdc++.so.6.0.33  [.] __dynamic_cast
+            |
+            ---__dynamic_cast
+               |          
+                --0.53%--std::atomic<bool>::exchange(bool, std::memory_order) (inlined)
+                          so_5::spinlock_t<so_5::pause_backoff_t>::lock() (inlined)
+                          so_5::disp::mpmc_queue_traits::combined_lock::actual_lock_t::lock() (inlined)
+                          so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+                          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+                          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                          std::function<void ()>::operator()() const (inlined)
+                          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                          0x7faaa0296db3
+                          0x7faaa0006b83
+                          0x7faaa0093d6b
+
+     0.96%  so5_echo  libc.so.6            [.] 0x0000000000188c11
+            |
+            ---0x7faaa00f2c11
+               |          
+                --0.91%--so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+                          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+                          so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+                          std::function<void ()>::operator()() const (inlined)
+                          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+                          void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+                          so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+                          void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                          std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+                          void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+                          std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+                          std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+                          0x7faaa0296db3
+                          0x7faaa0006b83
+                          0x7faaa0093d6b
+
+     0.93%  so5_echo  so5_echo             [.] so_5::agent_t::find_event_handler_for_current_state(so_5::execution_demand_t&)
+     0.91%  so5_echo  libc.so.6            [.] malloc
+            |
+            ---malloc
+               |          
+                --0.76%--operator new(unsigned long)
+
+     0.76%  so5_echo  libc.so.6            [.] 0x00000000001884b6
+            |
+            ---0x7faaa00f24b6
+               so_5::agent_t::process_message(std::thread::id, so_5::execution_demand_t&, so_5::thread_safety_t, std::function<void (so_5::intrusive_ptr_t<so_5::message_t>&)>)
+               so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&)
+               so_5::agent_t::demand_handler_on_message(std::thread::id, so_5::execution_demand_t&) (inlined)
+               std::function<void ()>::operator()() const (inlined)
+               so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}::operator()() const (inlined)
+               void so_5::details::suppress_exceptions<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const::{lambda()#1}&&) (inlined)
+               so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}::operator()() const (inlined)
+               void std::__invoke_impl<void, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(std::__invoke_other, so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+               std::__invoke_result<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>::type std::__invoke<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}>(so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}&&) (inlined)
+               void std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) (inlined)
+               std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> >::operator()() (inlined)
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<so_5::disp::std_work_thread_impl::std_work_thread_t::start(std::function<void ()>)::{lambda()#1}> > >::_M_run()
+               0x7faaa0296db3
+               0x7faaa0006b83
+               0x7faaa0093d6b
+
+     0.69%  so5_echo  libc.so.6            [.] cfree
+            |
+            ---cfree
+
+     0.50%  so5_echo  so5_echo             [.] so_5::impl::mpsc_mbox_template_t<so_5::impl::msg_tracing_helpers::tracing_disabled_base, so_5::impl::limitful_mpsc_mbox_mixin_t>::id() const
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

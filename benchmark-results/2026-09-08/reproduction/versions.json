@@ -1,0 +1,46 @@
+{
+  "flamegraph_commit": {
+    "command": [
+      "git",
+      "-C",
+      "/tmp/actor-benchmark-deps-20260907/FlameGraph",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "stdout": "41fee1f99f9276008b7cd112fca19dc3ea84ac32\n",
+    "stderr": ""
+  },
+  "packages": {
+    "command": [
+      "dpkg-query",
+      "-W",
+      "linux-tools-generic",
+      "linux-tools-common",
+      "ninja-build",
+      "libgoogle-perftools-dev",
+      "google-perftools"
+    ],
+    "returncode": 0,
+    "stdout": "google-perftools\t2.15-3build1\nlibgoogle-perftools-dev:amd64\t2.15-3build1\nlinux-tools-common\t6.8.0-139.139\nlinux-tools-generic\t6.8.0-139.139\nninja-build\t1.11.1-2\n",
+    "stderr": ""
+  },
+  "perf_event_paranoid": {
+    "command": [
+      "cat",
+      "/proc/sys/kernel/perf_event_paranoid"
+    ],
+    "returncode": 0,
+    "stdout": "2\n",
+    "stderr": ""
+  },
+  "uname": {
+    "command": [
+      "uname",
+      "-a"
+    ],
+    "returncode": 0,
+    "stdout": "Linux arvins 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux\n",
+    "stderr": ""
+  }
+}

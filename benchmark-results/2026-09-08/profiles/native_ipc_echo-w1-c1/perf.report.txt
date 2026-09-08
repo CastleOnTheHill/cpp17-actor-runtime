@@ -1,0 +1,1120 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 142  of event 'cpu-clock:u'
+# Event count (approx.): 713567750
+#
+# Overhead  Command          Shared Object        Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+# ........  ...............  ...................  ....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    10.56%  native_ipc_echo  libc.so.6            [.] malloc
+            |
+            ---malloc
+               |          
+               |--9.15%--operator new(unsigned long)
+               |          |          
+               |          |--2.82%--std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long)
+               |          |          |          
+               |          |          |--1.41%--std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_append(char const*, unsigned long)
+               |          |          |          actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               |          |          |          |          
+               |          |          |          |--0.70%--actor_runtime::IpcTransport::loop()
+               |          |          |          |          0xffffffffffffffff
+               |          |          |          |          
+               |          |          |           --0.70%--actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+               |          |          |                     actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |          |          |                     actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               |          |          |                     void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               |          |          |                     std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               |          |          |                     std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          |          |                     std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               |          |          |                     std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               |          |          |                     std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               |          |          |                     cEcho(void*, ar_system*, ar_message const*)
+               |          |          |                     (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          |          |                     actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |          |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |          |                     0x7f60c6a13db3
+               |          |          |                     0x7f60c6783b83
+               |          |          |                     0x7f60c6810d6b
+               |          |          |          
+               |          |           --1.41%--std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long)
+               |          |                     actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               |          |                     |          
+               |          |                     |--0.70%--actor_runtime::IpcTransport::loop()
+               |          |                     |          0xffffffffffffffff
+               |          |                     |          
+               |          |                      --0.70%--actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+               |          |                                actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |          |                                actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               |          |                                void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               |          |                                std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               |          |                                std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          |                                std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               |          |                                std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               |          |                                std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               |          |                                cEcho(void*, ar_system*, ar_message const*)
+               |          |                                (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          |                                actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |                                actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |                                0x7f60c6a13db3
+               |          |                                0x7f60c6783b83
+               |          |                                0x7f60c6810d6b
+               |          |          
+               |          |--2.11%--void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag) [clone .isra.0]
+               |          |          actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |          |          actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               |          |          void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               |          |          std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               |          |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          |          std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               |          |          std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               |          |          std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               |          |          cEcho(void*, ar_system*, ar_message const*)
+               |          |          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |          0x7f60c6a13db3
+               |          |          0x7f60c6783b83
+               |          |          0x7f60c6810d6b
+               |          |          
+               |          |--2.11%--ar_reply
+               |          |          cEcho(void*, ar_system*, ar_message const*)
+               |          |          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |          0x7f60c6a13db3
+               |          |          0x7f60c6783b83
+               |          |          0x7f60c6810d6b
+               |          |          
+               |          |--1.41%--actor_runtime::(anonymous namespace)::field(char const*)
+               |          |          actor_runtime::IpcTransport::loop()
+               |          |          0xffffffffffffffff
+               |          |          
+               |           --0.70%--actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |                     actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               |                     void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               |                     std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               |                     std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |                     std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               |                     std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               |                     std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               |                     cEcho(void*, ar_system*, ar_message const*)
+               |                     (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |                     actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |                     0x7f60c6a13db3
+               |                     0x7f60c6783b83
+               |                     0x7f60c6810d6b
+               |          
+               |--0.70%--std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--actor_runtime::(anonymous namespace)::field(char const*)
+                          actor_runtime::IpcTransport::loop()
+                          0xffffffffffffffff
+
+     4.23%  native_ipc_echo  libc.so.6            [.] pthread_mutex_unlock
+            |
+            ---pthread_mutex_unlock
+               |          
+               |--2.11%--actor_runtime::ActorSystem::Impl::receiveNamed(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)
+               |          std::_Function_handler<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>), actor_runtime::ActorSystem::ActorSystem(actor_runtime::ActorSystem::Config)::{lambda(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)#1}>::_M_invoke(std::_Any_data const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long&&, std::shared_ptr<actor_runtime::Message const>&&)
+               |          /usr/include/c++/13/bits/invoke.h:61 (inlined)
+               |          0xffffffffffffffff
+               |          
+               |--0.70%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+               |--0.70%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::receiveNamed(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)
+                          std::_Function_handler<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>), actor_runtime::ActorSystem::ActorSystem(actor_runtime::ActorSystem::Config)::{lambda(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)#1}>::_M_invoke(std::_Any_data const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long&&, std::shared_ptr<actor_runtime::Message const>&&)
+                          /usr/include/c++/13/bits/invoke.h:61 (inlined)
+                          0xffffffffffffffff
+
+     4.23%  native_ipc_echo  libc.so.6            [.] 0x0000000000098e51
+            |
+            ---0x7f60c677fe51
+               pthread_cond_clockwait
+               |          
+               |--2.82%--std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          ar_client_request
+               |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --1.41%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     3.52%  native_ipc_echo  libc.so.6            [.] cfree
+            |
+            ---cfree
+               |          
+               |--1.41%--std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+               |          |          
+               |          |--0.70%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |          0x7f60c6a13db3
+               |          |          0x7f60c6783b83
+               |          |          0x7f60c6810d6b
+               |          |          
+               |           --0.70%--actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |                     actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |                     std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+               |                     std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |                     ar_client_request
+               |                     std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               |                     0x7f60c6a13db3
+               |                     0x7f60c6783b83
+               |                     0x7f60c6810d6b
+               |          
+               |--0.70%--actor_runtime::IpcTransport::loop()
+               |          0xffffffffffffffff
+               |          
+               |--0.70%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          ar_client_request
+                          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     3.52%  native_ipc_echo  libc.so.6            [.] pthread_mutex_lock
+            |
+            ---pthread_mutex_lock
+               |          
+               |--0.70%--std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          ar_client_request
+               |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+               |--0.70%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+               |--0.70%--actor_runtime::ActorSystem::Impl::receiveNamed(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)
+               |          std::_Function_handler<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>), actor_runtime::ActorSystem::ActorSystem(actor_runtime::ActorSystem::Config)::{lambda(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)#1}>::_M_invoke(std::_Any_data const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long&&, std::shared_ptr<actor_runtime::Message const>&&)
+               |          /usr/include/c++/13/bits/invoke.h:61 (inlined)
+               |          0xffffffffffffffff
+               |          
+               |--0.70%--actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |          actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               |          void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               |          std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               |          std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               |          std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               |          cEcho(void*, ar_system*, ar_message const*)
+               |          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--/usr/include/c++/13/bits/std_function.h:215 (inlined)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     2.82%  native_ipc_echo  libc.so.6            [.] 0x0000000000188c11
+            |
+            ---0x7f60c686fc11
+               |          
+               |--2.11%--std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          ar_client_request
+               |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     2.82%  native_ipc_echo  libstdc++.so.6.0.33  [.] operator new(unsigned long)
+            |
+            ---operator new(unsigned long)
+               |          
+               |--0.70%--std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long)
+               |          std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long)
+               |          actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               |          actor_runtime::IpcTransport::loop()
+               |          0xffffffffffffffff
+               |          
+               |--0.70%--actor_runtime::IpcTransport::loop()
+               |          0xffffffffffffffff
+               |          
+               |--0.70%--actor_runtime::(anonymous namespace)::field(char const*)
+               |          actor_runtime::IpcTransport::loop()
+               |          0xffffffffffffffff
+               |          
+                --0.70%--ar_reply
+                          cEcho(void*, ar_system*, ar_message const*)
+                          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     2.82%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::validateName(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+            |
+            ---actor_runtime::validateName(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+               actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |          
+               |--2.11%--actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               |          void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               |          std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               |          std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               |          std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               |          cEcho(void*, ar_system*, ar_message const*)
+               |          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          ar_client_request
+                          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     2.11%  native_ipc_echo  libc.so.6            [.] pthread_cond_clockwait
+            |
+            ---pthread_cond_clockwait
+               |          
+               |--1.41%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          ar_client_request
+                          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     2.11%  native_ipc_echo  libc.so.6            [.] sendmsg
+            |
+            ---sendmsg
+               |          
+               |--1.41%--actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+               |          actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |          |          
+               |          |--0.70%--actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               |          |          void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               |          |          std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               |          |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          |          std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               |          |          std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               |          |          std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               |          |          cEcho(void*, ar_system*, ar_message const*)
+               |          |          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          |          0x7f60c6a13db3
+               |          |          0x7f60c6783b83
+               |          |          0x7f60c6810d6b
+               |          |          
+               |           --0.70%--actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |                     std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+               |                     std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |                     ar_client_request
+               |                     std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               |                     0x7f60c6a13db3
+               |                     0x7f60c6783b83
+               |                     0x7f60c6810d6b
+               |          
+                --0.70%--actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          ar_client_request
+                          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     2.11%  native_ipc_echo  libc.so.6            [.] 0x00000000000986b0
+            |
+            ---0x7f60c677f6b0
+               |          
+               |--1.41%--pthread_cond_clockwait
+               |          std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          ar_client_request
+               |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--actor_runtime::IpcTransport::loop()
+                          0xffffffffffffffff
+
+     2.11%  native_ipc_echo  libstdc++.so.6.0.33  [.] operator delete(void*, unsigned long)
+            |
+            ---operator delete(void*, unsigned long)
+               |          
+               |--0.70%--actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               |          actor_runtime::IpcTransport::loop()
+               |          0xffffffffffffffff
+               |          
+               |--0.70%--std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+               |          actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |          actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               |          void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               |          std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               |          std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               |          std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               |          cEcho(void*, ar_system*, ar_message const*)
+               |          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--std::any::_Manager_external<std::vector<unsigned char, std::allocator<unsigned char> > >::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+                          std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&) (inlined)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+                          actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+                          void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+                          std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+                          std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+                          std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+                          cEcho(void*, ar_system*, ar_message const*)
+                          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     2.11%  native_ipc_echo  libstdc++.so.6.0.33  [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_create(unsigned long&, unsigned long)
+            |
+            ---std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_create(unsigned long&, unsigned long)
+               |          
+               |--1.41%--actor_runtime::(anonymous namespace)::field(char const*)
+               |          actor_runtime::IpcTransport::loop()
+               |          0xffffffffffffffff
+               |          
+                --0.70%--std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long)
+                          std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long)
+                          actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+                          actor_runtime::IpcTransport::loop()
+                          0xffffffffffffffff
+
+     2.11%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+            |
+            ---actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               |          
+               |--1.41%--actor_runtime::IpcTransport::loop()
+               |          0xffffffffffffffff
+               |          
+                --0.70%--actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+                          actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+                          void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+                          std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+                          std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+                          std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+                          cEcho(void*, ar_system*, ar_message const*)
+                          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     2.11%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+            |
+            ---actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     2.11%  native_ipc_echo  native_ipc_echo      [.] std::any::_Manager_external<std::vector<unsigned char, std::allocator<unsigned char> > >::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+            |          
+            |--1.41%--std::any::_Manager_external<std::vector<unsigned char, std::allocator<unsigned char> > >::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+            |          |          
+            |          |--0.70%--std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&) (inlined)
+            |          |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+            |          |          actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+            |          |          actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+            |          |          std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+            |          |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+            |          |          ar_client_request
+            |          |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+            |          |          0x7f60c6a13db3
+            |          |          0x7f60c6783b83
+            |          |          0x7f60c6810d6b
+            |          |          
+            |           --0.70%--actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+            |                     actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+            |                     void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+            |                     std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+            |                     std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+            |                     std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+            |                     std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+            |                     std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+            |                     cEcho(void*, ar_system*, ar_message const*)
+            |                     (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+            |                     actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+            |                     actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+            |                     0x7f60c6a13db3
+            |                     0x7f60c6783b83
+            |                     0x7f60c6810d6b
+            |          
+             --0.70%--/usr/include/c++/13/bits/invoke.h:61 (discriminator 7) (inlined)
+                       _M_run (inlined)
+                       0xffffffffffffffff
+
+     1.41%  native_ipc_echo  [vdso]               [.] __vdso_clock_gettime
+            |
+            ---__vdso_clock_gettime
+               std::chrono::_V2::steady_clock::now()
+               |          
+               |--0.70%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--/usr/include/c++/13/bits/invoke.h:61 (discriminator 2) (inlined)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          ar_client_request
+                          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  libc.so.6            [.] __poll
+            |
+            ---__poll
+               actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     1.41%  native_ipc_echo  libc.so.6            [.] pthread_cond_broadcast
+            |
+            ---pthread_cond_broadcast
+               |          
+               |--0.70%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--(anonymous namespace)::ClientActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  libc.so.6            [.] pthread_cond_signal
+            |
+            ---pthread_cond_signal
+               actor_runtime::ActorSystem::Impl::receiveNamed(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)
+               std::_Function_handler<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>), actor_runtime::ActorSystem::ActorSystem(actor_runtime::ActorSystem::Config)::{lambda(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)#1}>::_M_invoke(std::_Any_data const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long&&, std::shared_ptr<actor_runtime::Message const>&&)
+               /usr/include/c++/13/bits/invoke.h:61 (inlined)
+               0xffffffffffffffff
+
+     1.41%  native_ipc_echo  libc.so.6            [.] pthread_mutex_trylock
+            |
+            ---pthread_mutex_trylock
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  libc.so.6            [.] 0x00000000000986cf
+            |
+            ---0x7f60c677f6cf
+               |          
+               |--0.70%--actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+               |          actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |          actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |          std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          ar_client_request
+               |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--pthread_cond_clockwait
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  libc.so.6            [.] 0x0000000000189600
+            |
+            ---0x7f60c6870600
+               actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     1.41%  native_ipc_echo  libstdc++.so.6.0.33  [.] operator delete(void*)
+            |
+            ---operator delete(void*)
+               actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               |          
+               |--0.70%--actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               |          void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               |          std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               |          std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               |          std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               |          std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               |          cEcho(void*, ar_system*, ar_message const*)
+               |          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               |          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               |          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          ar_client_request
+                          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  libstdc++.so.6.0.33  [.] operator delete(void*)@plt
+            |
+            ---operator delete(void*)@plt
+               std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_manager(std::_Any_data&, std::_Any_data const&, std::_Manager_operation)
+               ar_client_request
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  libstdc++.so.6.0.33  [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long)
+            |
+            ---std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long)
+               std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long)
+               actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               |          
+               |--0.70%--actor_runtime::IpcTransport::loop()
+               |          0xffffffffffffffff
+               |          
+                --0.70%--actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+                          actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          ar_client_request
+                          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  libstdc++.so.6.0.33  [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long)
+            |
+            ---std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long)
+               actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               |          
+               |--0.70%--actor_runtime::IpcTransport::loop()
+               |          0xffffffffffffffff
+               |          
+                --0.70%--actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+                          actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                          actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+                          void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+                          std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+                          std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+                          std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+                          cEcho(void*, ar_system*, ar_message const*)
+                          (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+                          actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+                          actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  libstdc++.so.6.0.33  [.] std::chrono::_V2::steady_clock::now()
+            |
+            ---std::chrono::_V2::steady_clock::now()
+               |          
+               |--0.70%--actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               |          0x7f60c6a13db3
+               |          0x7f60c6783b83
+               |          0x7f60c6810d6b
+               |          
+                --0.70%--/usr/include/c++/13/bits/invoke.h:61 (discriminator 2) (inlined)
+                          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                          ar_client_request
+                          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+                          0x7f60c6a13db3
+                          0x7f60c6783b83
+                          0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  native_ipc_echo      [.] (anonymous namespace)::ClientActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+            |
+            ---/usr/include/c++/13/condition_variable:113 (inlined)
+               /usr/include/c++/13/condition_variable:154 (inlined)
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::(anonymous namespace)::field(char const*)
+            |
+            ---actor_runtime::(anonymous namespace)::field(char const*)
+               actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     1.41%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+            |          
+            |--0.70%--actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+            |          actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+            |          std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+            |          std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+            |          ar_client_request
+            |          std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+            |          0x7f60c6a13db3
+            |          0x7f60c6783b83
+            |          0x7f60c6810d6b
+            |          
+             --0.70%--/usr/include/c++/13/bits/invoke.h:61 (inlined)
+                       actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+                       std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+                       std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+                       ar_client_request
+                       std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+                       0x7f60c6a13db3
+                       0x7f60c6783b83
+                       0x7f60c6810d6b
+
+     1.41%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::IpcTransport::loop()
+            |
+            ---actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     1.41%  native_ipc_echo  native_ipc_echo      [.] std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(unsigned long const&) [clone .isra.0]
+            |
+            ---std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(unsigned long const&) [clone .isra.0]
+               actor_runtime::ActorSystem::Impl::receiveNamed(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)
+               std::_Function_handler<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>), actor_runtime::ActorSystem::ActorSystem(actor_runtime::ActorSystem::Config)::{lambda(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)#1}>::_M_invoke(std::_Any_data const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long&&, std::shared_ptr<actor_runtime::Message const>&&)
+               /usr/include/c++/13/bits/invoke.h:61 (inlined)
+               0xffffffffffffffff
+
+     1.41%  native_ipc_echo  native_ipc_echo      [.] std::shared_ptr<actor_runtime::Message const>& std::deque<std::shared_ptr<actor_runtime::Message const>, std::allocator<std::shared_ptr<actor_runtime::Message const> > >::emplace_back<std::shared_ptr<actor_runtime::Message const> >(std::shared_ptr<actor_runtime::Message const>&&) [clone .isra.0]
+            |
+            ---std::shared_ptr<actor_runtime::Message const>& std::deque<std::shared_ptr<actor_runtime::Message const>, std::allocator<std::shared_ptr<actor_runtime::Message const> > >::emplace_back<std::shared_ptr<actor_runtime::Message const> >(std::shared_ptr<actor_runtime::Message const>&&) [clone .isra.0]
+               actor_runtime::ActorSystem::Impl::receiveNamed(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)
+               std::_Function_handler<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>), actor_runtime::ActorSystem::ActorSystem(actor_runtime::ActorSystem::Config)::{lambda(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)#1}>::_M_invoke(std::_Any_data const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long&&, std::shared_ptr<actor_runtime::Message const>&&)
+               /usr/include/c++/13/bits/invoke.h:61 (inlined)
+               0xffffffffffffffff
+
+     0.70%  native_ipc_echo  libc.so.6            [.] clock_gettime
+            |
+            ---clock_gettime
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] getuid
+            |
+            ---getuid
+               actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x00000000000986e1
+            |
+            ---0x7f60c677f6e1
+               pthread_cond_clockwait
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x00000000000986e3
+            |
+            ---0x7f60c677f6e3
+               pthread_cond_clockwait
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x0000000000098da1
+            |
+            ---0x7f60c677fda1
+               pthread_cond_clockwait
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x00000000000990b7
+            |
+            ---0x7f60c67800b7
+               std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               ar_client_request
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x00000000000a1a84
+            |
+            ---0x7f60c6788a84
+               pthread_cond_clockwait
+               std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               ar_client_request
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x00000000000ab264
+            |
+            ---0x7f60c6792264
+               cfree
+               std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x00000000000ab31b
+            |
+            ---0x7f60c679231b
+               cfree
+               std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x00000000000ab9e3
+            |
+            ---0x7f60c67929e3
+               malloc
+               operator new(unsigned long)
+               actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x00000000000aba00
+            |
+            ---0x7f60c6792a00
+               malloc
+               operator new(unsigned long)
+               actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x0000000000188204
+            |
+            ---0x7f60c686f204
+               actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x0000000000188bd0
+            |
+            ---0x7f60c686fbd0
+               actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               cEcho(void*, ar_system*, ar_message const*)
+               (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x0000000000188c00
+            |
+            ---0x7f60c686fc00
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               ar_client_request
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x0000000000188c35
+            |
+            ---0x7f60c686fc35
+               std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long)
+               actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+               actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               cEcho(void*, ar_system*, ar_message const*)
+               (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x0000000000188cc0
+            |
+            ---0x7f60c686fcc0
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               ar_client_request
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x00000000001896e5
+            |
+            ---0x7f60c68706e5
+               actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+               actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               cEcho(void*, ar_system*, ar_message const*)
+               (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libc.so.6            [.] 0x000000000018b944
+            |
+            ---0x7f60c6872944
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               ar_client_request
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libstdc++.so.6.0.33  [.] operator new(unsigned long)@plt
+            |
+            ---operator new(unsigned long)@plt
+               actor_runtime::(anonymous namespace)::field(char const*)
+               actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     0.70%  native_ipc_echo  libstdc++.so.6.0.33  [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_append(char const*, unsigned long)
+            |
+            ---std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_append(char const*, unsigned long)
+               actor_runtime::(anonymous namespace)::address(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+               actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               actor_runtime::ActorSystem::replyBytes(actor_runtime::Message const&, unsigned long, void const*, unsigned long)
+               void std::allocator_traits<std::allocator<void> >::destroy<actor_runtime::Message const>(std::allocator<void>&, actor_runtime::Message const*) (inlined)
+               std::_Sp_counted_ptr_inplace<actor_runtime::Message const, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() (inlined)
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count() (inlined)
+               std::__shared_ptr<actor_runtime::Message const, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr() (inlined)
+               std::shared_ptr<actor_runtime::Message const>::~shared_ptr() (inlined)
+               cEcho(void*, ar_system*, ar_message const*)
+               (anonymous namespace)::HandlerActor::onMessage(std::shared_ptr<actor_runtime::Message const>)
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libstdc++.so.6.0.33  [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+            |
+            ---std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  libstdc++.so.6.0.33  [.] std::condition_variable::notify_all()
+            |
+            ---std::condition_variable::notify_all()
+               actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] __memcpy_chk@plt
+            |
+            ---__memcpy_chk@plt
+               actor_runtime::IpcTransport::send(actor_runtime::ActorAddress const&, unsigned long, actor_runtime::Message const&)
+               actor_runtime::ActorSystem::Impl::sendBytes(actor_runtime::ActorAddress const&, unsigned long, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               ar_client_request
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::ActorSystem::Impl::log(char const*, unsigned long, unsigned long) const
+            |
+            ---actor_runtime::ActorSystem::Impl::log(char const*, unsigned long, unsigned long) const
+               actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+            |
+            ---std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, unsigned long, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, unsigned long> > >::find(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (inlined)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+            |
+            ---actor_runtime::ActorSystem::sendBytes(actor_runtime::ActorAddress const&, unsigned long, void const*, unsigned long, unsigned long, unsigned long)
+               std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               ar_client_request
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::Job& std::deque<actor_runtime::Job, std::allocator<actor_runtime::Job> >::emplace_back<actor_runtime::Job>(actor_runtime::Job&&) [clone .isra.0]
+            |
+            ---actor_runtime::Job& std::deque<actor_runtime::Job, std::allocator<actor_runtime::Job> >::emplace_back<actor_runtime::Job>(actor_runtime::Job&&) [clone .isra.0]
+               actor_runtime::ActorSystem::Impl::enqueueGlobal(actor_runtime::Job)
+               actor_runtime::ActorSystem::Impl::receiveNamed(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)
+               std::_Function_handler<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>), actor_runtime::ActorSystem::ActorSystem(actor_runtime::ActorSystem::Config)::{lambda(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)#1}>::_M_invoke(std::_Any_data const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long&&, std::shared_ptr<actor_runtime::Message const>&&)
+               /usr/include/c++/13/bits/invoke.h:61 (inlined)
+               0xffffffffffffffff
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] actor_runtime::Job::~Job()
+            |
+            ---actor_runtime::Job::~Job()
+               actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] ar_client_request
+            |
+            ---ar_client_request
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] memcmp@plt
+            |
+            ---memcmp@plt
+               std::_Hashtable<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, unsigned long>, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, unsigned long> >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::find(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+               actor_runtime::ActorSystem::Impl::receiveNamed(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)
+               std::_Function_handler<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>), actor_runtime::ActorSystem::ActorSystem(actor_runtime::ActorSystem::Config)::{lambda(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long, std::shared_ptr<actor_runtime::Message const>)#1}>::_M_invoke(std::_Any_data const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long&&, std::shared_ptr<actor_runtime::Message const>&&)
+               /usr/include/c++/13/bits/invoke.h:61 (inlined)
+               0xffffffffffffffff
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+            |
+            ---std::_Function_handler<int (), ar_client_request::{lambda()#1}>::_M_invoke(std::_Any_data const&)
+               std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() (inlined)
+               ar_client_request
+               std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] std::_Function_handler<void (char const*), actor_runtime::ActorSystem::ActorSystem(actor_runtime::ActorSystem::Config)::{lambda(char const*)#1}>::_M_invoke(std::_Any_data const&, char const*&&)
+            |
+            ---std::_Function_handler<void (char const*), actor_runtime::ActorSystem::ActorSystem(actor_runtime::ActorSystem::Config)::{lambda(char const*)#1}>::_M_invoke(std::_Any_data const&, char const*&&)
+               actor_runtime::IpcTransport::loop()
+               0xffffffffffffffff
+
+     0.70%  native_ipc_echo  native_ipc_echo      [.] std::thread::_State_impl<std::thread::_Invoker<std::tuple<main::{lambda()#1}> > >::_M_run()
+            |
+            ---__invoke_impl<ar_status, ar_client_request(ar_client*, char const*, char const*, uint64_t, void const*, size_t, uint64_t, uint32_t, void*, size_t, size_t*)::<lambda()>&> (inlined)
+               __invoke_r<int, ar_client_request(ar_client*, char const*, char const*, uint64_t, void const*, size_t, uint64_t, uint32_t, void*, size_t, size_t*)::<lambda()>&> (inlined)
+               _M_invoke (inlined)
+               0x7f60c6a13db3
+               0x7f60c6783b83
+               0x7f60c6810d6b
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

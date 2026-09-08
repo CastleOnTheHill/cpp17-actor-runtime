@@ -1,0 +1,1566 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" width="1200" height="326" onload="init(evt)" viewBox="0 0 1200 326" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Flame graph stack visualization. See https://github.com/brendangregg/FlameGraph for latest version, and http://www.brendangregg.com/flamegraphs.html for examples. -->
+<!-- NOTES:  -->
+<defs>
+	<linearGradient id="background" y1="0" y2="1" x1="0" x2="0" >
+		<stop stop-color="#eeeeee" offset="5%" />
+		<stop stop-color="#eeeeb0" offset="95%" />
+	</linearGradient>
+</defs>
+<style type="text/css">
+	text { font-family:Verdana; font-size:12px; fill:rgb(0,0,0); }
+	#search, #ignorecase { opacity:0.1; cursor:pointer; }
+	#search:hover, #search.show, #ignorecase:hover, #ignorecase.show { opacity:1; }
+	#subtitle { text-anchor:middle; font-color:rgb(160,160,160); }
+	#title { text-anchor:middle; font-size:17px}
+	#unzoom { cursor:pointer; }
+	#frames > *:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+	.hide { display:none; }
+	.parent { opacity:0.5; }
+</style>
+<script type="text/ecmascript">
+<![CDATA[
+	"use strict";
+	var details, searchbtn, unzoombtn, matchedtxt, svg, searching, currentSearchTerm, ignorecase, ignorecaseBtn;
+	function init(evt) {
+		details = document.getElementById("details").firstChild;
+		searchbtn = document.getElementById("search");
+		ignorecaseBtn = document.getElementById("ignorecase");
+		unzoombtn = document.getElementById("unzoom");
+		matchedtxt = document.getElementById("matched");
+		svg = document.getElementsByTagName("svg")[0];
+		searching = 0;
+		currentSearchTerm = null;
+
+		// use GET parameters to restore a flamegraphs state.
+		var params = get_params();
+		if (params.x && params.y)
+			zoom(find_group(document.querySelector('[x="' + params.x + '"][y="' + params.y + '"]')));
+                if (params.s) search(params.s);
+	}
+
+	// event listeners
+	window.addEventListener("click", function(e) {
+		var target = find_group(e.target);
+		if (target) {
+			if (target.nodeName == "a") {
+				if (e.ctrlKey === false) return;
+				e.preventDefault();
+			}
+			if (target.classList.contains("parent")) unzoom(true);
+			zoom(target);
+			if (!document.querySelector('.parent')) {
+				// we have basically done a clearzoom so clear the url
+				var params = get_params();
+				if (params.x) delete params.x;
+				if (params.y) delete params.y;
+				history.replaceState(null, null, parse_params(params));
+				unzoombtn.classList.add("hide");
+				return;
+			}
+
+			// set parameters for zoom state
+			var el = target.querySelector("rect");
+			if (el && el.attributes && el.attributes.y && el.attributes._orig_x) {
+				var params = get_params()
+				params.x = el.attributes._orig_x.value;
+				params.y = el.attributes.y.value;
+				history.replaceState(null, null, parse_params(params));
+			}
+		}
+		else if (e.target.id == "unzoom") clearzoom();
+		else if (e.target.id == "search") search_prompt();
+		else if (e.target.id == "ignorecase") toggle_ignorecase();
+	}, false)
+
+	// mouse-over for info
+	// show
+	window.addEventListener("mouseover", function(e) {
+		var target = find_group(e.target);
+		if (target) details.nodeValue = "Function: " + g_to_text(target);
+	}, false)
+
+	// clear
+	window.addEventListener("mouseout", function(e) {
+		var target = find_group(e.target);
+		if (target) details.nodeValue = ' ';
+	}, false)
+
+	// ctrl-F for search
+	// ctrl-I to toggle case-sensitive search
+	window.addEventListener("keydown",function (e) {
+		if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+			e.preventDefault();
+			search_prompt();
+		}
+		else if (e.ctrlKey && e.keyCode === 73) {
+			e.preventDefault();
+			toggle_ignorecase();
+		}
+	}, false)
+
+	// functions
+	function get_params() {
+		var params = {};
+		var paramsarr = window.location.search.substr(1).split('&');
+		for (var i = 0; i < paramsarr.length; ++i) {
+			var tmp = paramsarr[i].split("=");
+			if (!tmp[0] || !tmp[1]) continue;
+			params[tmp[0]]  = decodeURIComponent(tmp[1]);
+		}
+		return params;
+	}
+	function parse_params(params) {
+		var uri = "?";
+		for (var key in params) {
+			uri += key + '=' + encodeURIComponent(params[key]) + '&';
+		}
+		if (uri.slice(-1) == "&")
+			uri = uri.substring(0, uri.length - 1);
+		if (uri == '?')
+			uri = window.location.href.split('?')[0];
+		return uri;
+	}
+	function find_child(node, selector) {
+		var children = node.querySelectorAll(selector);
+		if (children.length) return children[0];
+	}
+	function find_group(node) {
+		var parent = node.parentElement;
+		if (!parent) return;
+		if (parent.id == "frames") return node;
+		return find_group(parent);
+	}
+	function orig_save(e, attr, val) {
+		if (e.attributes["_orig_" + attr] != undefined) return;
+		if (e.attributes[attr] == undefined) return;
+		if (val == undefined) val = e.attributes[attr].value;
+		e.setAttribute("_orig_" + attr, val);
+	}
+	function orig_load(e, attr) {
+		if (e.attributes["_orig_"+attr] == undefined) return;
+		e.attributes[attr].value = e.attributes["_orig_" + attr].value;
+		e.removeAttribute("_orig_"+attr);
+	}
+	function g_to_text(e) {
+		var text = find_child(e, "title").firstChild.nodeValue;
+		return (text)
+	}
+	function g_to_func(e) {
+		var func = g_to_text(e);
+		// if there's any manipulation we want to do to the function
+		// name before it's searched, do it here before returning.
+		return (func);
+	}
+	function update_text(e) {
+		var r = find_child(e, "rect");
+		var t = find_child(e, "text");
+		var w = parseFloat(r.attributes.width.value) -3;
+		var txt = find_child(e, "title").textContent.replace(/\([^(]*\)$/,"");
+		t.attributes.x.value = parseFloat(r.attributes.x.value) + 3;
+
+		// Smaller than this size won't fit anything
+		if (w < 2 * 12 * 0.59) {
+			t.textContent = "";
+			return;
+		}
+
+		t.textContent = txt;
+		var sl = t.getSubStringLength(0, txt.length);
+		// check if only whitespace or if we can fit the entire string into width w
+		if (/^ *$/.test(txt) || sl < w)
+			return;
+
+		// this isn't perfect, but gives a good starting point
+		// and avoids calling getSubStringLength too often
+		var start = Math.floor((w/sl) * txt.length);
+		for (var x = start; x > 0; x = x-2) {
+			if (t.getSubStringLength(0, x + 2) <= w) {
+				t.textContent = txt.substring(0, x) + "..";
+				return;
+			}
+		}
+		t.textContent = "";
+	}
+
+	// zoom
+	function zoom_reset(e) {
+		if (e.attributes != undefined) {
+			orig_load(e, "x");
+			orig_load(e, "width");
+		}
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_reset(c[i]);
+		}
+	}
+	function zoom_child(e, x, ratio) {
+		if (e.attributes != undefined) {
+			if (e.attributes.x != undefined) {
+				orig_save(e, "x");
+				e.attributes.x.value = (parseFloat(e.attributes.x.value) - x - 10) * ratio + 10;
+				if (e.tagName == "text")
+					e.attributes.x.value = find_child(e.parentNode, "rect[x]").attributes.x.value + 3;
+			}
+			if (e.attributes.width != undefined) {
+				orig_save(e, "width");
+				e.attributes.width.value = parseFloat(e.attributes.width.value) * ratio;
+			}
+		}
+
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_child(c[i], x - 10, ratio);
+		}
+	}
+	function zoom_parent(e) {
+		if (e.attributes) {
+			if (e.attributes.x != undefined) {
+				orig_save(e, "x");
+				e.attributes.x.value = 10;
+			}
+			if (e.attributes.width != undefined) {
+				orig_save(e, "width");
+				e.attributes.width.value = parseInt(svg.width.baseVal.value) - (10 * 2);
+			}
+		}
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_parent(c[i]);
+		}
+	}
+	function zoom(node) {
+		var attr = find_child(node, "rect").attributes;
+		var width = parseFloat(attr.width.value);
+		var xmin = parseFloat(attr.x.value);
+		var xmax = parseFloat(xmin + width);
+		var ymin = parseFloat(attr.y.value);
+		var ratio = (svg.width.baseVal.value - 2 * 10) / width;
+
+		// XXX: Workaround for JavaScript float issues (fix me)
+		var fudge = 0.0001;
+
+		unzoombtn.classList.remove("hide");
+
+		var el = document.getElementById("frames").children;
+		for (var i = 0; i < el.length; i++) {
+			var e = el[i];
+			var a = find_child(e, "rect").attributes;
+			var ex = parseFloat(a.x.value);
+			var ew = parseFloat(a.width.value);
+			var upstack;
+			// Is it an ancestor
+			if (0 == 0) {
+				upstack = parseFloat(a.y.value) > ymin;
+			} else {
+				upstack = parseFloat(a.y.value) < ymin;
+			}
+			if (upstack) {
+				// Direct ancestor
+				if (ex <= xmin && (ex+ew+fudge) >= xmax) {
+					e.classList.add("parent");
+					zoom_parent(e);
+					update_text(e);
+				}
+				// not in current path
+				else
+					e.classList.add("hide");
+			}
+			// Children maybe
+			else {
+				// no common path
+				if (ex < xmin || ex + fudge >= xmax) {
+					e.classList.add("hide");
+				}
+				else {
+					zoom_child(e, xmin, ratio);
+					update_text(e);
+				}
+			}
+		}
+		search();
+	}
+	function unzoom(dont_update_text) {
+		unzoombtn.classList.add("hide");
+		var el = document.getElementById("frames").children;
+		for(var i = 0; i < el.length; i++) {
+			el[i].classList.remove("parent");
+			el[i].classList.remove("hide");
+			zoom_reset(el[i]);
+			if(!dont_update_text) update_text(el[i]);
+		}
+		search();
+	}
+	function clearzoom() {
+		unzoom();
+
+		// remove zoom state
+		var params = get_params();
+		if (params.x) delete params.x;
+		if (params.y) delete params.y;
+		history.replaceState(null, null, parse_params(params));
+	}
+
+	// search
+	function toggle_ignorecase() {
+		ignorecase = !ignorecase;
+		if (ignorecase) {
+			ignorecaseBtn.classList.add("show");
+		} else {
+			ignorecaseBtn.classList.remove("show");
+		}
+		reset_search();
+		search();
+	}
+	function reset_search() {
+		var el = document.querySelectorAll("#frames rect");
+		for (var i = 0; i < el.length; i++) {
+			orig_load(el[i], "fill")
+		}
+		var params = get_params();
+		delete params.s;
+		history.replaceState(null, null, parse_params(params));
+	}
+	function search_prompt() {
+		if (!searching) {
+			var term = prompt("Enter a search term (regexp " +
+			    "allowed, eg: ^ext4_)"
+			    + (ignorecase ? ", ignoring case" : "")
+			    + "\nPress Ctrl-i to toggle case sensitivity", "");
+			if (term != null) search(term);
+		} else {
+			reset_search();
+			searching = 0;
+			currentSearchTerm = null;
+			searchbtn.classList.remove("show");
+			searchbtn.firstChild.nodeValue = "Search"
+			matchedtxt.classList.add("hide");
+			matchedtxt.firstChild.nodeValue = ""
+		}
+	}
+	function search(term) {
+		if (term) currentSearchTerm = term;
+		if (currentSearchTerm === null) return;
+
+		var re = new RegExp(currentSearchTerm, ignorecase ? 'i' : '');
+		var el = document.getElementById("frames").children;
+		var matches = new Object();
+		var maxwidth = 0;
+		for (var i = 0; i < el.length; i++) {
+			var e = el[i];
+			var func = g_to_func(e);
+			var rect = find_child(e, "rect");
+			if (func == null || rect == null)
+				continue;
+
+			// Save max width. Only works as we have a root frame
+			var w = parseFloat(rect.attributes.width.value);
+			if (w > maxwidth)
+				maxwidth = w;
+
+			if (func.match(re)) {
+				// highlight
+				var x = parseFloat(rect.attributes.x.value);
+				orig_save(rect, "fill");
+				rect.attributes.fill.value = "rgb(230,0,230)";
+
+				// remember matches
+				if (matches[x] == undefined) {
+					matches[x] = w;
+				} else {
+					if (w > matches[x]) {
+						// overwrite with parent
+						matches[x] = w;
+					}
+				}
+				searching = 1;
+			}
+		}
+		if (!searching)
+			return;
+		var params = get_params();
+		params.s = currentSearchTerm;
+		history.replaceState(null, null, parse_params(params));
+
+		searchbtn.classList.add("show");
+		searchbtn.firstChild.nodeValue = "Reset Search";
+
+		// calculate percent matched, excluding vertical overlap
+		var count = 0;
+		var lastx = -1;
+		var lastw = 0;
+		var keys = Array();
+		for (k in matches) {
+			if (matches.hasOwnProperty(k))
+				keys.push(k);
+		}
+		// sort the matched frames by their x location
+		// ascending, then width descending
+		keys.sort(function(a, b){
+			return a - b;
+		});
+		// Step through frames saving only the biggest bottom-up frames
+		// thanks to the sort order. This relies on the tree property
+		// where children are always smaller than their parents.
+		var fudge = 0.0001;	// JavaScript floating point
+		for (var k in keys) {
+			var x = parseFloat(keys[k]);
+			var w = matches[keys[k]];
+			if (x >= lastx + lastw - fudge) {
+				count += w;
+				lastx = x;
+				lastw = w;
+			}
+		}
+		// display matched percent
+		matchedtxt.classList.remove("hide");
+		var pct = 100 * count / maxwidth;
+		if (pct != 100) pct = pct.toFixed(1)
+		matchedtxt.firstChild.nodeValue = "Matched: " + pct + "%";
+	}
+]]>
+</script>
+<rect x="0.0" y="0" width="1200.0" height="326.0" fill="url(#background)"  />
+<text id="title" x="600.00" y="24" >native_fiber_echo-w1-c1 user CPU samples</text>
+<text id="details" x="10.00" y="309" > </text>
+<text id="unzoom" x="10.00" y="24" class="hide">Reset Zoom</text>
+<text id="search" x="1090.00" y="24" >Search</text>
+<text id="ignorecase" x="1174.00" y="24" >ic</text>
+<text id="matched" x="1090.00" y="309" > </text>
+<g id="frames">
+<g >
+<title>std::_Optional_payload_base&lt;actor_runtime::WaitResult&gt;::_M_reset (2 samples, 0.22%)</title><rect x="855.9" y="117" width="2.6" height="15.0" fill="rgb(238,154,36)" rx="2" ry="2" />
+<text  x="858.86" y="127.5" ></text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::unlock (1 samples, 0.11%)</title><rect x="1187.4" y="245" width="1.3" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="1190.37" y="255.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::Message const&gt;&amp; std::deque&lt;std::shared_ptr&lt;actor_runtime::Message const&gt;, std::allocator&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt; &gt;::emplace_back&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt; (3 samples, 0.33%)</title><rect x="858.5" y="149" width="3.9" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="861.49" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock@plt (2 samples, 0.22%)</title><rect x="552.0" y="181" width="2.6" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="554.98" y="191.5" ></text>
+</g>
+<g >
+<title>std::deque&lt;std::shared_ptr&lt;actor_runtime::Message const&gt;, std::allocator&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt; &gt;::push_back (1 samples, 0.11%)</title><rect x="484.9" y="165" width="1.3" height="15.0" fill="rgb(235,141,33)" rx="2" ry="2" />
+<text  x="487.89" y="175.5" ></text>
+</g>
+<g >
+<title>operator delete (1 samples, 0.11%)</title><rect x="505.9" y="181" width="1.4" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="508.94" y="191.5" ></text>
+</g>
+<g >
+<title>std::_Hashtable&lt;actor_runtime::MessageKey, std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt;, std::allocator&lt;std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt; &gt;, std::__detail::_Select1st, actor_runtime::MessageKeyEqual, actor_runtime::MessageKeyHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::erase (1 samples, 0.11%)</title><rect x="482.3" y="53" width="1.3" height="15.0" fill="rgb(218,62,14)" rx="2" ry="2" />
+<text  x="485.26" y="63.5" ></text>
+</g>
+<g >
+<title>malloc (1 samples, 0.11%)</title><rect x="678.3" y="101" width="1.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="681.27" y="111.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::Message const&gt;&amp; std::deque&lt;std::shared_ptr&lt;actor_runtime::Message const&gt;, std::allocator&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt; &gt;::emplace_back&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt; (1 samples, 0.11%)</title><rect x="670.4" y="133" width="1.3" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="673.38" y="143.5" ></text>
+</g>
+<g >
+<title>void std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_construct&lt;char*&gt; (3 samples, 0.33%)</title><rect x="678.3" y="133" width="3.9" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="681.27" y="143.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::processJob (364 samples, 40.58%)</title><rect x="21.8" y="181" width="478.9" height="15.0" fill="rgb(237,148,35)" rx="2" ry="2" />
+<text  x="24.84" y="191.5" >actor_runtime::ActorSystem::Impl::processJob</text>
+</g>
+<g >
+<title>std::unique_ptr&lt;actor_runtime::RuntimeWaitNode, std::default_delete&lt;actor_runtime::RuntimeWaitNode&gt; &gt;::~unique_ptr (1 samples, 0.11%)</title><rect x="682.2" y="165" width="1.3" height="15.0" fill="rgb(218,63,15)" rx="2" ry="2" />
+<text  x="685.22" y="175.5" ></text>
+</g>
+<g >
+<title>operator delete (1 samples, 0.11%)</title><rect x="1113.7" y="181" width="1.3" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="1116.70" y="191.5" ></text>
+</g>
+<g >
+<title>operator new (6 samples, 0.67%)</title><rect x="488.8" y="133" width="7.9" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="491.84" y="143.5" ></text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.11%)</title><rect x="936.1" y="117" width="1.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="939.11" y="127.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock@plt (1 samples, 0.11%)</title><rect x="796.7" y="133" width="1.3" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="799.67" y="143.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::enqueueGlobal (23 samples, 2.56%)</title><rect x="767.7" y="149" width="30.3" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="770.73" y="159.5" >ac..</text>
+</g>
+<g >
+<title>pthread_mutex_unlock@plt (1 samples, 0.11%)</title><rect x="829.6" y="149" width="1.3" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="832.55" y="159.5" ></text>
+</g>
+<g >
+<title>std::_Hashtable&lt;actor_runtime::MessageKey, std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt;, std::allocator&lt;std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt; &gt;, std::__detail::_Select1st, actor_runtime::MessageKeyEqual, actor_runtime::MessageKeyHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::_M_find_before_node (1 samples, 0.11%)</title><rect x="950.6" y="133" width="1.3" height="15.0" fill="rgb(206,8,2)" rx="2" ry="2" />
+<text  x="953.58" y="143.5" ></text>
+</g>
+<g >
+<title>malloc (2 samples, 0.22%)</title><rect x="947.9" y="117" width="2.7" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="950.95" y="127.5" ></text>
+</g>
+<g >
+<title>void std::_Destroy&lt;actor_runtime::WaitResult*, actor_runtime::WaitResult&gt; (1 samples, 0.11%)</title><rect x="937.4" y="85" width="1.3" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="940.42" y="95.5" ></text>
+</g>
+<g >
+<title>std::condition_variable::notify_all (1 samples, 0.11%)</title><rect x="690.1" y="149" width="1.3" height="15.0" fill="rgb(221,75,18)" rx="2" ry="2" />
+<text  x="693.11" y="159.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_base&lt; (14 samples, 1.56%)</title><rect x="459.9" y="165" width="18.4" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="462.90" y="175.5" ></text>
+</g>
+<g >
+<title>cfree (2 samples, 0.22%)</title><rect x="971.6" y="149" width="2.7" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="974.63" y="159.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_ptr_inplace&lt;actor_runtime::Message const, std::allocator&lt;void&gt;,  (3 samples, 0.33%)</title><rect x="478.3" y="85" width="4.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="481.32" y="95.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (5 samples, 0.56%)</title><rect x="334.9" y="149" width="6.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="337.93" y="159.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (2 samples, 0.22%)</title><rect x="1134.7" y="149" width="2.7" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1137.75" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (16 samples, 1.78%)</title><rect x="507.3" y="181" width="21.0" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="510.26" y="191.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (5 samples, 0.56%)</title><rect x="823.0" y="149" width="6.6" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="825.98" y="159.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::ActorControl&gt;::shared_ptr (1 samples, 0.11%)</title><rect x="953.2" y="133" width="1.3" height="15.0" fill="rgb(248,197,47)" rx="2" ry="2" />
+<text  x="956.21" y="143.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (6 samples, 0.67%)</title><rect x="1105.8" y="165" width="7.9" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1108.81" y="175.5" ></text>
+</g>
+<g >
+<title>main (3 samples, 0.33%)</title><rect x="1174.2" y="197" width="4.0" height="15.0" fill="rgb(243,179,42)" rx="2" ry="2" />
+<text  x="1177.21" y="207.5" ></text>
+</g>
+<g >
+<title>cfree (11 samples, 1.23%)</title><rect x="186.3" y="149" width="14.4" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="189.28" y="159.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_create (1 samples, 0.11%)</title><rect x="1130.8" y="165" width="1.3" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="1133.80" y="175.5" ></text>
+</g>
+<g >
+<title>swapcontext (67 samples, 7.47%)</title><rect x="1005.8" y="165" width="88.2" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="1008.83" y="175.5" >swapcontext</text>
+</g>
+<g >
+<title>actor_runtime::(anonymous namespace)::evaluate (1 samples, 0.11%)</title><rect x="136.3" y="133" width="1.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="139.29" y="143.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_ptr_inplace&lt;actor_runtime::Message const, std::allocator&lt;void&gt;,  (9 samples, 1.00%)</title><rect x="466.5" y="149" width="11.8" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="469.48" y="159.5" ></text>
+</g>
+<g >
+<title>malloc (4 samples, 0.45%)</title><rect x="490.2" y="117" width="5.2" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="493.16" y="127.5" ></text>
+</g>
+<g >
+<title>std::__detail::_Map_base&lt;actor_runtime::MessageKey, std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt;, std::allocator&lt;std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt; &gt;, std::__detail::_Select1st, actor_runtime::MessageKeyEqual, actor_runtime::MessageKeyHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt;, true&gt;::operator[] (1 samples, 0.11%)</title><rect x="1184.7" y="245" width="1.4" height="15.0" fill="rgb(225,95,22)" rx="2" ry="2" />
+<text  x="1187.74" y="255.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;actor_runtime::WaitRegistration&gt;::operator (1 samples, 0.11%)</title><rect x="1175.5" y="85" width="1.3" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="1178.53" y="95.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::WaitSpec::Node const&gt;::~shared_ptr (1 samples, 0.11%)</title><rect x="496.7" y="165" width="1.3" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
+<text  x="499.73" y="175.5" ></text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.11%)</title><rect x="679.6" y="101" width="1.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="682.59" y="111.5" ></text>
+</g>
+<g >
+<title>std::lock_guard&lt;std::mutex&gt;::~lock_guard (1 samples, 0.11%)</title><rect x="1004.5" y="165" width="1.3" height="15.0" fill="rgb(221,75,18)" rx="2" ry="2" />
+<text  x="1007.52" y="175.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock@plt (5 samples, 0.56%)</title><rect x="371.8" y="165" width="6.5" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="374.76" y="175.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (7 samples, 0.78%)</title><rect x="1155.8" y="133" width="9.2" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="1158.80" y="143.5" ></text>
+</g>
+<g >
+<title>malloc (3 samples, 0.33%)</title><rect x="1165.0" y="101" width="4.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="1168.01" y="111.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_trylock (29 samples, 3.23%)</title><rect x="378.3" y="165" width="38.2" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="381.34" y="175.5" >pth..</text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (1 samples, 0.11%)</title><rect x="1176.8" y="133" width="1.4" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1179.85" y="143.5" ></text>
+</g>
+<g >
+<title>std::_Hashtable&lt;actor_runtime::MessageKey, std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt;, std::allocator&lt;std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt; &gt;, std::__detail::_Select1st, actor_runtime::MessageKeyEqual, actor_runtime::MessageKeyHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::erase (1 samples, 0.11%)</title><rect x="482.3" y="69" width="1.3" height="15.0" fill="rgb(218,62,14)" rx="2" ry="2" />
+<text  x="485.26" y="79.5" ></text>
+</g>
+<g >
+<title>std::_Hashtable&lt;unsigned long, std::pair&lt;unsigned long const, std::shared_ptr&lt;actor_runtime::ActorControl&gt; &gt;, std::allocator&lt;std::pair&lt;unsigned long const, std::shared_ptr&lt;actor_runtime::ActorControl&gt; &gt; &gt;, std::__detail::_Select1st, std::equal_to&lt;unsigned long&gt;, std::hash&lt;unsigned long&gt;, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::find (5 samples, 0.56%)</title><rect x="641.4" y="117" width="6.6" height="15.0" fill="rgb(232,125,30)" rx="2" ry="2" />
+<text  x="644.44" y="127.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;::_S_manage (8 samples, 0.89%)</title><rect x="169.2" y="117" width="10.5" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="172.18" y="127.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;std::is_copy_constructible&lt;std::enable_if&lt;! (2 samples, 0.22%)</title><rect x="1001.9" y="165" width="2.6" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="1004.88" y="175.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorRef::send (87 samples, 9.70%)</title><rect x="557.2" y="149" width="114.5" height="15.0" fill="rgb(239,160,38)" rx="2" ry="2" />
+<text  x="560.25" y="159.5" >actor_runtime:..</text>
+</g>
+<g >
+<title>void std::allocator_traits&lt;std::allocator&lt;actor_runtime::Job&gt; &gt;::destroy&lt;actor_runtime::Job&gt; (1 samples, 0.11%)</title><rect x="1000.6" y="149" width="1.3" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="1003.57" y="159.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;actor_runtime::WaitRegistration, std::default_delete&lt;actor_runtime::WaitRegistration&gt; &gt;::reset (1 samples, 0.11%)</title><rect x="1175.5" y="133" width="1.3" height="15.0" fill="rgb(231,122,29)" rx="2" ry="2" />
+<text  x="1178.53" y="143.5" ></text>
+</g>
+<g >
+<title>std::__shared_count&lt; (4 samples, 0.45%)</title><rect x="478.3" y="117" width="5.3" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="481.32" y="127.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;actor_runtime::WaitRegistration&gt;::operator (1 samples, 0.11%)</title><rect x="1175.5" y="101" width="1.3" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="1178.53" y="111.5" ></text>
+</g>
+<g >
+<title>std::unique_lock&lt;std::mutex&gt;::unlock (16 samples, 1.78%)</title><rect x="1144.0" y="181" width="21.0" height="15.0" fill="rgb(210,23,5)" rx="2" ry="2" />
+<text  x="1146.96" y="191.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt;::push_back (4 samples, 0.45%)</title><rect x="220.5" y="149" width="5.2" height="15.0" fill="rgb(224,87,20)" rx="2" ry="2" />
+<text  x="223.48" y="159.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;std::is_copy_constructible&lt;std::enable_if&lt;! (2 samples, 0.22%)</title><rect x="486.2" y="165" width="2.6" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="489.21" y="175.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;actor_runtime::WaitResult, std::allocator&lt;actor_runtime::WaitResult&gt; &gt;::operator= (1 samples, 0.11%)</title><rect x="937.4" y="133" width="1.3" height="15.0" fill="rgb(220,73,17)" rx="2" ry="2" />
+<text  x="940.42" y="143.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::ref (1 samples, 0.11%)</title><rect x="671.7" y="149" width="1.3" height="15.0" fill="rgb(218,62,14)" rx="2" ry="2" />
+<text  x="674.69" y="159.5" ></text>
+</g>
+<g >
+<title>std::__shared_ptr&lt;actor_runtime::WaitSpec::Node const,  (1 samples, 0.11%)</title><rect x="496.7" y="149" width="1.3" height="15.0" fill="rgb(249,203,48)" rx="2" ry="2" />
+<text  x="499.73" y="159.5" ></text>
+</g>
+<g >
+<title>operator new (2 samples, 0.22%)</title><rect x="200.7" y="149" width="2.7" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="203.75" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (4 samples, 0.45%)</title><rect x="636.2" y="117" width="5.2" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="639.18" y="127.5" ></text>
+</g>
+<g >
+<title>std::__shared_ptr&lt;actor_runtime::ActorControl,  (1 samples, 0.11%)</title><rect x="953.2" y="117" width="1.3" height="15.0" fill="rgb(228,108,26)" rx="2" ry="2" />
+<text  x="956.21" y="127.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;::_S_manage (3 samples, 0.33%)</title><rect x="996.6" y="165" width="4.0" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="999.62" y="175.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;__and_v&lt;std::__not_&lt;std::is_same&lt;std::optional&lt;actor_runtime::WaitResult&gt;, std::remove_cv&lt;std::remove_reference&lt;actor_runtime::WaitResult&amp;&gt;::type&gt;::type&gt; &gt;, std::__not_&lt;std::__and_&lt;std::is_scalar&lt;actor_runtime::WaitResult&gt;, std::is_same&lt;actor_runtime::WaitResult, std::decay&lt;actor_runtime::WaitResult&amp;&gt;::type&gt; &gt; &gt;, std::is_constructible&lt;actor_runtime::WaitResult, actor_runtime::WaitResult&amp;&gt;, std::is_assignable&lt;actor_runtime::WaitResult&amp;, actor_runtime::WaitResult&amp;&gt; &gt;, std::optional&lt;actor_runtime::WaitResult&gt;&amp;&gt;::type std::optional&lt;actor_runtime::WaitResult&gt;::operator=&lt;actor_runtime::WaitResult&amp;&gt; (2 samples, 0.22%)</title><rect x="179.7" y="117" width="2.6" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="182.70" y="127.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (1 samples, 0.11%)</title><rect x="477.0" y="101" width="1.3" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="480.00" y="111.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (7 samples, 0.78%)</title><rect x="845.3" y="149" width="9.2" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="848.34" y="159.5" ></text>
+</g>
+<g >
+<title>operator new (2 samples, 0.22%)</title><rect x="947.9" y="133" width="2.7" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="950.95" y="143.5" ></text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.11%)</title><rect x="1170.3" y="165" width="1.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="1173.27" y="175.5" ></text>
+</g>
+<g >
+<title>__invoke_impl&lt;std::unique_ptr&lt;actor_runtime::RuntimeWaitNode&gt;, actor_runtime::ActorSystem::Impl::installWait (2 samples, 0.22%)</title><rect x="775.6" y="101" width="2.6" height="15.0" fill="rgb(249,203,48)" rx="2" ry="2" />
+<text  x="778.62" y="111.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::Message const&gt;::~shared_ptr (4 samples, 0.45%)</title><rect x="478.3" y="149" width="5.3" height="15.0" fill="rgb(211,27,6)" rx="2" ry="2" />
+<text  x="481.32" y="159.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (6 samples, 0.67%)</title><rect x="862.4" y="165" width="7.9" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="865.44" y="175.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;::_S_manage (3 samples, 0.33%)</title><rect x="1140.0" y="165" width="4.0" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="1143.01" y="175.5" ></text>
+</g>
+<g >
+<title>actor_runtime::WaitResult::WaitResult (1 samples, 0.11%)</title><rect x="1178.2" y="245" width="1.3" height="15.0" fill="rgb(206,8,2)" rx="2" ry="2" />
+<text  x="1181.16" y="255.5" ></text>
+</g>
+<g >
+<title>operator new (1 samples, 0.11%)</title><rect x="1188.7" y="229" width="1.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1191.68" y="239.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_base&lt; (3 samples, 0.33%)</title><rect x="648.0" y="117" width="4.0" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="651.02" y="127.5" ></text>
+</g>
+<g >
+<title>pthread_cond_broadcast (1 samples, 0.11%)</title><rect x="688.8" y="149" width="1.3" height="15.0" fill="rgb(249,203,48)" rx="2" ry="2" />
+<text  x="691.80" y="159.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_base&lt; (1 samples, 0.11%)</title><rect x="496.7" y="117" width="1.3" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="499.73" y="127.5" ></text>
+</g>
+<g >
+<title>Client::onMessage (1 samples, 0.11%)</title><rect x="554.6" y="165" width="1.3" height="15.0" fill="rgb(235,139,33)" rx="2" ry="2" />
+<text  x="557.62" y="175.5" ></text>
+</g>
+<g >
+<title> (1 samples, 0.11%)</title><rect x="219.2" y="133" width="1.3" height="15.0" fill="rgb(232,128,30)" rx="2" ry="2" />
+<text  x="222.16" y="143.5" ></text>
+</g>
+<g >
+<title>cfree (3 samples, 0.33%)</title><rect x="474.4" y="117" width="3.9" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="477.37" y="127.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;::_S_manage (1 samples, 0.11%)</title><rect x="219.2" y="117" width="1.3" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="222.16" y="127.5" ></text>
+</g>
+<g >
+<title>std::weak_ptr&lt;actor_runtime::ActorControl&gt;::lock (1 samples, 0.11%)</title><rect x="953.2" y="149" width="1.3" height="15.0" fill="rgb(238,155,37)" rx="2" ry="2" />
+<text  x="956.21" y="159.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::Message const&gt;&amp; std::deque&lt;std::shared_ptr&lt;actor_runtime::Message const&gt;, std::allocator&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt; &gt;::emplace_back&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt; (2 samples, 0.22%)</title><rect x="659.9" y="117" width="2.6" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="662.86" y="127.5" ></text>
+</g>
+<g >
+<title>std::mutex::unlock (2 samples, 0.22%)</title><rect x="683.5" y="165" width="2.7" height="15.0" fill="rgb(227,105,25)" rx="2" ry="2" />
+<text  x="686.53" y="175.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_base&lt; (6 samples, 0.67%)</title><rect x="837.4" y="149" width="7.9" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="840.45" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (23 samples, 2.56%)</title><rect x="341.5" y="165" width="30.3" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="344.51" y="175.5" >pt..</text>
+</g>
+<g >
+<title>[libc.so.6] (2 samples, 0.22%)</title><rect x="1153.2" y="117" width="2.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1156.17" y="127.5" ></text>
+</g>
+<g >
+<title>operator new (5 samples, 0.56%)</title><rect x="1124.2" y="165" width="6.6" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1127.23" y="175.5" ></text>
+</g>
+<g >
+<title>std::unique_ptr&lt;actor_runtime::Actor::Impl, std::default_delete&lt;actor_runtime::Actor::Impl&gt; &gt;::operator (1 samples, 0.11%)</title><rect x="219.2" y="149" width="1.3" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="222.16" y="159.5" ></text>
+</g>
+<g >
+<title>void std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_construct&lt;char*&gt; (2 samples, 0.22%)</title><rect x="663.8" y="117" width="2.6" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="666.80" y="127.5" ></text>
+</g>
+<g >
+<title>std::any::any&lt;bench::Packet, bench::Packet, std::any::_Manager_external&lt;bench::Packet&gt;, true&gt; (1 samples, 0.11%)</title><rect x="854.5" y="149" width="1.4" height="15.0" fill="rgb(248,199,47)" rx="2" ry="2" />
+<text  x="857.55" y="159.5" ></text>
+</g>
+<g >
+<title>cfree (12 samples, 1.34%)</title><rect x="980.8" y="165" width="15.8" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="983.84" y="175.5" ></text>
+</g>
+<g >
+<title>cfree (1 samples, 0.11%)</title><rect x="504.6" y="181" width="1.3" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="507.63" y="191.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (5 samples, 0.56%)</title><rect x="863.8" y="149" width="6.5" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="866.76" y="159.5" ></text>
+</g>
+<g >
+<title>cfree (3 samples, 0.33%)</title><rect x="1133.4" y="165" width="4.0" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1136.43" y="175.5" ></text>
+</g>
+<g >
+<title>swapcontext (2 samples, 0.22%)</title><rect x="1171.6" y="229" width="2.6" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="1174.58" y="239.5" ></text>
+</g>
+<g >
+<title>void std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_construct&lt;char*&gt; (1 samples, 0.11%)</title><rect x="1188.7" y="245" width="1.3" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="1191.68" y="255.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::ActorControl&gt;::operator= (2 samples, 0.22%)</title><rect x="686.2" y="181" width="2.6" height="15.0" fill="rgb(244,180,43)" rx="2" ry="2" />
+<text  x="689.16" y="191.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (1 samples, 0.11%)</title><rect x="1176.8" y="117" width="1.4" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1179.85" y="127.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;::_S_manage (3 samples, 0.33%)</title><rect x="1165.0" y="133" width="4.0" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="1168.01" y="143.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (7 samples, 0.78%)</title><rect x="191.5" y="133" width="9.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="194.54" y="143.5" ></text>
+</g>
+<g >
+<title>std::__detail::_Map_base&lt;actor_runtime::MessageKey, std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt;, std::allocator&lt;std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt; &gt;, std::__detail::_Select1st, actor_runtime::MessageKeyEqual, actor_runtime::MessageKeyHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt;, true&gt;::operator[] (5 samples, 0.56%)</title><rect x="946.6" y="149" width="6.6" height="15.0" fill="rgb(225,95,22)" rx="2" ry="2" />
+<text  x="949.63" y="159.5" ></text>
+</g>
+<g >
+<title>std::lock_guard&lt;std::mutex&gt;::lock_guard (1 samples, 0.11%)</title><rect x="1178.2" y="229" width="1.3" height="15.0" fill="rgb(235,139,33)" rx="2" ry="2" />
+<text  x="1181.16" y="239.5" ></text>
+</g>
+<g >
+<title>std::mutex::unlock (2 samples, 0.22%)</title><rect x="216.5" y="133" width="2.7" height="15.0" fill="rgb(227,105,25)" rx="2" ry="2" />
+<text  x="219.53" y="143.5" ></text>
+</g>
+<g >
+<title>all (897 samples, 100%)</title><rect x="10.0" y="277" width="1180.0" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="13.00" y="287.5" ></text>
+</g>
+<g >
+<title>cfree (10 samples, 1.11%)</title><rect x="328.4" y="165" width="13.1" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="331.35" y="175.5" ></text>
+</g>
+<g >
+<title>__invoke_r&lt;std::unique_ptr&lt;actor_runtime::RuntimeWaitNode&gt;, actor_runtime::ActorSystem::Impl::installWait (2 samples, 0.22%)</title><rect x="775.6" y="117" width="2.6" height="15.0" fill="rgb(216,52,12)" rx="2" ry="2" />
+<text  x="778.62" y="127.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::Message const&gt;::~shared_ptr (1 samples, 0.11%)</title><rect x="662.5" y="117" width="1.3" height="15.0" fill="rgb(211,27,6)" rx="2" ry="2" />
+<text  x="665.49" y="127.5" ></text>
+</g>
+<g >
+<title>void std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;::_S_create&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; const&amp;&gt; (2 samples, 0.22%)</title><rect x="486.2" y="133" width="2.6" height="15.0" fill="rgb(209,21,5)" rx="2" ry="2" />
+<text  x="489.21" y="143.5" ></text>
+</g>
+<g >
+<title>malloc (1 samples, 0.11%)</title><rect x="934.8" y="117" width="1.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="937.79" y="127.5" ></text>
+</g>
+<g >
+<title>std::_Function_handler&lt;std::unique_ptr&lt;actor_runtime::RuntimeWaitNode, std::default_delete&lt;actor_runtime::RuntimeWaitNode&gt; &gt;  (22 samples, 2.45%)</title><rect x="917.7" y="149" width="28.9" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="920.69" y="159.5" >st..</text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.11%)</title><rect x="677.0" y="117" width="1.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="679.96" y="127.5" ></text>
+</g>
+<g >
+<title>malloc (4 samples, 0.45%)</title><rect x="801.9" y="133" width="5.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="804.93" y="143.5" ></text>
+</g>
+<g >
+<title>std::mutex::unlock (6 samples, 0.67%)</title><rect x="488.8" y="149" width="7.9" height="15.0" fill="rgb(227,105,25)" rx="2" ry="2" />
+<text  x="491.84" y="159.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::ActorControl&gt;::shared_ptr (1 samples, 0.11%)</title><rect x="616.4" y="85" width="1.4" height="15.0" fill="rgb(248,197,47)" rx="2" ry="2" />
+<text  x="619.44" y="95.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (2 samples, 0.22%)</title><rect x="1121.6" y="165" width="2.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1124.59" y="175.5" ></text>
+</g>
+<g >
+<title>malloc (3 samples, 0.33%)</title><rect x="621.7" y="101" width="4.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="624.71" y="111.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::installWait (55 samples, 6.13%)</title><rect x="895.3" y="165" width="72.4" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
+<text  x="898.33" y="175.5" >actor_ru..</text>
+</g>
+<g >
+<title>std::__shared_ptr&lt;actor_runtime::Message const,  (1 samples, 0.11%)</title><rect x="662.5" y="101" width="1.3" height="15.0" fill="rgb(205,3,0)" rx="2" ry="2" />
+<text  x="665.49" y="111.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;::_S_manage (7 samples, 0.78%)</title><rect x="204.7" y="149" width="9.2" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="207.69" y="159.5" ></text>
+</g>
+<g >
+<title>_start (3 samples, 0.33%)</title><rect x="1174.2" y="245" width="4.0" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
+<text  x="1177.21" y="255.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;actor_runtime::WaitResult, std::allocator&lt;actor_runtime::WaitResult&gt; &gt;::~vector (2 samples, 0.22%)</title><rect x="498.0" y="165" width="2.7" height="15.0" fill="rgb(252,220,52)" rx="2" ry="2" />
+<text  x="501.05" y="175.5" ></text>
+</g>
+<g >
+<title>std::__shared_ptr_access&lt;actor_runtime::ActorControl,  (3 samples, 0.33%)</title><rect x="1165.0" y="197" width="4.0" height="15.0" fill="rgb(221,74,17)" rx="2" ry="2" />
+<text  x="1168.01" y="207.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock@plt (1 samples, 0.11%)</title><rect x="608.6" y="101" width="1.3" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="611.55" y="111.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::enqueueLocal (18 samples, 2.01%)</title><rect x="137.6" y="133" width="23.7" height="15.0" fill="rgb(238,155,37)" rx="2" ry="2" />
+<text  x="140.60" y="143.5" >a..</text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::notifyMessage (116 samples, 12.93%)</title><rect x="73.1" y="165" width="152.6" height="15.0" fill="rgb(244,180,43)" rx="2" ry="2" />
+<text  x="76.14" y="175.5" >actor_runtime::Acto..</text>
+</g>
+<g >
+<title>[libstdc++.so.6.0.33] (532 samples, 59.31%)</title><rect x="10.0" y="213" width="699.8" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="13.00" y="223.5" >[libstdc++.so.6.0.33]</text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (2 samples, 0.22%)</title><rect x="1175.5" y="149" width="2.7" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1178.53" y="159.5" ></text>
+</g>
+<g >
+<title>std::lock_guard&lt;std::mutex&gt;::~lock_guard (6 samples, 0.67%)</title><rect x="488.8" y="165" width="7.9" height="15.0" fill="rgb(221,75,18)" rx="2" ry="2" />
+<text  x="491.84" y="175.5" ></text>
+</g>
+<g >
+<title>std::mutex::unlock (1 samples, 0.11%)</title><rect x="1004.5" y="149" width="1.3" height="15.0" fill="rgb(227,105,25)" rx="2" ry="2" />
+<text  x="1007.52" y="159.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (4 samples, 0.45%)</title><rect x="1179.5" y="229" width="5.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1182.48" y="239.5" ></text>
+</g>
+<g >
+<title>void std::deque&lt;std::shared_ptr&lt;actor_runtime::Message const&gt;, std::allocator&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt; &gt;::_M_push_back_aux&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt; (1 samples, 0.11%)</title><rect x="670.4" y="117" width="1.3" height="15.0" fill="rgb(244,181,43)" rx="2" ry="2" />
+<text  x="673.38" y="127.5" ></text>
+</g>
+<g >
+<title>std::optional&lt;actor_runtime::WaitResult&gt;::reset (2 samples, 0.22%)</title><rect x="855.9" y="149" width="2.6" height="15.0" fill="rgb(221,76,18)" rx="2" ry="2" />
+<text  x="858.86" y="159.5" ></text>
+</g>
+<g >
+<title>operator delete (1 samples, 0.11%)</title><rect x="473.1" y="133" width="1.3" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="476.05" y="143.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (1 samples, 0.11%)</title><rect x="1176.8" y="85" width="1.4" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1179.85" y="95.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (3 samples, 0.33%)</title><rect x="474.4" y="133" width="3.9" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="477.37" y="143.5" ></text>
+</g>
+<g >
+<title>operator new (1 samples, 0.11%)</title><rect x="661.2" y="101" width="1.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="664.17" y="111.5" ></text>
+</g>
+<g >
+<title>std::_Hashtable&lt;actor_runtime::MessageKey, std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt;, std::allocator&lt;std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt; &gt;, std::__detail::_Select1st, actor_runtime::MessageKeyEqual, actor_runtime::MessageKeyHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::_M_find_before_node (1 samples, 0.11%)</title><rect x="203.4" y="149" width="1.3" height="15.0" fill="rgb(206,8,2)" rx="2" ry="2" />
+<text  x="206.38" y="159.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_ptr_inplace&lt;actor_runtime::WaitSpec::Node, std::allocator&lt;void&gt;,  (3 samples, 0.33%)</title><rect x="1115.0" y="181" width="4.0" height="15.0" fill="rgb(240,163,39)" rx="2" ry="2" />
+<text  x="1118.02" y="191.5" ></text>
+</g>
+<g >
+<title>malloc (1 samples, 0.11%)</title><rect x="202.1" y="133" width="1.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="205.06" y="143.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::workerLoop (518 samples, 57.75%)</title><rect x="10.0" y="197" width="681.4" height="15.0" fill="rgb(219,65,15)" rx="2" ry="2" />
+<text  x="13.00" y="207.5" >actor_runtime::ActorSystem::Impl::workerLoop</text>
+</g>
+<g >
+<title>std::any::any&lt;bench::Packet, bench::Packet, std::any::_Manager_external&lt;bench::Packet&gt;, true&gt; (1 samples, 0.11%)</title><rect x="870.3" y="165" width="1.3" height="15.0" fill="rgb(248,199,47)" rx="2" ry="2" />
+<text  x="873.33" y="175.5" ></text>
+</g>
+<g >
+<title>void std::_Destroy&lt;actor_runtime::WaitResult*, actor_runtime::WaitResult&gt; (2 samples, 0.22%)</title><rect x="498.0" y="149" width="2.7" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="501.05" y="159.5" ></text>
+</g>
+<g >
+<title>std::_Optional_base_impl&lt;actor_runtime::WaitResult, std::_Optional_base&lt;actor_runtime::WaitResult, false, false&gt; &gt;::_M_reset (2 samples, 0.22%)</title><rect x="855.9" y="133" width="2.6" height="15.0" fill="rgb(232,127,30)" rx="2" ry="2" />
+<text  x="858.86" y="143.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_base&lt; (3 samples, 0.33%)</title><rect x="182.3" y="117" width="4.0" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="185.33" y="127.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::resumeFiber (78 samples, 8.70%)</title><rect x="225.7" y="165" width="102.7" height="15.0" fill="rgb(223,85,20)" rx="2" ry="2" />
+<text  x="228.74" y="175.5" >actor_runtim..</text>
+</g>
+<g >
+<title>pthread_mutex_lock (8 samples, 0.89%)</title><rect x="625.7" y="117" width="10.5" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="628.65" y="127.5" ></text>
+</g>
+<g >
+<title>std::__detail::_Prime_rehash_policy::_M_need_rehash (1 samples, 0.11%)</title><rect x="1184.7" y="229" width="1.4" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="1187.74" y="239.5" ></text>
+</g>
+<g >
+<title>std::chrono::_V2::steady_clock::now (1 samples, 0.11%)</title><rect x="1137.4" y="181" width="1.3" height="15.0" fill="rgb(249,203,48)" rx="2" ry="2" />
+<text  x="1140.38" y="191.5" ></text>
+</g>
+<g >
+<title>void std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt;::_M_realloc_insert&lt;actor_runtime::LeafRef const&amp;&gt; (10 samples, 1.11%)</title><rect x="954.5" y="149" width="13.2" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="957.53" y="159.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;::_S_manage (4 samples, 0.45%)</title><rect x="1132.1" y="181" width="5.3" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="1135.12" y="191.5" ></text>
+</g>
+<g >
+<title>actor_runtime::CoroutineContext::await (169 samples, 18.84%)</title><rect x="871.6" y="181" width="222.4" height="15.0" fill="rgb(209,18,4)" rx="2" ry="2" />
+<text  x="874.65" y="191.5" >actor_runtime::CoroutineConte..</text>
+</g>
+<g >
+<title>std::_Hashtable&lt;unsigned long, std::pair&lt;unsigned long const, std::unique_ptr&lt;actor_runtime::Fiber, std::default_delete&lt;actor_runtime::Fiber&gt; &gt; &gt;, std::allocator&lt;std::pair&lt;unsigned long const, std::unique_ptr&lt;actor_runtime::Fiber, std::default_delete&lt;actor_runtime::Fiber&gt; &gt; &gt; &gt;, std::__detail::_Select1st, std::equal_to&lt;unsigned long&gt;, std::hash&lt;unsigned long&gt;, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::find (12 samples, 1.34%)</title><rect x="242.8" y="149" width="15.8" height="15.0" fill="rgb(219,65,15)" rx="2" ry="2" />
+<text  x="245.84" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (3 samples, 0.33%)</title><rect x="666.4" y="117" width="4.0" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="669.43" y="127.5" ></text>
+</g>
+<g >
+<title>void std::_Optional_base_impl&lt;actor_runtime::WaitResult, std::_Optional_base&lt;actor_runtime::WaitResult, false, false&gt; &gt;::_M_construct&lt;actor_runtime::WaitResult&amp;&gt; (2 samples, 0.22%)</title><rect x="179.7" y="101" width="2.6" height="15.0" fill="rgb(218,63,15)" rx="2" ry="2" />
+<text  x="182.70" y="111.5" ></text>
+</g>
+<g >
+<title>void std::allocator_traits&lt;std::allocator&lt;void&gt; &gt;::destroy&lt;actor_runtime::Message const&gt; (3 samples, 0.33%)</title><rect x="478.3" y="69" width="4.0" height="15.0" fill="rgb(250,209,50)" rx="2" ry="2" />
+<text  x="481.32" y="79.5" ></text>
+</g>
+<g >
+<title>actor_runtime::Job::~Job (14 samples, 1.56%)</title><rect x="691.4" y="181" width="18.4" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="694.43" y="191.5" ></text>
+</g>
+<g >
+<title>operator new (2 samples, 0.22%)</title><rect x="678.3" y="117" width="2.6" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="681.27" y="127.5" ></text>
+</g>
+<g >
+<title>actor_runtime::Job&amp; std::deque&lt;actor_runtime::Job, std::allocator&lt;actor_runtime::Job&gt; &gt;::emplace_back&lt;actor_runtime::Job&gt; (2 samples, 0.22%)</title><rect x="599.3" y="101" width="2.7" height="15.0" fill="rgb(241,166,39)" rx="2" ry="2" />
+<text  x="602.34" y="111.5" ></text>
+</g>
+<g >
+<title>operator new (4 samples, 0.45%)</title><rect x="941.4" y="117" width="5.2" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="944.37" y="127.5" ></text>
+</g>
+<g >
+<title>std::mutex::unlock (16 samples, 1.78%)</title><rect x="1144.0" y="165" width="21.0" height="15.0" fill="rgb(227,105,25)" rx="2" ry="2" />
+<text  x="1146.96" y="175.5" ></text>
+</g>
+<g >
+<title>operator new (3 samples, 0.33%)</title><rect x="1165.0" y="117" width="4.0" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1168.01" y="127.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;::_S_manage (5 samples, 0.56%)</title><rect x="974.3" y="149" width="6.5" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="977.26" y="159.5" ></text>
+</g>
+<g >
+<title>std::any::any&lt;bench::Packet, bench::Packet, std::any::_Manager_external&lt;bench::Packet&gt;, true&gt; (1 samples, 0.11%)</title><rect x="658.5" y="117" width="1.4" height="15.0" fill="rgb(248,199,47)" rx="2" ry="2" />
+<text  x="661.54" y="127.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (18 samples, 2.01%)</title><rect x="528.3" y="181" width="23.7" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="531.31" y="191.5" >p..</text>
+</g>
+<g >
+<title>[libc.so.6] (2 samples, 0.22%)</title><rect x="470.4" y="117" width="2.7" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="473.42" y="127.5" ></text>
+</g>
+<g >
+<title>clock_gettime (1 samples, 0.11%)</title><rect x="1137.4" y="165" width="1.3" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="1140.38" y="175.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock@plt (1 samples, 0.11%)</title><rect x="458.6" y="165" width="1.3" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="461.58" y="175.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (32 samples, 3.57%)</title><rect x="416.5" y="165" width="42.1" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="419.49" y="175.5" >pth..</text>
+</g>
+<g >
+<title>std::__shared_ptr_access&lt;actor_runtime::ActorControl,  (3 samples, 0.33%)</title><rect x="1165.0" y="165" width="4.0" height="15.0" fill="rgb(221,74,17)" rx="2" ry="2" />
+<text  x="1168.01" y="175.5" ></text>
+</g>
+<g >
+<title>Client::onMessage (1 samples, 0.11%)</title><rect x="1186.1" y="229" width="1.3" height="15.0" fill="rgb(235,139,33)" rx="2" ry="2" />
+<text  x="1189.05" y="239.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::basic_string (14 samples, 1.56%)</title><rect x="691.4" y="197" width="18.4" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+<text  x="694.43" y="207.5" ></text>
+</g>
+<g >
+<title>std::any::~any (1 samples, 0.11%)</title><rect x="483.6" y="165" width="1.3" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="486.58" y="175.5" ></text>
+</g>
+<g >
+<title>actor_runtime::Actor::id (1 samples, 0.11%)</title><rect x="592.8" y="117" width="1.3" height="15.0" fill="rgb(208,16,4)" rx="2" ry="2" />
+<text  x="595.76" y="127.5" ></text>
+</g>
+<g >
+<title>std::__detail::_Prime_rehash_policy::_M_need_rehash (1 samples, 0.11%)</title><rect x="951.9" y="133" width="1.3" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="954.90" y="143.5" ></text>
+</g>
+<g >
+<title>std::_Function_handler&lt;std::any  (351 samples, 39.13%)</title><rect x="709.8" y="213" width="461.8" height="15.0" fill="rgb(242,174,41)" rx="2" ry="2" />
+<text  x="712.84" y="223.5" >std::_Function_handler&lt;std::any </text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_create (1 samples, 0.11%)</title><rect x="680.9" y="117" width="1.3" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="683.90" y="127.5" ></text>
+</g>
+<g >
+<title>_M_invoke (2 samples, 0.22%)</title><rect x="775.6" y="133" width="2.6" height="15.0" fill="rgb(226,100,24)" rx="2" ry="2" />
+<text  x="778.62" y="143.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::enqueueGlobal (18 samples, 2.01%)</title><rect x="594.1" y="117" width="23.7" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="597.08" y="127.5" >a..</text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_assign (10 samples, 1.11%)</title><rect x="1119.0" y="181" width="13.1" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="1121.96" y="191.5" ></text>
+</g>
+<g >
+<title>/usr/include/c++/13/bits/invoke.h:61  (1 samples, 0.11%)</title><rect x="591.4" y="117" width="1.4" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+<text  x="594.45" y="127.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;actor_runtime::WaitResult, std::allocator&lt;actor_runtime::WaitResult&gt; &gt;::vector (2 samples, 0.22%)</title><rect x="688.8" y="181" width="2.6" height="15.0" fill="rgb(216,54,12)" rx="2" ry="2" />
+<text  x="691.80" y="191.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (2 samples, 0.22%)</title><rect x="1175.5" y="165" width="2.7" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1178.53" y="175.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (11 samples, 1.23%)</title><rect x="808.5" y="149" width="14.5" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="811.51" y="159.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (1 samples, 0.11%)</title><rect x="1161.1" y="101" width="1.3" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1164.06" y="111.5" ></text>
+</g>
+<g >
+<title>native_fiber_ec (897 samples, 100.00%)</title><rect x="10.0" y="261" width="1180.0" height="15.0" fill="rgb(205,2,0)" rx="2" ry="2" />
+<text  x="13.00" y="271.5" >native_fiber_ec</text>
+</g>
+<g >
+<title>[libc.so.6] (4 samples, 0.45%)</title><rect x="991.4" y="149" width="5.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="994.36" y="159.5" ></text>
+</g>
+<g >
+<title>malloc (1 samples, 0.11%)</title><rect x="661.2" y="85" width="1.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="664.17" y="95.5" ></text>
+</g>
+<g >
+<title>std::__uniq_ptr_impl&lt;actor_runtime::WaitRegistration, std::default_delete&lt;actor_runtime::WaitRegistration&gt; &gt;::reset (1 samples, 0.11%)</title><rect x="1175.5" y="117" width="1.3" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
+<text  x="1178.53" y="127.5" ></text>
+</g>
+<g >
+<title>std::__shared_ptr&lt;actor_runtime::Message const,  (4 samples, 0.45%)</title><rect x="478.3" y="133" width="5.3" height="15.0" fill="rgb(205,3,0)" rx="2" ry="2" />
+<text  x="481.32" y="143.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (1 samples, 0.11%)</title><rect x="1176.8" y="101" width="1.4" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1179.85" y="111.5" ></text>
+</g>
+<g >
+<title>void std::_Destroy&lt;actor_runtime::Message const&gt; (3 samples, 0.33%)</title><rect x="478.3" y="53" width="4.0" height="15.0" fill="rgb(229,113,27)" rx="2" ry="2" />
+<text  x="481.32" y="63.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_ptr_inplace&lt;actor_runtime::Message const, std::allocator&lt;void&gt;,  (16 samples, 1.78%)</title><rect x="1144.0" y="149" width="21.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="1146.96" y="159.5" ></text>
+</g>
+<g >
+<title>operator new (2 samples, 0.22%)</title><rect x="1169.0" y="181" width="2.6" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1171.95" y="191.5" ></text>
+</g>
+<g >
+<title>std::_Hashtable&lt;unsigned long, std::pair&lt;unsigned long const, std::unique_ptr&lt;actor_runtime::Fiber, std::default_delete&lt;actor_runtime::Fiber&gt; &gt; &gt;, std::allocator&lt;std::pair&lt;unsigned long const, std::unique_ptr&lt;actor_runtime::Fiber, std::default_delete&lt;actor_runtime::Fiber&gt; &gt; &gt; &gt;, std::__detail::_Select1st, std::equal_to&lt;unsigned long&gt;, std::hash&lt;unsigned long&gt;, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::find (3 samples, 0.33%)</title><rect x="478.3" y="37" width="4.0" height="15.0" fill="rgb(219,65,15)" rx="2" ry="2" />
+<text  x="481.32" y="47.5" ></text>
+</g>
+<g >
+<title>operator new (6 samples, 0.67%)</title><rect x="617.8" y="117" width="7.9" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="620.76" y="127.5" ></text>
+</g>
+<g >
+<title>actor_runtime::CoroutineContext::throwIfCancelled (2 samples, 0.22%)</title><rect x="1094.0" y="181" width="2.6" height="15.0" fill="rgb(228,110,26)" rx="2" ry="2" />
+<text  x="1096.97" y="191.5" ></text>
+</g>
+<g >
+<title>cfree (13 samples, 1.45%)</title><rect x="1096.6" y="181" width="17.1" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1099.60" y="191.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_ptr_inplace&lt;actor_runtime::Message const, std::allocator&lt;void&gt;,  (1 samples, 0.11%)</title><rect x="1187.4" y="213" width="1.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="1190.37" y="223.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::send (92 samples, 10.26%)</title><rect x="741.4" y="165" width="121.0" height="15.0" fill="rgb(214,43,10)" rx="2" ry="2" />
+<text  x="744.42" y="175.5" >actor_runtime::..</text>
+</g>
+<g >
+<title>actor_runtime::(anonymous namespace)::fiberTrampoline (351 samples, 39.13%)</title><rect x="709.8" y="229" width="461.8" height="15.0" fill="rgb(221,76,18)" rx="2" ry="2" />
+<text  x="712.84" y="239.5" >actor_runtime::(anonymous namespace)::fiberTrampoline</text>
+</g>
+<g >
+<title>std::__shared_count&lt; (1 samples, 0.11%)</title><rect x="662.5" y="85" width="1.3" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="665.49" y="95.5" ></text>
+</g>
+<g >
+<title>std::__shared_count&lt; (1 samples, 0.11%)</title><rect x="616.4" y="53" width="1.4" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="619.44" y="63.5" ></text>
+</g>
+<g >
+<title>operator new (2 samples, 0.22%)</title><rect x="675.6" y="133" width="2.7" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="678.64" y="143.5" ></text>
+</g>
+<g >
+<title>malloc (3 samples, 0.33%)</title><rect x="942.7" y="101" width="3.9" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="945.69" y="111.5" ></text>
+</g>
+<g >
+<title>pthread_cond_signal (1 samples, 0.11%)</title><rect x="807.2" y="149" width="1.3" height="15.0" fill="rgb(245,186,44)" rx="2" ry="2" />
+<text  x="810.19" y="159.5" ></text>
+</g>
+<g >
+<title>Echo::onMessage (96 samples, 10.70%)</title><rect x="555.9" y="165" width="126.3" height="15.0" fill="rgb(232,125,30)" rx="2" ry="2" />
+<text  x="558.93" y="175.5" >Echo::onMessage</text>
+</g>
+<g >
+<title>std::_Hashtable&lt;unsigned long, std::pair&lt;unsigned long const, std::unique_ptr&lt;actor_runtime::Fiber, std::default_delete&lt;actor_runtime::Fiber&gt; &gt; &gt;, std::allocator&lt;std::pair&lt;unsigned long const, std::unique_ptr&lt;actor_runtime::Fiber, std::default_delete&lt;actor_runtime::Fiber&gt; &gt; &gt; &gt;, std::__detail::_Select1st, std::equal_to&lt;unsigned long&gt;, std::hash&lt;unsigned long&gt;, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::find (4 samples, 0.45%)</title><rect x="220.5" y="133" width="5.2" height="15.0" fill="rgb(219,65,15)" rx="2" ry="2" />
+<text  x="223.48" y="143.5" ></text>
+</g>
+<g >
+<title>std::__shared_ptr&lt;actor_runtime::ActorControl,  (1 samples, 0.11%)</title><rect x="616.4" y="69" width="1.4" height="15.0" fill="rgb(228,108,26)" rx="2" ry="2" />
+<text  x="619.44" y="79.5" ></text>
+</g>
+<g >
+<title>void std::__new_allocator&lt;actor_runtime::Job&gt;::destroy&lt;actor_runtime::Job&gt; (1 samples, 0.11%)</title><rect x="1000.6" y="133" width="1.3" height="15.0" fill="rgb(239,157,37)" rx="2" ry="2" />
+<text  x="1003.57" y="143.5" ></text>
+</g>
+<g >
+<title>void std::_Destroy&lt;actor_runtime::WaitResult*&gt; (2 samples, 0.22%)</title><rect x="498.0" y="133" width="2.7" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="501.05" y="143.5" ></text>
+</g>
+<g >
+<title>operator new (1 samples, 0.11%)</title><rect x="178.4" y="101" width="1.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="181.38" y="111.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (7 samples, 0.78%)</title><rect x="673.0" y="149" width="9.2" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="676.01" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (10 samples, 1.11%)</title><rect x="148.1" y="117" width="13.2" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="151.13" y="127.5" ></text>
+</g>
+<g >
+<title>[unknown] (2 samples, 0.22%)</title><rect x="1171.6" y="245" width="2.6" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+<text  x="1174.58" y="255.5" ></text>
+</g>
+<g >
+<title>std::any::reset (1 samples, 0.11%)</title><rect x="483.6" y="149" width="1.3" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="486.58" y="159.5" ></text>
+</g>
+<g >
+<title>Client::onMessage (346 samples, 38.57%)</title><rect x="709.8" y="197" width="455.2" height="15.0" fill="rgb(235,139,33)" rx="2" ry="2" />
+<text  x="712.84" y="207.5" >Client::onMessage</text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;::_S_manage (4 samples, 0.45%)</title><rect x="478.3" y="165" width="5.3" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="481.32" y="175.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (3 samples, 0.33%)</title><rect x="780.9" y="133" width="3.9" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="783.88" y="143.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::send (83 samples, 9.25%)</title><rect x="557.2" y="133" width="109.2" height="15.0" fill="rgb(214,43,10)" rx="2" ry="2" />
+<text  x="560.25" y="143.5" >actor_runtime..</text>
+</g>
+<g >
+<title>std::_Sp_counted_base&lt; (4 samples, 0.45%)</title><rect x="478.3" y="101" width="5.3" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="481.32" y="111.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (5 samples, 0.56%)</title><rect x="602.0" y="101" width="6.6" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="604.97" y="111.5" ></text>
+</g>
+<g >
+<title>cfree (3 samples, 0.33%)</title><rect x="1158.4" y="117" width="4.0" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1161.43" y="127.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_base&lt; (3 samples, 0.33%)</title><rect x="182.3" y="133" width="4.0" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="185.33" y="143.5" ></text>
+</g>
+<g >
+<title>malloc (4 samples, 0.45%)</title><rect x="1125.5" y="149" width="5.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="1128.54" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (5 samples, 0.56%)</title><rect x="609.9" y="101" width="6.5" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="612.87" y="111.5" ></text>
+</g>
+<g >
+<title>__libc_start_main (3 samples, 0.33%)</title><rect x="1174.2" y="229" width="4.0" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
+<text  x="1177.21" y="239.5" ></text>
+</g>
+<g >
+<title>operator new (7 samples, 0.78%)</title><rect x="798.0" y="149" width="9.2" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="800.98" y="159.5" ></text>
+</g>
+<g >
+<title>cfree (5 samples, 0.56%)</title><rect x="466.5" y="133" width="6.6" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="469.48" y="143.5" ></text>
+</g>
+<g >
+<title>std::lock_guard&lt;std::mutex&gt;::~lock_guard (2 samples, 0.22%)</title><rect x="216.5" y="149" width="2.7" height="15.0" fill="rgb(221,75,18)" rx="2" ry="2" />
+<text  x="219.53" y="159.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (3 samples, 0.33%)</title><rect x="666.4" y="133" width="4.0" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="669.43" y="143.5" ></text>
+</g>
+<g >
+<title>std::weak_ptr&lt;actor_runtime::ActorControl&gt;::lock (1 samples, 0.11%)</title><rect x="616.4" y="101" width="1.4" height="15.0" fill="rgb(238,155,37)" rx="2" ry="2" />
+<text  x="619.44" y="111.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::ActorControl&gt;::shared_ptr (2 samples, 0.22%)</title><rect x="1169.0" y="197" width="2.6" height="15.0" fill="rgb(248,197,47)" rx="2" ry="2" />
+<text  x="1171.95" y="207.5" ></text>
+</g>
+<g >
+<title>std::function&lt;std::any  (98 samples, 10.93%)</title><rect x="554.6" y="181" width="128.9" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
+<text  x="557.62" y="191.5" >std::function&lt;st..</text>
+</g>
+<g >
+<title>operator new (4 samples, 0.45%)</title><rect x="962.4" y="133" width="5.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="965.42" y="143.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorRef::send (101 samples, 11.26%)</title><rect x="738.8" y="181" width="132.8" height="15.0" fill="rgb(239,160,38)" rx="2" ry="2" />
+<text  x="741.78" y="191.5" >actor_runtime::A..</text>
+</g>
+<g >
+<title>std::vector&lt;actor_runtime::WaitResult, std::allocator&lt;actor_runtime::WaitResult&gt; &gt;::~vector (1 samples, 0.11%)</title><rect x="937.4" y="101" width="1.3" height="15.0" fill="rgb(252,220,52)" rx="2" ry="2" />
+<text  x="940.42" y="111.5" ></text>
+</g>
+<g >
+<title>std::function&lt;std::any  (1 samples, 0.11%)</title><rect x="1186.1" y="245" width="1.3" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
+<text  x="1189.05" y="255.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (883 samples, 98.44%)</title><rect x="10.0" y="245" width="1161.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="13.00" y="255.5" >[libc.so.6]</text>
+</g>
+<g >
+<title>void std::vector&lt;actor_runtime::RuntimeWaitNode*, std::allocator&lt;actor_runtime::RuntimeWaitNode*&gt; &gt;::_M_realloc_insert&lt;actor_runtime::RuntimeWaitNode*&gt; (6 samples, 0.67%)</title><rect x="938.7" y="133" width="7.9" height="15.0" fill="rgb(207,9,2)" rx="2" ry="2" />
+<text  x="941.74" y="143.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (5 samples, 0.56%)</title><rect x="141.5" y="117" width="6.6" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="144.55" y="127.5" ></text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.11%)</title><rect x="495.4" y="117" width="1.3" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="498.42" y="127.5" ></text>
+</g>
+<g >
+<title>cfree (4 samples, 0.45%)</title><rect x="1179.5" y="245" width="5.2" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1182.48" y="255.5" ></text>
+</g>
+<g >
+<title>std::__shared_ptr&lt;actor_runtime::ActorControl,  (3 samples, 0.33%)</title><rect x="1165.0" y="149" width="4.0" height="15.0" fill="rgb(228,108,26)" rx="2" ry="2" />
+<text  x="1168.01" y="159.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (532 samples, 59.31%)</title><rect x="10.0" y="229" width="699.8" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="13.00" y="239.5" >[libc.so.6]</text>
+</g>
+<g >
+<title>malloc (1 samples, 0.11%)</title><rect x="1169.0" y="165" width="1.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="1171.95" y="175.5" ></text>
+</g>
+<g >
+<title>std::function&lt;std::unique_ptr&lt;actor_runtime::RuntimeWaitNode, std::default_delete&lt;actor_runtime::RuntimeWaitNode&gt; &gt;  (1 samples, 0.11%)</title><rect x="215.2" y="149" width="1.3" height="15.0" fill="rgb(235,142,34)" rx="2" ry="2" />
+<text  x="218.22" y="159.5" ></text>
+</g>
+<g >
+<title>std::any::any&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; const&amp;, std::shared_ptr&lt;actor_runtime::Message const&gt;, std::any::_Manager_external&lt;std::shared_ptr&lt;actor_runtime::Message const&gt; &gt;, true&gt; (2 samples, 0.22%)</title><rect x="486.2" y="149" width="2.6" height="15.0" fill="rgb(208,14,3)" rx="2" ry="2" />
+<text  x="489.21" y="159.5" ></text>
+</g>
+<g >
+<title>bench::Harness::report (3 samples, 0.33%)</title><rect x="1174.2" y="181" width="4.0" height="15.0" fill="rgb(215,47,11)" rx="2" ry="2" />
+<text  x="1177.21" y="191.5" ></text>
+</g>
+<g >
+<title>actor_runtime::Job&amp; std::deque&lt;actor_runtime::Job, std::allocator&lt;actor_runtime::Job&gt; &gt;::emplace_back&lt;actor_runtime::Job&gt; (2 samples, 0.22%)</title><rect x="778.2" y="133" width="2.7" height="15.0" fill="rgb(241,166,39)" rx="2" ry="2" />
+<text  x="781.25" y="143.5" ></text>
+</g>
+<g >
+<title>std::default_delete&lt;actor_runtime::RuntimeWaitNode&gt;::operator (1 samples, 0.11%)</title><rect x="682.2" y="149" width="1.3" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="685.22" y="159.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::triggerWait (58 samples, 6.47%)</title><rect x="110.0" y="149" width="76.3" height="15.0" fill="rgb(220,69,16)" rx="2" ry="2" />
+<text  x="112.98" y="159.5" >actor_ru..</text>
+</g>
+<g >
+<title>malloc (3 samples, 0.33%)</title><rect x="913.7" y="133" width="4.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="916.75" y="143.5" ></text>
+</g>
+<g >
+<title>std::_Hashtable&lt;unsigned long, std::pair&lt;unsigned long const, std::shared_ptr&lt;actor_runtime::ActorControl&gt; &gt;, std::allocator&lt;std::pair&lt;unsigned long const, std::shared_ptr&lt;actor_runtime::ActorControl&gt; &gt; &gt;, std::__detail::_Select1st, std::equal_to&lt;unsigned long&gt;, std::hash&lt;unsigned long&gt;, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::find (5 samples, 0.56%)</title><rect x="830.9" y="149" width="6.5" height="15.0" fill="rgb(232,125,30)" rx="2" ry="2" />
+<text  x="833.87" y="159.5" ></text>
+</g>
+<g >
+<title>std::unordered_map&lt;actor_runtime::MessageKey, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt;, actor_runtime::MessageKeyHash, actor_runtime::MessageKeyEqual, std::allocator&lt;std::pair&lt;actor_runtime::MessageKey const, std::vector&lt;actor_runtime::LeafRef, std::allocator&lt;actor_runtime::LeafRef&gt; &gt; &gt; &gt; &gt;::erase (1 samples, 0.11%)</title><rect x="482.3" y="85" width="1.3" height="15.0" fill="rgb(224,89,21)" rx="2" ry="2" />
+<text  x="485.26" y="95.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (3 samples, 0.33%)</title><rect x="1174.2" y="213" width="4.0" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1177.21" y="223.5" ></text>
+</g>
+<g >
+<title>cfree (9 samples, 1.00%)</title><rect x="1144.0" y="133" width="11.8" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1146.96" y="143.5" ></text>
+</g>
+<g >
+<title>operator delete (2 samples, 0.22%)</title><rect x="1162.4" y="117" width="2.6" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="1165.37" y="127.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (5 samples, 0.56%)</title><rect x="652.0" y="117" width="6.5" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="654.96" y="127.5" ></text>
+</g>
+<g >
+<title>std::__shared_count&lt; (1 samples, 0.11%)</title><rect x="496.7" y="133" width="1.3" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+<text  x="499.73" y="143.5" ></text>
+</g>
+<g >
+<title>actor_runtime::WaitResult::WaitResult (16 samples, 1.78%)</title><rect x="161.3" y="133" width="21.0" height="15.0" fill="rgb(206,8,2)" rx="2" ry="2" />
+<text  x="164.28" y="143.5" ></text>
+</g>
+<g >
+<title>std::vector&lt;actor_runtime::WaitResult, std::allocator&lt;actor_runtime::WaitResult&gt; &gt;::_M_move_assign (1 samples, 0.11%)</title><rect x="937.4" y="117" width="1.3" height="15.0" fill="rgb(232,128,30)" rx="2" ry="2" />
+<text  x="940.42" y="127.5" ></text>
+</g>
+<g >
+<title>malloc (3 samples, 0.33%)</title><rect x="963.7" y="117" width="4.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="966.73" y="127.5" ></text>
+</g>
+<g >
+<title>std::mutex::unlock (1 samples, 0.11%)</title><rect x="1187.4" y="229" width="1.3" height="15.0" fill="rgb(227,105,25)" rx="2" ry="2" />
+<text  x="1190.37" y="239.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::ActorControl&gt;::~shared_ptr (1 samples, 0.11%)</title><rect x="1138.7" y="181" width="1.3" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+<text  x="1141.70" y="191.5" ></text>
+</g>
+<g >
+<title>std::mutex::lock (1 samples, 0.11%)</title><rect x="1178.2" y="213" width="1.3" height="15.0" fill="rgb(244,180,43)" rx="2" ry="2" />
+<text  x="1181.16" y="223.5" ></text>
+</g>
+<g >
+<title>std::shared_ptr&lt;actor_runtime::WaitSpec::Node const&gt;::~shared_ptr (3 samples, 0.33%)</title><rect x="1140.0" y="181" width="4.0" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
+<text  x="1143.01" y="191.5" ></text>
+</g>
+<g >
+<title>actor_runtime::Job::~Job (3 samples, 0.33%)</title><rect x="500.7" y="181" width="3.9" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="503.68" y="191.5" ></text>
+</g>
+<g >
+<title> (3 samples, 0.33%)</title><rect x="1165.0" y="181" width="4.0" height="15.0" fill="rgb(232,128,30)" rx="2" ry="2" />
+<text  x="1168.01" y="191.5" ></text>
+</g>
+<g >
+<title>actor_runtime::Job&amp; std::deque&lt;actor_runtime::Job, std::allocator&lt;actor_runtime::Job&gt; &gt;::emplace_back&lt;actor_runtime::Job&gt; (3 samples, 0.33%)</title><rect x="182.3" y="101" width="4.0" height="15.0" fill="rgb(241,166,39)" rx="2" ry="2" />
+<text  x="185.33" y="111.5" ></text>
+</g>
+<g >
+<title>operator new (3 samples, 0.33%)</title><rect x="933.5" y="133" width="3.9" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="936.48" y="143.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (9 samples, 1.00%)</title><rect x="784.8" y="133" width="11.9" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="787.83" y="143.5" ></text>
+</g>
+<g >
+<title>operator new (3 samples, 0.33%)</title><rect x="913.7" y="149" width="4.0" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="916.75" y="159.5" ></text>
+</g>
+<g >
+<title>std::lock_guard&lt;std::mutex&gt;::~lock_guard (2 samples, 0.22%)</title><rect x="683.5" y="181" width="2.7" height="15.0" fill="rgb(221,75,18)" rx="2" ry="2" />
+<text  x="686.53" y="191.5" ></text>
+</g>
+<g >
+<title>actor_runtime::WaitResult::~WaitResult (10 samples, 1.11%)</title><rect x="967.7" y="165" width="13.1" height="15.0" fill="rgb(242,174,41)" rx="2" ry="2" />
+<text  x="970.68" y="175.5" ></text>
+</g>
+<g >
+<title>std::deque&lt;actor_runtime::Job, std::allocator&lt;actor_runtime::Job&gt; &gt;::pop_front (1 samples, 0.11%)</title><rect x="1000.6" y="165" width="1.3" height="15.0" fill="rgb(226,97,23)" rx="2" ry="2" />
+<text  x="1003.57" y="175.5" ></text>
+</g>
+<g >
+<title>std::_Vector_base&lt;actor_runtime::WaitResult, std::allocator&lt;actor_runtime::WaitResult&gt; &gt;::_Vector_base (2 samples, 0.22%)</title><rect x="688.8" y="165" width="2.6" height="15.0" fill="rgb(215,48,11)" rx="2" ry="2" />
+<text  x="691.80" y="175.5" ></text>
+</g>
+<g >
+<title>std::enable_if&lt;std::is_copy_constructible&lt;std::enable_if&lt;! (1 samples, 0.11%)</title><rect x="213.9" y="149" width="1.3" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="216.90" y="159.5" ></text>
+</g>
+<g >
+<title>swapcontext (53 samples, 5.91%)</title><rect x="258.6" y="149" width="69.8" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
+<text  x="261.63" y="159.5" >swapcon..</text>
+</g>
+</g>
+</svg>

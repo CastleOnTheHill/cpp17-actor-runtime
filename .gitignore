@@ -1,2 +1,10 @@
 # Teaching build cache may remain on disk after switching branches.
 /labs/
+
+# Large benchmark evidence remains saved locally; compact JSON/folded/SVG can be versioned.
+/benchmark-results/**/binaries/
+/benchmark-results/**/perf.data
+/benchmark-results/**/perf.script
+/benchmark-results/**/reproduction/*.tar.gz
+/benchmark-results/**/source-snapshot.zip
+**/__pycache__/
