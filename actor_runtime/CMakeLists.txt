@@ -39,7 +39,7 @@ target_compile_options(actor_runtime PRIVATE -Wall -Wextra -Wpedantic -Wconversi
 target_link_libraries(actor_runtime PUBLIC Threads::Threads)
 
 enable_testing()
-foreach(test_name blocking_tests ipc_lifecycle_tests c_api_lifecycle_tests blocking_capacity_tests scheduler_wakeup_tests)
+foreach(test_name blocking_tests ipc_lifecycle_tests c_api_lifecycle_tests blocking_capacity_tests scheduler_wakeup_tests scheduler_dispatch_tests)
     add_executable(${test_name} tests/${test_name}.cpp)
     target_link_libraries(${test_name} PRIVATE actor_runtime)
     add_test(NAME ${test_name} COMMAND ${test_name})
@@ -88,5 +88,6 @@ if(ACTOR_RUNTIME_COVERAGE)
             --gcov ${GCOV_EXECUTABLE} --minimum 90
         DEPENDS actor_runtime_tests wait_semantics_tests api_contract_tests order_fulfillment_example
             lifecycle_tests blocking_tests ipc_lifecycle_tests c_api_process_test c_api_lifecycle_tests blocking_capacity_tests
+            scheduler_wakeup_tests scheduler_dispatch_tests
         USES_TERMINAL VERBATIM)
 endif()

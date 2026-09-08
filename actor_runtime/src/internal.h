@@ -132,6 +132,9 @@ struct ActorControl final {
     std::mutex executionMutex;
     std::mutex mailboxMutex;
     std::deque<MessagePtr> mailbox;
+    // mailboxMutex protects the single queued/running DispatchMessage token.
+    bool dispatchScheduled = false;
+    bool receiving = true; // mailboxMutex: admission is ordered against stop/shutdown.
     bool stopping = false;
     std::unordered_map<FiberId, std::unique_ptr<Fiber>> fibers;
     std::unordered_map<FiberId, Completion> completions;
@@ -190,6 +193,7 @@ struct ActorSystem::Impl final {
 
     void enqueueGlobal(Job job);
     void enqueueLocal(Worker& worker, Job job);
+    bool postMessage(const std::shared_ptr<ActorControl>& actor, MessagePtr message);
     void workerLoop(Worker& worker);
     void processJob(Worker& worker, Job job);
     FiberId createFiber(

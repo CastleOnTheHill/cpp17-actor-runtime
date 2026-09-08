@@ -53,3 +53,41 @@ Reproduction command (after building target):
 Diagnosis order: missed local wakeup (reproduced), redundant scheduling/lock
 contention (measured), allocation overhead (secondary hypothesis). No claimed
 SObjectizer parity or overall goal completion until the matched runs prove it.
+
+## P1 intermediate measurements (not acceptance)
+
+Unchanged quick gate, three repeats, 1,000,000 total round trips per framework,
+64B/window1/batch1, fixed affinity 0-7. Short exploratory runs only; final gate
+requires the full matched matrix and longer budgets.
+
+| Stage | 1w/1c native RPS / SO5 ratio | 4w/8c native RPS / SO5 ratio |
+|---|---:|---:|
+| Queue lock/notification overhead reduction | 2,388,965 / 67.3% | 646,565 / 47.2% |
+| Plus single dispatch token | 2,134,310 / 63.9% | 574,052 / 41.4% |
+| Plus narrow registry/admission lock | 2,216,446 / 61.9% | 865,051 / 64.8% |
+
+All three gates fail the 80% target. The isolated token change did NOT improve
+these short runs; do not hide that result. Admission narrowing improves 4w/8c
+relative to the original ~619k repro, but is not yet sufficient. Last CTest
+run: 12/12 passed (2.13 s), including concurrent producer/self-send regression.
+
+Current implementation invariants:
+
+- One queued/running DispatchMessage token per Actor, protected by mailboxMutex.
+- Token handoff releases execution ownership while holding mailboxMutex, then
+  reschedules or clears the token. No producer can strand a racing message.
+- Sending resolves a shared ActorControl under registryMutex, then allocates and
+  posts outside that global lock. Admission under mailboxMutex checks receiving
+  and system accepting state; stop/shutdown close admission before cancellation
+  is queued. This orders accepted sends before shutdown's outstanding-job drain.
+- Queue selection acquires queueMutex once; sleeping uses actual readiness and
+  timer deadlines, not periodic polling. Ordinary completions do not lock/notify
+  shutdown state on every job; only final drain needs its wait mutex.
+
+Raw quick gates currently in WSL /tmp/actor-scheduler-gate-{red,token,admission}-20260909;
+copy them into a new durable result directory before final handoff.
+
+Important original-spec constraints rechecked: Actor must NOT be permanently
+pinned to a worker; suspended fibers remain owner-bound; ActorRef stores only
+ActorSystem* and ActorId and sends dynamically through the registry. Preserve
+these semantics rather than replacing the scheduler with fixed Actor affinity.

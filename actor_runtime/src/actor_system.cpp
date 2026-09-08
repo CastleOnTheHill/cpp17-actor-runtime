@@ -97,9 +97,13 @@ WaitResult cancelledResult() {
 }
 
 void decrementJobs(ActorSystem::Impl& system) {
-    std::lock_guard<std::mutex> lock(system.queueMutex);
-    system.outstandingJobs.fetch_sub(1, std::memory_order_acq_rel);
-    system.stateCv.notify_all();
+    const auto previous = system.outstandingJobs.fetch_sub(1, std::memory_order_acq_rel);
+    // Only shutdown waits on this predicate. Serialize the final notification
+    // with its wait mutex, without locking/notifying for every ordinary message.
+    if (previous == 1 && !system.accepting.load(std::memory_order_acquire)) {
+        std::lock_guard<std::mutex> lock(system.queueMutex);
+        system.stateCv.notify_all();
+    }
 }
 
 } // namespace
@@ -186,20 +190,30 @@ void ActorSystem::Impl::enqueueLocal(Worker& worker, Job job) {
     queueCv.notify_all();
 }
 
+bool ActorSystem::Impl::postMessage(const std::shared_ptr<ActorControl>& actor, MessagePtr message) {
+    std::lock_guard<std::mutex> lock(actor->mailboxMutex);
+    if (!actor->receiving || !accepting.load(std::memory_order_acquire)) return false;
+    actor->mailbox.push_back(std::move(message));
+    if (!actor->dispatchScheduled) {
+        enqueueGlobal(Job{JobKind::DispatchMessage, actor, 0, 0, 0});
+        actor->dispatchScheduled = true;
+    }
+    return true;
+}
+
 void ActorSystem::Impl::workerLoop(Worker& worker) {
     currentWorker = &worker;
     for (;;) {
         std::optional<Job> selected;
+        std::unique_lock<std::mutex> lock(queueMutex);
         for (unsigned attempt = 0; attempt < 3 && !selected; ++attempt) {
             const auto category = (worker.nextQueue + attempt) % 3;
             if (category == 0) {
-                std::lock_guard<std::mutex> lock(queueMutex);
                 if (!worker.localQueue.empty()) {
                     selected = std::move(worker.localQueue.front());
                     worker.localQueue.pop_front();
                 }
             } else if (category == 1) {
-                std::lock_guard<std::mutex> lock(queueMutex);
                 if (!globalQueue.empty()) {
                     selected = std::move(globalQueue.front());
                     globalQueue.pop_front();
@@ -216,33 +230,18 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
             if (selected) { worker.nextQueue = (category + 1) % 3; break; }
         }
         if (selected) {
+            lock.unlock();
             processJob(worker, std::move(*selected));
             continue;
         }
 
-        if (stopping.load(std::memory_order_acquire)) {
-            bool localEmpty;
-            {
-                std::lock_guard<std::mutex> lock(queueMutex);
-                localEmpty = worker.localQueue.empty();
-            }
-            bool globalEmpty;
-            {
-                std::lock_guard<std::mutex> lock(queueMutex);
-                globalEmpty = globalQueue.empty();
-            }
-            if (localEmpty && globalEmpty) break;
-            continue;
-        }
-
-        std::unique_lock<std::mutex> lock(queueMutex);
+        if (stopping.load(std::memory_order_acquire)) break;
         if (worker.timers.empty()) {
-            queueCv.wait_for(lock, std::chrono::milliseconds(10), [&] {
+            queueCv.wait(lock, [&] {
                 return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty();
             });
         } else {
-            const auto periodicWake = std::chrono::steady_clock::now() + std::chrono::milliseconds(10);
-            queueCv.wait_until(lock, std::min(worker.timers.top().deadline, periodicWake), [&] {
+            queueCv.wait_until(lock, worker.timers.top().deadline, [&] {
                 return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty();
             });
         }
@@ -266,6 +265,10 @@ void ActorSystem::Impl::processJob(Worker& worker, Job job) {
     currentActor = job.actor.get();
     if (!job.actor->actor) {
         currentActor = nullptr;
+        if (job.kind == JobKind::DispatchMessage) {
+            std::lock_guard<std::mutex> lock(job.actor->mailboxMutex);
+            job.actor->dispatchScheduled = false;
+        }
         actorLock.unlock();
         decrementJobs(*this);
         return;
@@ -352,7 +355,20 @@ void ActorSystem::Impl::processJob(Worker& worker, Job job) {
         { std::lock_guard<std::mutex> lock(registryMutex); retiring.erase(id); }
         log("actor.stopped", id);
     }
-    actorLock.unlock();
+    if (job.kind == JobKind::DispatchMessage) {
+        // Hold the mailbox lock across releasing execution ownership and the
+        // next-token decision. A sender cannot schedule a second runnable job
+        // while this handler still owns execution, nor strand a racing message.
+        std::lock_guard<std::mutex> mailboxLock(job.actor->mailboxMutex);
+        const bool reschedule = job.actor->actor && !job.actor->mailbox.empty();
+        actorLock.unlock();
+        if (reschedule)
+            enqueueGlobal(Job{JobKind::DispatchMessage, job.actor, 0, 0, 0});
+        else
+            job.actor->dispatchScheduled = false;
+    } else {
+        actorLock.unlock();
+    }
     decrementJobs(*this);
 }
 
@@ -695,6 +711,8 @@ std::shared_future<void> ActorSystem::stopActor(ActorId id) {
     auto found = impl_->registry.find(id);
     if (found == impl_->registry.end()) throw std::invalid_argument("actor not registered");
     auto actor = found->second;
+    std::lock_guard<std::mutex> admission(actor->mailboxMutex);
+    actor->receiving = false;
     impl_->names.erase(actor->name);
     impl_->retiring.emplace(id, actor);
     impl_->registry.erase(found);
@@ -708,12 +726,11 @@ MessageId ActorSystem::send(
     TypeId typeId,
     std::any payload,
     MessageId correlationId) {
-    std::lock_guard<std::mutex> lock(impl_->registryMutex);
-    if (!impl_->accepting.load(std::memory_order_acquire)) {
-        throw std::runtime_error("actor system is shutting down");
-    }
     std::shared_ptr<ActorControl> control;
     {
+        std::lock_guard<std::mutex> lock(impl_->registryMutex);
+        if (!impl_->accepting.load(std::memory_order_acquire))
+            throw std::runtime_error("actor system is shutting down");
         const auto found = impl_->registry.find(recipient);
         if (found == impl_->registry.end()) throw std::invalid_argument("recipient actor does not exist");
         control = found->second;
@@ -723,11 +740,11 @@ MessageId ActorSystem::send(
     auto message = std::make_shared<const Message>(Message{
         typeId, id, correlationId, sender, std::move(payload),
         {impl_->config.processName, currentActor ? currentActor->name : std::string{}}});
-    {
-        std::lock_guard<std::mutex> mailboxLock(control->mailboxMutex);
-        control->mailbox.push_back(std::move(message));
+    if (!impl_->postMessage(control, std::move(message))) {
+        if (!impl_->accepting.load(std::memory_order_acquire))
+            throw std::runtime_error("actor system is shutting down");
+        throw std::invalid_argument("recipient actor is stopping");
     }
-    impl_->enqueueGlobal(Job{JobKind::DispatchMessage, control, 0, 0, 0});
     return id;
 }
 
@@ -756,6 +773,8 @@ void ActorSystem::shutdown() {
         impl_->names.clear();
     }
     for (const auto& actor : actors) {
+        std::lock_guard<std::mutex> admission(actor->mailboxMutex);
+        actor->receiving = false;
         impl_->enqueueGlobal(Job{JobKind::CancelActor, actor, 0, 0, 0});
     }
     if (impl_->blockingPool) impl_->blockingPool->stop();
@@ -791,8 +810,7 @@ void ActorSystem::Impl::receiveNamed(const std::string& name, ActorId incarnatio
         return;
     }
     auto actor = registry.at(found->second);
-    { std::lock_guard<std::mutex> mailboxLock(actor->mailboxMutex); actor->mailbox.push_back(std::move(message)); }
-    enqueueGlobal(Job{JobKind::DispatchMessage, actor, 0, 0, 0});
+    postMessage(actor, std::move(message));
 }
 
 MessageId ActorSystem::Impl::sendBytes(const ActorAddress& target, ActorId incarnation, TypeId type,
@@ -818,8 +836,8 @@ MessageId ActorSystem::Impl::sendBytes(const ActorAddress& target, ActorId incar
         if (named == names.end() || (incarnation && named->second != incarnation))
             throw std::invalid_argument("target actor does not exist or was replaced");
         auto actor = registry.at(named->second);
-        { std::lock_guard<std::mutex> mailboxLock(actor->mailboxMutex); actor->mailbox.push_back(message); }
-        enqueueGlobal(Job{JobKind::DispatchMessage, actor, 0, 0, 0});
+        if (!postMessage(actor, std::move(message)))
+            throw std::runtime_error("actor system is shutting down");
     } else {
         if (!transport) throw std::logic_error("IPC requires a configured processName");
         if (sender && source.actor.empty()) throw std::logic_error("IPC sender requires a registered actor name");
