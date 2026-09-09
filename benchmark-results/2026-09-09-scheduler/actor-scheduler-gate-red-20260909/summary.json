@@ -1,0 +1,54 @@
+[
+  {
+    "case": {
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 2388965.466,
+      "min_rps": 2369258.718,
+      "max_rps": 2420746.409,
+      "p99_us": 0.882,
+      "min_seconds": 0.413095728
+    },
+    "so5": {
+      "rps": 3549025.135,
+      "min_rps": 3543478.7,
+      "max_rps": 3628324.365,
+      "p99_us": 0.619,
+      "min_seconds": 0.275609317
+    },
+    "ratio": 0.6731328675134898,
+    "pass": false
+  },
+  {
+    "case": {
+      "workers": 4,
+      "clients": 8,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 646565.2024,
+      "min_rps": 641911.4422,
+      "max_rps": 648850.3078,
+      "p99_us": 53.739,
+      "min_seconds": 1.541187525
+    },
+    "so5": {
+      "rps": 1368881.604,
+      "min_rps": 1359595.734,
+      "max_rps": 1371803.298,
+      "p99_us": 8.269,
+      "min_seconds": 0.728967485
+    },
+    "ratio": 0.4723309894081972,
+    "pass": false
+  }
+]

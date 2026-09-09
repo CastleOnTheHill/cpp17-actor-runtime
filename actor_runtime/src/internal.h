@@ -123,17 +123,20 @@ struct Completion final {
     bool done = true;
 };
 
+enum class DispatchState { Idle, Scheduled, Pending };
+
 struct ActorControl final {
     std::string name;
     std::promise<void> stoppedPromise;
     std::shared_future<void> stoppedFuture = stoppedPromise.get_future().share();
     ActorSystem::Impl* system = nullptr;
     std::unique_ptr<Actor> actor;
-    std::mutex executionMutex;
+    std::atomic<bool> executing{false};
     std::mutex mailboxMutex;
     std::deque<MessagePtr> mailbox;
-    // mailboxMutex protects the single queued/running DispatchMessage token.
-    bool dispatchScheduled = false;
+    // Pending owns the same dispatch token, with additional messages in mailbox.
+    // Producers serialize via mailboxMutex; an empty consumer retires by CAS.
+    std::atomic<DispatchState> dispatchState{DispatchState::Idle};
     bool receiving = true; // mailboxMutex: admission is ordered against stop/shutdown.
     bool stopping = false;
     std::unordered_map<FiberId, std::unique_ptr<Fiber>> fibers;
@@ -154,6 +157,7 @@ struct Job final {
     std::size_t leafIndex = 0;
     std::any value{};
     std::exception_ptr error{};
+    MessagePtr message{}; // Dispatch token carries its next immutable message.
 };
 
 struct TimerEntry final {
@@ -183,6 +187,16 @@ struct Worker final {
     ucontext_t schedulerContext{};
     // Protected by system->queueMutex, also used by the sleeping predicate.
     std::deque<Job> localQueue;
+    std::condition_variable wakeCv;
+    bool sleeping = false, wakeRequested = false; // system->queueMutex
+    std::atomic<std::size_t> localCount{0}; // Hint for bounded idle checks, not the sleep predicate.
+    // Ordinary dispatch can be stolen. Pinned fiber jobs stay in localQueue.
+    std::mutex readyMutex;
+    std::deque<Job> readyQueue;
+    std::atomic<std::size_t> readyCount{0};
+    unsigned readyPosts = 0;
+    std::uint64_t diagnosticDispatches = 0, diagnosticRetries = 0, diagnosticSteals = 0;
+    std::uint64_t diagnosticParks = 0, diagnosticNotifications = 0, diagnosticGlobalPosts = 0;
     std::priority_queue<TimerEntry, std::vector<TimerEntry>, TimerLater> timers;
     std::uint64_t nextTimerSequence = 1;
 };
@@ -191,9 +205,13 @@ struct ActorSystem::Impl final {
     explicit Impl(ActorSystem& facade, Config options);
     ~Impl();
 
-    void enqueueGlobal(Job job);
-    void enqueueLocal(Worker& worker, Job job);
-    bool postMessage(const std::shared_ptr<ActorControl>& actor, MessagePtr message);
+    void enqueueGlobal(Job job, bool newJob = true);
+    void enqueueLocal(Worker& worker, Job job, bool newJob = true);
+    Worker* claimWakeup(); // queueMutex must be held; reserves one specific sleeper.
+    // newJob=false transfers an already-counted job; caller must not decrement it.
+    void enqueueDispatch(Job job, bool newJob = true);
+    bool takeReady(Worker& worker, std::optional<Job>& result, bool steal = false, bool oldest = false);
+    bool postMessage(std::shared_ptr<ActorControl> actor, MessagePtr message);
     void workerLoop(Worker& worker);
     void processJob(Worker& worker, Job job);
     FiberId createFiber(
@@ -235,9 +253,13 @@ struct ActorSystem::Impl final {
     std::unique_ptr<BlockingPool> blockingPool;
 
     std::mutex queueMutex;
-    std::condition_variable queueCv;
     std::condition_variable stateCv;
+    std::size_t nextWakeWorker = 0; // queueMutex
+    std::atomic<std::size_t> sleepingWorkers{0};
+    std::atomic<std::size_t> pendingWakeups{0}; // queueMutex owns changes; atomic reads are hints.
+    std::atomic<std::uint64_t> readyEpoch{0}; // Publication / sleep handshake; see enqueueDispatch.
     std::deque<Job> globalQueue;
+    std::atomic<std::size_t> globalCount{0}; // queueMutex publishes this non-owning readiness hint.
     std::vector<std::unique_ptr<Worker>> workers;
 };
 

@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <vector>
 
 using namespace actor_runtime;
 using namespace std::chrono_literals;
@@ -59,8 +60,52 @@ private:
     }
 };
 
+class RetainMessageActor final : public Actor {
+public:
+    RetainMessageActor(ActorSystem& system, std::promise<std::vector<MessagePtr>>& done)
+        : Actor(system), done_(done) {}
+private:
+    void onMessage(MessagePtr message) override {
+        messages_.push_back(std::move(message));
+        if (messages_.size() == 4) done_.set_value(std::move(messages_));
+    }
+    std::promise<std::vector<MessagePtr>>& done_;
+    std::vector<MessagePtr> messages_;
+};
+
+void owning_send_entry_points() {
+    for (const auto workers : {1U, 4U}) {
+        std::promise<std::vector<MessagePtr>> done;
+        auto received = done.get_future();
+        ActorSystem system({workers});
+        auto target = system.registerActor(std::make_unique<RetainMessageActor>(system, done));
+        std::any small = 17;
+        std::any large = std::string(4096, 'x');
+        const auto first = target.send(10, small, 101);
+        const auto second = system.send(target.id(), 11, large, 102);
+        small = 99;
+        large.reset();
+        const auto third = target.send(12, std::any(std::string(4096, 'y')), 103);
+        const auto fourth = system.send(target.id(), 13, std::any(23), 104);
+        require(received.wait_for(3s) == std::future_status::ready, "owning payload send stalled");
+        auto messages = received.get();
+        system.stopActor(target.id()).get();
+        system.shutdown();
+        require(std::any_cast<int>(messages[0]->payload) == 17, "lvalue small payload was borrowed");
+        require(std::any_cast<const std::string&>(messages[1]->payload) == std::string(4096, 'x'), "lvalue heap payload was borrowed");
+        require(std::any_cast<const std::string&>(messages[2]->payload) == std::string(4096, 'y'), "rvalue heap payload lost ownership");
+        require(std::any_cast<int>(messages[3]->payload) == 23, "rvalue small payload lost ownership");
+        const MessageId ids[] = {first, second, third, fourth};
+        for (std::size_t i = 0; i < messages.size(); ++i) {
+            require(ids[i] != 0 && messages[i]->id == ids[i], "send returned wrong message id");
+            require(messages[i]->typeId == 10 + i && messages[i]->correlationId == 101 + i, "send metadata or FIFO changed");
+        }
+    }
+}
+
 int main() {
     try {
+        owning_send_entry_points();
         expectInvalid([] { WaitSpec::any({}); });
         expectInvalid([] { WaitSpec::all({}); });
         expectInvalid([] { WaitSpec::allSettled({}); });

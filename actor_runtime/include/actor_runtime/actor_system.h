@@ -63,6 +63,10 @@ private:
     friend class Actor;
     friend class ActorRef;
     friend class CoroutineContext;
+    // Both public send entry points already own their by-value payload. Transfer
+    // that ownership without constructing another type-erased intermediate.
+    MessageId sendOwned(ActorId recipient, TypeId typeId, std::any&& payload,
+                        MessageId correlationId);
     std::unique_ptr<Impl> impl_;
 };
 

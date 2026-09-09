@@ -2,8 +2,10 @@
 #include "actor_runtime/actor.h"
 #include <array>
 #include <atomic>
+#include <ctime>
 #include <future>
 #include <iostream>
+#include <stdexcept>
 #include <thread>
 #include <vector>
 using namespace actor_runtime;
@@ -41,8 +43,179 @@ private:
     }
     ActorSystem& system; std::promise<void>& done;
 };
+
+struct IdlePeerState {
+    std::promise<void> received;
+    std::shared_future<void> receipt = received.get_future().share();
+    std::promise<bool> checked;
+};
+
+class IdlePeerReceiver final: public Actor {
+public:
+    IdlePeerReceiver(ActorSystem& system, std::shared_ptr<IdlePeerState> state)
+        : Actor(system), state_(std::move(state)) {}
+private:
+    void onMessage(MessagePtr) override { state_->received.set_value(); }
+    std::shared_ptr<IdlePeerState> state_;
+};
+
+class BusyPublisher final: public Actor {
+public:
+    BusyPublisher(ActorSystem& system, ActorRef receiver, std::shared_ptr<IdlePeerState> state)
+        : Actor(system), receiver_(receiver), state_(std::move(state)) {}
+private:
+    void onMessage(MessagePtr) override {
+        // Let the otherwise idle peer park before publishing exactly one job.
+        // The bounded wait deliberately occupies this worker: an independent
+        // Actor must be runnable on the idle worker before this handler returns.
+        // This is a scheduler stress fixture, not recommended application code.
+        std::this_thread::sleep_for(30ms);
+        receiver_.send(1, {});
+        state_->checked.set_value(state_->receipt.wait_for(500ms) == std::future_status::ready);
+    }
+    ActorRef receiver_;
+    std::shared_ptr<IdlePeerState> state_;
+};
+
+void lone_dispatch_wakes_idle_peer() {
+    for (int round = 0; round < 3; ++round) {
+        auto state = std::make_shared<IdlePeerState>();
+        auto checked = state->checked.get_future();
+        ActorSystem::Config config; config.workerCount = 2;
+        ActorSystem system(config);
+        auto receiver = system.registerActor(std::make_unique<IdlePeerReceiver>(system, state));
+        auto publisher = system.registerActor(std::make_unique<BusyPublisher>(system, receiver, state));
+        publisher.send(1, {});
+        if (checked.wait_for(2s) != std::future_status::ready)
+            throw std::runtime_error("idle-peer scheduler fixture stalled");
+        const bool ranBeforePublisherReturned = checked.get();
+        system.shutdown();
+        if (!ranBeforePublisherReturned)
+            throw std::runtime_error("one local dispatch did not wake an idle peer while its owner was busy");
+    }
+}
+
+struct FairState {
+    bool olderRan = false; // Single scheduler worker only.
+    int newerRuns = 0;
+    std::promise<bool> done;
+};
+class OlderReady final: public Actor {
+public:
+    OlderReady(ActorSystem& system, std::shared_ptr<FairState> state)
+        : Actor(system), state_(std::move(state)) {}
+private:
+    void onMessage(MessagePtr) override { state_->olderRan = true; }
+    std::shared_ptr<FairState> state_;
+};
+class NewerChain final: public Actor {
+public:
+    NewerChain(ActorSystem& system, ActorRef older, std::shared_ptr<FairState> state)
+        : Actor(system), system_(system), older_(older), state_(std::move(state)) {}
+private:
+    void onMessage(MessagePtr message) override {
+        if (message->typeId == 1) {
+            older_.send(1, {});
+        } else {
+            ++state_->newerRuns;
+            if (state_->olderRan || state_->newerRuns == 1000) {
+                state_->done.set_value(state_->olderRan && state_->newerRuns <= 32);
+                return;
+            }
+        }
+        system_.ref(id()).send(2, {});
+    }
+    ActorSystem& system_;
+    ActorRef older_;
+    std::shared_ptr<FairState> state_;
+};
+void older_ready_is_not_starved_by_newer_chain() {
+    auto state = std::make_shared<FairState>();
+    auto done = state->done.get_future();
+    ActorSystem::Config config; config.workerCount = 1;
+    ActorSystem system(config);
+    auto older = system.registerActor(std::make_unique<OlderReady>(system, state));
+    auto chain = system.registerActor(std::make_unique<NewerChain>(system, older, state));
+    chain.send(1, {});
+    if (done.wait_for(2s) != std::future_status::ready)
+        throw std::runtime_error("newer-chain fairness fixture stalled");
+    const bool fair = done.get();
+    system.shutdown();
+    if (!fair) throw std::runtime_error("newer local continuations starved an older ready Actor");
+}
+
+void idle_workers_park_after_bounded_backoff() {
+    ActorSystem::Config config; config.workerCount = 4;
+    ActorSystem system(config);
+    std::this_thread::sleep_for(30ms);
+    const auto before = std::clock();
+    std::this_thread::sleep_for(200ms);
+    const auto after = std::clock();
+    system.shutdown();
+    if (before == static_cast<std::clock_t>(-1) || after == static_cast<std::clock_t>(-1))
+        throw std::runtime_error("cannot read process CPU time for idle regression");
+    // Deliberately generous: idle workers should consume almost no process CPU.
+    // This catches an accidentally unbounded polling loop, not a production SLA.
+    const double cpuSeconds = static_cast<double>(after - before) / CLOCKS_PER_SEC;
+    if (cpuSeconds > 0.1) throw std::runtime_error("idle scheduler workers kept consuming CPU instead of parking");
+}
+
+struct StopRaceState {
+    std::atomic<int> received{0}, destroyed{0};
+    std::atomic<bool> stopping{false}, invalid{false};
+    std::promise<void> first;
+};
+class StopRaceActor final: public Actor {
+public:
+    StopRaceActor(ActorSystem& system, std::shared_ptr<StopRaceState> state)
+        : Actor(system), state_(std::move(state)) {}
+    ~StopRaceActor() override { ++state_->destroyed; }
+private:
+    void onMessage(MessagePtr) override {
+        if (state_->received.fetch_add(1) == 0) state_->first.set_value();
+    }
+    std::shared_ptr<StopRaceState> state_;
+};
+void concurrent_send_stop_and_name_reuse() {
+    ActorSystem::Config config; config.workerCount = 4;
+    ActorSystem system(config);
+    for (int round = 0; round < 20; ++round) {
+        auto state = std::make_shared<StopRaceState>();
+        auto first = state->first.get_future();
+        auto ref = system.registerActor("stop-race", std::make_unique<StopRaceActor>(system, state));
+        std::vector<std::thread> producers;
+        struct Join {
+            std::vector<std::thread>& threads;
+            ~Join() { for (auto& thread : threads) if (thread.joinable()) thread.join(); }
+        } join{producers};
+        for (int sender = 0; sender < 3; ++sender) producers.emplace_back([ref, state] {
+            try { for (int message = 0; message < 1000; ++message) ref.send(1, message); }
+            catch (const std::invalid_argument&) { if (!state->stopping) state->invalid = true; }
+            catch (...) { state->invalid = true; }
+        });
+        if (first.wait_for(2s) != std::future_status::ready)
+            throw std::runtime_error("concurrent-stop fixture never dispatched its first message");
+        state->stopping = true;
+        auto stopped = system.stopActor(ref.id());
+        for (auto& producer : producers) producer.join();
+        if (stopped.wait_for(2s) != std::future_status::ready)
+            throw std::runtime_error("concurrent sends prevented Actor stop from completing");
+        stopped.get();
+        if (state->invalid || state->destroyed != 1)
+            throw std::runtime_error("send/stop admission or exactly-once destruction violated");
+        bool staleRejected = false;
+        try { ref.send(1, 0); } catch (const std::invalid_argument&) { staleRejected = true; }
+        if (!staleRejected) throw std::runtime_error("stale ActorRef survived concurrent stop");
+    }
+    system.shutdown();
+}
+
 int main() {
     try {
+        lone_dispatch_wakes_idle_peer();
+        older_ready_is_not_starved_by_newer_chain();
+        idle_workers_park_after_bounded_backoff();
+        concurrent_send_stop_and_name_reuse();
         auto state=std::make_shared<State>(); auto entered=state->entered.get_future(); auto done=state->done.get_future();
         ActorSystem::Config c; c.workerCount=4; ActorSystem system(c);
         auto sink=system.registerActor("sink",std::make_unique<Sink>(system,state));
@@ -74,6 +247,6 @@ int main() {
         replacement.send(1,10000);
         if(bounceDone.wait_for(3s)!=std::future_status::ready) throw std::runtime_error("self-send ready token lost");
         bounceDone.get(); system.shutdown();
-        std::cout << "PASS concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send\n";
+        std::cout << "PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send\n";
     } catch(const std::exception& e) { std::cerr << "FAIL " << e.what() << '\n'; return 1; }
 }

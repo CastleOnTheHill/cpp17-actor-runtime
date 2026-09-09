@@ -1,0 +1,314 @@
+[
+  {
+    "case": {
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 0,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 2627394.338,
+      "min_rps": 2611580.092,
+      "max_rps": 2716303.277,
+      "p99_us": 0.828,
+      "min_seconds": 0.368147404
+    },
+    "so5": {
+      "rps": 3890206.197,
+      "min_rps": 3881056.29,
+      "max_rps": 3974206.952,
+      "p99_us": 0.541,
+      "min_seconds": 0.251622528
+    },
+    "ratio": 0.6753869088034873,
+    "pass": false
+  },
+  {
+    "case": {
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 2507352.668,
+      "min_rps": 2184976.143,
+      "max_rps": 2553924.487,
+      "p99_us": 0.864,
+      "min_seconds": 0.391554255
+    },
+    "so5": {
+      "rps": 3676823.482,
+      "min_rps": 3326691.439,
+      "max_rps": 3714680.626,
+      "p99_us": 0.591,
+      "min_seconds": 0.269202147
+    },
+    "ratio": 0.681934468781224,
+    "pass": false
+  },
+  {
+    "case": {
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 1024,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 2350485.566,
+      "min_rps": 1979274.557,
+      "max_rps": 2416856.581,
+      "p99_us": 0.913,
+      "min_seconds": 0.413760588
+    },
+    "so5": {
+      "rps": 3372379.621,
+      "min_rps": 3256401.117,
+      "max_rps": 3459910.778,
+      "p99_us": 0.586,
+      "min_seconds": 0.289024794
+    },
+    "ratio": 0.69698130998165,
+    "pass": false
+  },
+  {
+    "case": {
+      "workers": 2,
+      "clients": 1,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 1106847.035,
+      "min_rps": 1094816.206,
+      "max_rps": 1141208.022,
+      "p99_us": 4.296,
+      "min_seconds": 0.876264433
+    },
+    "so5": {
+      "rps": 878014.2693,
+      "min_rps": 868627.7845,
+      "max_rps": 928798.9022,
+      "p99_us": 1.993,
+      "min_seconds": 1.076659326
+    },
+    "ratio": 1.2606253379941508,
+    "pass": true
+  },
+  {
+    "case": {
+      "workers": 4,
+      "clients": 1,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 42569.5792,
+      "min_rps": 41767.18659,
+      "max_rps": 50813.43879,
+      "p99_us": 81.058,
+      "min_seconds": 19.67983321
+    },
+    "so5": {
+      "rps": 645404.8136,
+      "min_rps": 614653.6439,
+      "max_rps": 653669.319,
+      "p99_us": 2.352,
+      "min_seconds": 1.529825511
+    },
+    "ratio": 0.06595795120050527,
+    "pass": false
+  },
+  {
+    "case": {
+      "workers": 1,
+      "clients": 8,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 2399152.166,
+      "min_rps": 2269835.878,
+      "max_rps": 2532982.272,
+      "p99_us": 24.101,
+      "min_seconds": 0.394791551
+    },
+    "so5": {
+      "rps": 3258059.889,
+      "min_rps": 3257050.719,
+      "max_rps": 3382978.257,
+      "p99_us": 5.191,
+      "min_seconds": 0.295597525
+    },
+    "ratio": 0.7363744828939822,
+    "pass": false
+  },
+  {
+    "case": {
+      "workers": 2,
+      "clients": 8,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 1922636.898,
+      "min_rps": 1852773.459,
+      "max_rps": 1955648.788,
+      "p99_us": 17.538,
+      "min_seconds": 0.511339258
+    },
+    "so5": {
+      "rps": 2003201.721,
+      "min_rps": 1883543.702,
+      "max_rps": 2031722.226,
+      "p99_us": 5.89,
+      "min_seconds": 0.492193267
+    },
+    "ratio": 0.9597819719524893,
+    "pass": true
+  },
+  {
+    "case": {
+      "workers": 4,
+      "clients": 8,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 1703243.549,
+      "min_rps": 1372144.395,
+      "max_rps": 1806010.405,
+      "p99_us": 20.683,
+      "min_seconds": 0.553706666
+    },
+    "so5": {
+      "rps": 1356355.421,
+      "min_rps": 1304214.583,
+      "max_rps": 1376405.531,
+      "p99_us": 8.363,
+      "min_seconds": 0.726530065
+    },
+    "ratio": 1.2557501688932313,
+    "pass": true
+  },
+  {
+    "case": {
+      "workers": 1,
+      "clients": 8,
+      "window": 16,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 2149911.233,
+      "min_rps": 2138841.186,
+      "max_rps": 2152990.029,
+      "p99_us": 148.928,
+      "min_seconds": 0.464470335
+    },
+    "so5": {
+      "rps": 3354763.349,
+      "min_rps": 3293621.22,
+      "max_rps": 3436896.003,
+      "p99_us": 90.145,
+      "min_seconds": 0.290960215
+    },
+    "ratio": 0.6408533208880004,
+    "pass": false
+  },
+  {
+    "case": {
+      "workers": 4,
+      "clients": 8,
+      "window": 16,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 1422013.258,
+      "min_rps": 1414940.835,
+      "max_rps": 1426034.019,
+      "p99_us": 396.001,
+      "min_seconds": 0.701245543
+    },
+    "so5": {
+      "rps": 1980005.889,
+      "min_rps": 1966416.466,
+      "max_rps": 1988269.694,
+      "p99_us": 107.128,
+      "min_seconds": 0.502949878
+    },
+    "ratio": 0.7181863780810199,
+    "pass": false
+  },
+  {
+    "case": {
+      "workers": 4,
+      "clients": 8,
+      "window": 16,
+      "payload": 64,
+      "hotspot": true,
+      "batch": 1
+    },
+    "native": {
+      "rps": 108247.9387,
+      "min_rps": 100111.0625,
+      "max_rps": 110642.7799,
+      "p99_us": 5875.43,
+      "min_seconds": 9.038095399
+    },
+    "so5": {
+      "rps": 568217.8458,
+      "min_rps": 561792.0749,
+      "max_rps": 634797.3762,
+      "p99_us": 1004.887,
+      "min_seconds": 1.575305818
+    },
+    "ratio": 0.19050429249999454,
+    "pass": false
+  },
+  {
+    "case": {
+      "workers": 4,
+      "clients": 64,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "native": {
+      "rps": 1772073.007,
+      "min_rps": 1721789.141,
+      "max_rps": 1785776.613,
+      "p99_us": 137.878,
+      "min_seconds": 0.559980455
+    },
+    "so5": {
+      "rps": 1341648.324,
+      "min_rps": 1318647.197,
+      "max_rps": 1351572.922,
+      "p99_us": 63.715,
+      "min_seconds": 0.739878688
+    },
+    "ratio": 1.3208178144006686,
+    "pass": true
+  }
+]

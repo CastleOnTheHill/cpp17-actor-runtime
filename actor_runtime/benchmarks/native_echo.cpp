@@ -2,6 +2,7 @@
 #include "actor_runtime/actor_system.h"
 #include "actor_runtime/coroutine_context.h"
 #include <memory>
+#include <cstdlib>
 namespace ar=actor_runtime;
 constexpr ar::TypeId Start=100,Request=101,Response=102;
 class Echo final: public ar::Actor {
@@ -61,6 +62,8 @@ int main(int argc,char** argv) {
 #endif
         bench::Harness h(c); std::vector<std::unique_ptr<bench::Client>> data;
         ar::ActorSystem::Config options; options.workerCount=c.workers;
+        // Diagnostic runs are not accepted throughput measurements.
+        options.diagnosticLogging = std::getenv("ACTOR_BENCH_DIAGNOSTICS") != nullptr;
         ar::ActorSystem system(options); // declared after data: destroys actors before data on exceptions
         std::vector<ar::ActorRef> clients;
         auto echo=system.registerActor(std::make_unique<Echo>(system,h));

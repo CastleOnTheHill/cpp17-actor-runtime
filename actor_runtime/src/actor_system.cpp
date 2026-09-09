@@ -172,51 +172,185 @@ void ActorSystem::Impl::log(const char* event, ActorId actor, FiberId fiber) con
               << " event=" << event << " actor=" << actor << " fiber=" << fiber << '\n';
 }
 
-void ActorSystem::Impl::enqueueGlobal(Job job) {
-    outstandingJobs.fetch_add(1, std::memory_order_relaxed);
+void ActorSystem::Impl::enqueueGlobal(Job job, bool newJob) {
+    if (config.diagnosticLogging && currentWorker && currentWorker->system == this)
+        ++currentWorker->diagnosticGlobalPosts;
+    if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
+    Worker* notify;
     {
         std::lock_guard<std::mutex> lock(queueMutex);
         globalQueue.push_back(std::move(job));
+        globalCount.store(globalQueue.size(), std::memory_order_release);
+        notify = claimWakeup();
     }
-    queueCv.notify_one();
+    if (notify) notify->wakeCv.notify_one();
 }
 
-void ActorSystem::Impl::enqueueLocal(Worker& worker, Job job) {
-    outstandingJobs.fetch_add(1, std::memory_order_relaxed);
+Worker* ActorSystem::Impl::claimWakeup() {
+    const auto sleepers = sleepingWorkers.load();
+    const auto pending = pendingWakeups.load(std::memory_order_relaxed);
+    if (sleepers > pending && outstandingJobs.load(std::memory_order_acquire) > workers.size() - sleepers + pending) {
+        for (std::size_t offset = 0; offset < workers.size(); ++offset) {
+            auto& candidate = *workers[(nextWakeWorker + offset) % workers.size()];
+            if (candidate.sleeping && !candidate.wakeRequested) {
+                candidate.wakeRequested = true;
+                pendingWakeups.store(pending + 1, std::memory_order_release);
+                nextWakeWorker = (candidate.index + 1) % workers.size();
+                return &candidate;
+            }
+        }
+    }
+    return nullptr;
+}
+
+void ActorSystem::Impl::enqueueLocal(Worker& worker, Job job, bool newJob) {
+    if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
     {
         std::lock_guard<std::mutex> lock(queueMutex);
         worker.localQueue.push_back(std::move(job));
+        worker.localCount.store(worker.localQueue.size(), std::memory_order_release);
     }
-    queueCv.notify_all();
+    worker.wakeCv.notify_one();
 }
 
-bool ActorSystem::Impl::postMessage(const std::shared_ptr<ActorControl>& actor, MessagePtr message) {
-    std::lock_guard<std::mutex> lock(actor->mailboxMutex);
-    if (!actor->receiving || !accepting.load(std::memory_order_acquire)) return false;
-    actor->mailbox.push_back(std::move(message));
-    if (!actor->dispatchScheduled) {
-        enqueueGlobal(Job{JobKind::DispatchMessage, actor, 0, 0, 0});
-        actor->dispatchScheduled = true;
+bool ActorSystem::Impl::postMessage(std::shared_ptr<ActorControl> actor, MessagePtr message) {
+    auto* recipient = actor.get();
+    std::lock_guard<std::mutex> lock(recipient->mailboxMutex);
+    if (!recipient->receiving || !accepting.load(std::memory_order_acquire)) return false;
+    const auto state = recipient->dispatchState.load(std::memory_order_acquire);
+    if (state == DispatchState::Idle) {
+        recipient->dispatchState.store(DispatchState::Scheduled, std::memory_order_release);
+        // Admission stays locked: stop/shutdown cannot remove the registered
+        // owner before this scope exits. Transfer our reference to the job.
+        enqueueDispatch(Job{JobKind::DispatchMessage, std::move(actor), 0, 0, 0, {}, {}, std::move(message)});
+    } else {
+        recipient->mailbox.push_back(std::move(message));
+        // Publish after queueing. If the consumer retired meanwhile, this
+        // producer inherits the token and schedules the oldest queued message.
+        // Pending can only be cleared while holding this same mailbox lock.
+        // A producer observing it need not repeat the atomic exchange.
+        if (state != DispatchState::Pending &&
+            recipient->dispatchState.exchange(DispatchState::Pending, std::memory_order_acq_rel) == DispatchState::Idle) {
+            auto next = std::move(recipient->mailbox.front());
+            recipient->mailbox.pop_front();
+            recipient->dispatchState.store(recipient->mailbox.empty() ? DispatchState::Scheduled : DispatchState::Pending,
+                std::memory_order_release);
+            enqueueDispatch(Job{JobKind::DispatchMessage, std::move(actor), 0, 0, 0, {}, {}, std::move(next)});
+        }
     }
+    return true;
+}
+
+void ActorSystem::Impl::enqueueDispatch(Job job, bool newJob) {
+    Worker* worker = currentWorker;
+    if (!worker || worker->system != this) { enqueueGlobal(std::move(job), newJob); return; }
+    // Migration cadence is separate from the eight-dispatch fairness check.
+    // Each job handles one message; this is not a mailbox-draining batch.
+    // Only this job is directed; the Actor has no permanent worker owner.
+    if (workers.size() > 1 && ++worker->readyPosts == 64) {
+        worker->readyPosts = 0;
+        enqueueLocal(*workers[(worker->index + 1) % workers.size()], std::move(job), newJob);
+        return;
+    }
+    if (workers.size() == 1) {
+        // Only this thread can access its ready queue; external sends still use
+        // globalQueue, and remote completions use the synchronized pinned queue.
+        worker->readyQueue.push_back(std::move(job));
+        if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
+        return;
+    }
+    {
+        std::lock_guard<std::mutex> lock(worker->readyMutex);
+        worker->readyQueue.push_back(std::move(job));
+        if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
+        worker->readyCount.store(worker->readyQueue.size(), std::memory_order_release);
+    }
+    // Even one job must wake a peer: its owner may still be in a long handler.
+    // SC publication precedes the sleeper check; the sleeper's SC registration
+    // precedes its epoch check. Either it sees the new epoch or we see a sleeper.
+    // Taking the wait mutex in the latter case closes the predicate-to-wait gap.
+    readyEpoch.fetch_add(1);
+    const auto sleepers = sleepingWorkers.load();
+    // Running jobs are included in outstandingJobs. If all awake workers are
+    // occupied and another job is queued, wake a peer. Otherwise an already
+    // awake scanner can take it; its epoch handshake prevents parking past it.
+    // This avoids waking all workers for a chain with only two runnable Actors.
+    if (sleepers && outstandingJobs.load(std::memory_order_acquire) >
+        workers.size() - sleepers + pendingWakeups.load(std::memory_order_acquire)) {
+        Worker* notify;
+        { std::lock_guard<std::mutex> lock(queueMutex); notify = claimWakeup(); }
+        if (notify) {
+            if (config.diagnosticLogging) ++worker->diagnosticNotifications;
+            notify->wakeCv.notify_one();
+        }
+    }
+}
+
+bool ActorSystem::Impl::takeReady(Worker& worker, std::optional<Job>& result, bool steal, bool oldest) {
+    if (workers.size() == 1) {
+        if (worker.readyQueue.empty()) return false;
+        if (oldest) { result = std::move(worker.readyQueue.front()); worker.readyQueue.pop_front(); }
+        else { result = std::move(worker.readyQueue.back()); worker.readyQueue.pop_back(); }
+        return true;
+    }
+    if (!worker.readyCount.load(std::memory_order_acquire)) return false;
+    std::unique_lock<std::mutex> lock(worker.readyMutex, std::defer_lock);
+    if (steal) { if (!lock.try_lock()) return false; } else lock.lock();
+    if (worker.readyQueue.empty()) return false;
+    if (steal && config.diagnosticLogging) ++currentWorker->diagnosticSteals;
+    // Keep new continuations near their publisher; thieves take older work.
+    // The owner also takes the oldest entry periodically to bound local starvation.
+    if (steal || oldest) { result = std::move(worker.readyQueue.front()); worker.readyQueue.pop_front(); }
+    else { result = std::move(worker.readyQueue.back()); worker.readyQueue.pop_back(); }
+    worker.readyCount.store(worker.readyQueue.size(), std::memory_order_release);
     return true;
 }
 
 void ActorSystem::Impl::workerLoop(Worker& worker) {
     currentWorker = &worker;
+    unsigned localRuns = 0;
+    unsigned idlePasses = 0;
     for (;;) {
         std::optional<Job> selected;
+        // At most eight local dispatches before checking pinned work, global
+        // traffic and timers. Every dispatch still handles exactly one message.
+        if (localRuns < 8 && takeReady(worker, selected, false, localRuns == 7)) {
+            idlePasses = 0;
+            ++localRuns;
+            processJob(worker, std::move(*selected));
+            continue;
+        }
+        localRuns = 0;
+        // Empty backoff checks must not themselves contend on queueMutex.
+        // These hints only defer a check; the final sleep still uses the locked
+        // queues and epoch handshake, so stale hints cannot lose notifications.
+        if (idlePasses > 0 && idlePasses < 32 && !globalCount.load(std::memory_order_acquire) &&
+            !worker.localCount.load(std::memory_order_acquire) &&
+            (worker.timers.empty() || worker.timers.top().deadline > std::chrono::steady_clock::now())) {
+            bool ready = false;
+            for (const auto& candidate : workers)
+                if (candidate->readyCount.load(std::memory_order_acquire)) { ready = true; break; }
+            if (!ready) {
+                ++idlePasses;
+                std::this_thread::yield();
+                continue;
+            }
+        }
         std::unique_lock<std::mutex> lock(queueMutex);
+        const auto observedEpoch = readyEpoch.load();
         for (unsigned attempt = 0; attempt < 3 && !selected; ++attempt) {
             const auto category = (worker.nextQueue + attempt) % 3;
             if (category == 0) {
                 if (!worker.localQueue.empty()) {
                     selected = std::move(worker.localQueue.front());
                     worker.localQueue.pop_front();
+                    worker.localCount.store(worker.localQueue.size(), std::memory_order_release);
                 }
             } else if (category == 1) {
                 if (!globalQueue.empty()) {
                     selected = std::move(globalQueue.front());
                     globalQueue.pop_front();
+                    globalCount.store(globalQueue.size(), std::memory_order_release);
                 }
             } else if (!stopping.load(std::memory_order_acquire) && !worker.timers.empty() &&
                        worker.timers.top().deadline <= std::chrono::steady_clock::now()) {
@@ -230,28 +364,69 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
             if (selected) { worker.nextQueue = (category + 1) % 3; break; }
         }
         if (selected) {
+            idlePasses = 0;
             lock.unlock();
             processJob(worker, std::move(*selected));
             continue;
         }
 
+        lock.unlock();
+        if (!takeReady(worker, selected)) {
+            for (std::size_t offset = 1; offset < workers.size() && !selected; ++offset)
+                takeReady(*workers[(worker.index + offset) % workers.size()], selected, true);
+        }
+        if (selected) { idlePasses = 0; processJob(worker, std::move(*selected)); continue; }
+        lock.lock();
+        if (!globalQueue.empty() || !worker.localQueue.empty()) continue;
         if (stopping.load(std::memory_order_acquire)) break;
+        // Brief, bounded idle backoff avoids parking between tightly coupled
+        // messages. This never retries Actor ownership; busy Actor jobs retain
+        // their fair requeue/sleep path. A genuinely idle worker still parks.
+        if (workers.size() > 1 && idlePasses < 32) {
+            ++idlePasses;
+            lock.unlock();
+            std::this_thread::yield();
+            continue;
+        }
+        worker.sleeping = true;
+        sleepingWorkers.fetch_add(1);
+        if (config.diagnosticLogging) ++worker.diagnosticParks;
         if (worker.timers.empty()) {
-            queueCv.wait(lock, [&] {
-                return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty();
+            worker.wakeCv.wait(lock, [&] {
+                return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty() ||
+                    readyEpoch.load() != observedEpoch || worker.wakeRequested;
             });
         } else {
-            queueCv.wait_until(lock, worker.timers.top().deadline, [&] {
-                return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty();
+            worker.wakeCv.wait_until(lock, worker.timers.top().deadline, [&] {
+                return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty() ||
+                    readyEpoch.load() != observedEpoch || worker.wakeRequested;
             });
         }
+        // Each notification belongs to a specific worker and is acknowledged
+        // even if another worker already consumed the originally published job.
+        if (worker.wakeRequested) {
+            worker.wakeRequested = false;
+            pendingWakeups.fetch_sub(1, std::memory_order_release);
+        }
+        worker.sleeping = false;
+        sleepingWorkers.fetch_sub(1);
+    }
+    if (config.diagnosticLogging) {
+        const auto summary = std::string("scheduler.counts dispatch=") + std::to_string(worker.diagnosticDispatches) +
+            " retries=" + std::to_string(worker.diagnosticRetries) + " steals=" + std::to_string(worker.diagnosticSteals) +
+            " waits=" + std::to_string(worker.diagnosticParks) + " notifications=" + std::to_string(worker.diagnosticNotifications) +
+            " global_posts=" + std::to_string(worker.diagnosticGlobalPosts);
+        log(summary.c_str());
     }
     currentWorker = nullptr;
 }
 
 void ActorSystem::Impl::processJob(Worker& worker, Job job) {
-    std::unique_lock<std::mutex> actorLock(job.actor->executionMutex, std::try_to_lock);
-    if (!actorLock.owns_lock()) {
+    if (config.diagnosticLogging && job.kind == JobKind::DispatchMessage) ++worker.diagnosticDispatches;
+    const bool needsOwnership = workers.size() > 1;
+    bool idle = false;
+    if (needsOwnership && !job.actor->executing.compare_exchange_strong(idle, true, std::memory_order_acquire, std::memory_order_relaxed)) {
+        if (config.diagnosticLogging) ++worker.diagnosticRetries;
         if (job.kind == JobKind::ResumeFiber || job.kind == JobKind::TimerFire) {
             enqueueLocal(worker, std::move(job));
         } else {
@@ -262,12 +437,22 @@ void ActorSystem::Impl::processJob(Worker& worker, Job job) {
         return;
     }
 
+    // One nonblocking acquire attempt; failed jobs are fairly requeued above,
+    // never spun on. Release/acquire transfers all Actor state to its next worker.
+    struct ExecutionGuard {
+        std::atomic<bool>* executing;
+        void unlock() noexcept {
+            if (executing) { executing->store(false, std::memory_order_release); executing = nullptr; }
+        }
+        ~ExecutionGuard() { unlock(); }
+    } actorLock{needsOwnership ? &job.actor->executing : nullptr};
+
     currentActor = job.actor.get();
     if (!job.actor->actor) {
         currentActor = nullptr;
         if (job.kind == JobKind::DispatchMessage) {
             std::lock_guard<std::mutex> lock(job.actor->mailboxMutex);
-            job.actor->dispatchScheduled = false;
+            job.actor->dispatchState.store(DispatchState::Idle, std::memory_order_release);
         }
         actorLock.unlock();
         decrementJobs(*this);
@@ -297,14 +482,7 @@ void ActorSystem::Impl::processJob(Worker& worker, Job job) {
             break;
         }
         case JobKind::DispatchMessage: {
-            MessagePtr message;
-            {
-                std::lock_guard<std::mutex> mailboxLock(job.actor->mailboxMutex);
-                if (!job.actor->mailbox.empty()) {
-                    message = std::move(job.actor->mailbox.front());
-                    job.actor->mailbox.pop_front();
-                }
-            }
+            MessagePtr message = std::move(job.message);
             if (message) {
                 notifyMessage(job.actor, message);
                 try {
@@ -356,16 +534,41 @@ void ActorSystem::Impl::processJob(Worker& worker, Job job) {
         log("actor.stopped", id);
     }
     if (job.kind == JobKind::DispatchMessage) {
-        // Hold the mailbox lock across releasing execution ownership and the
-        // next-token decision. A sender cannot schedule a second runnable job
-        // while this handler still owns execution, nor strand a racing message.
-        std::lock_guard<std::mutex> mailboxLock(job.actor->mailboxMutex);
-        const bool reschedule = job.actor->actor && !job.actor->mailbox.empty();
+        const bool live = static_cast<bool>(job.actor->actor);
+        // Release Actor execution before allowing a producer to inherit the
+        // dispatch token. A single CAS retires an empty mailbox without locking.
         actorLock.unlock();
-        if (reschedule)
-            enqueueGlobal(Job{JobKind::DispatchMessage, job.actor, 0, 0, 0});
-        else
-            job.actor->dispatchScheduled = false;
+        auto expected = DispatchState::Scheduled;
+        if (job.actor->dispatchState.load(std::memory_order_acquire) == DispatchState::Pending ||
+            !job.actor->dispatchState.compare_exchange_strong(expected, DispatchState::Idle,
+                std::memory_order_acq_rel, std::memory_order_acquire)) {
+            // A producer published Pending before our CAS, so we retain the
+            // token. If it published after a successful CAS, it schedules instead.
+            MessagePtr next;
+            bool reschedule = false;
+            {
+                std::lock_guard<std::mutex> mailboxLock(job.actor->mailboxMutex);
+                if (live && !job.actor->mailbox.empty()) {
+                    next = std::move(job.actor->mailbox.front());
+                    job.actor->mailbox.pop_front();
+                    job.actor->dispatchState.store(job.actor->mailbox.empty() ? DispatchState::Scheduled : DispatchState::Pending,
+                        std::memory_order_release);
+                    reschedule = true;
+                } else {
+                    job.actor->dispatchState.store(DispatchState::Idle, std::memory_order_release);
+                }
+            }
+            // State already owns the next token. The current outstanding job
+            // protects shutdown until publication; no mailbox lock crosses the
+            // scheduling call. A single worker can transfer its outstanding-job
+            // credit. Multiworker publication keeps the old/new overlap because
+            // wake-demand accounting includes the publishing worker until return.
+            if (reschedule) {
+                const bool transferCredit = workers.size() == 1;
+                enqueueDispatch(Job{JobKind::DispatchMessage, std::move(job.actor), 0, 0, 0, {}, {}, std::move(next)}, !transferCredit);
+                if (transferCredit) return;
+            }
+        }
     } else {
         actorLock.unlock();
     }
@@ -596,7 +799,7 @@ std::optional<WaitResult> ActorSystem::Impl::installWait(Fiber& fiber, const Wai
             } else {
                 fiber.owner->timers.push(TimerEntry{leaf->deadline, fiber.owner->nextTimerSequence++, actor,
                     fiber.id, registration->token, leaf->leafIndex});
-                queueCv.notify_all();
+                fiber.owner->wakeCv.notify_one();
             }
         }
     }
@@ -726,6 +929,14 @@ MessageId ActorSystem::send(
     TypeId typeId,
     std::any payload,
     MessageId correlationId) {
+    return sendOwned(recipient, typeId, std::move(payload), correlationId);
+}
+
+MessageId ActorSystem::sendOwned(
+    ActorId recipient,
+    TypeId typeId,
+    std::any&& payload,
+    MessageId correlationId) {
     std::shared_ptr<ActorControl> control;
     {
         std::lock_guard<std::mutex> lock(impl_->registryMutex);
@@ -737,10 +948,17 @@ MessageId ActorSystem::send(
     }
     const MessageId id = impl_->nextMessageId.fetch_add(1, std::memory_order_relaxed);
     const ActorId sender = currentActor == nullptr || currentActor->system != impl_.get() ? 0 : currentActor->actor->id();
-    auto message = std::make_shared<const Message>(Message{
-        typeId, id, correlationId, sender, std::move(payload),
-        {impl_->config.processName, currentActor ? currentActor->name : std::string{}}});
-    if (!impl_->postMessage(control, std::move(message))) {
+    // Populate the private allocation directly, then surrender the only mutable
+    // handle before publication. Avoid moving any/strings via a temporary Message.
+    auto message = std::make_shared<Message>();
+    message->typeId = typeId;
+    message->id = id;
+    message->correlationId = correlationId;
+    message->sender = sender;
+    message->payload = std::move(payload);
+    message->senderAddress.process = impl_->config.processName;
+    message->senderAddress.actor = currentActor ? currentActor->name : std::string{};
+    if (!impl_->postMessage(std::move(control), MessagePtr(std::move(message)))) {
         if (!impl_->accepting.load(std::memory_order_acquire))
             throw std::runtime_error("actor system is shutting down");
         throw std::invalid_argument("recipient actor is stopping");
@@ -791,7 +1009,7 @@ void ActorSystem::shutdown() {
         std::lock_guard<std::mutex> lock(impl_->queueMutex);
         impl_->stopping.store(true, std::memory_order_release);
     }
-    impl_->queueCv.notify_all();
+    for (auto& worker : impl_->workers) worker->wakeCv.notify_one();
     for (auto& worker : impl_->workers) {
         if (worker->thread.joinable()) worker->thread.join();
     }
@@ -810,7 +1028,7 @@ void ActorSystem::Impl::receiveNamed(const std::string& name, ActorId incarnatio
         return;
     }
     auto actor = registry.at(found->second);
-    postMessage(actor, std::move(message));
+    postMessage(std::move(actor), std::move(message));
 }
 
 MessageId ActorSystem::Impl::sendBytes(const ActorAddress& target, ActorId incarnation, TypeId type,
@@ -836,7 +1054,7 @@ MessageId ActorSystem::Impl::sendBytes(const ActorAddress& target, ActorId incar
         if (named == names.end() || (incarnation && named->second != incarnation))
             throw std::invalid_argument("target actor does not exist or was replaced");
         auto actor = registry.at(named->second);
-        if (!postMessage(actor, std::move(message)))
+        if (!postMessage(std::move(actor), std::move(message)))
             throw std::runtime_error("actor system is shutting down");
     } else {
         if (!transport) throw std::logic_error("IPC requires a configured processName");

@@ -15,7 +15,7 @@ MessageId ActorRef::send(TypeId typeId, std::any payload, MessageId correlationI
     if (!*this) {
         throw std::invalid_argument("cannot send through an empty ActorRef");
     }
-    return system_->send(id_, typeId, std::move(payload), correlationId);
+    return system_->sendOwned(id_, typeId, std::move(payload), correlationId);
 }
 
 } // namespace actor_runtime

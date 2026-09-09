@@ -9,6 +9,21 @@ import time
 from run_suite import execute, matrix
 
 
+def source_hashes():
+    runtime = Path(__file__).resolve().parent.parent
+    paths = [runtime / 'CMakeLists.txt']
+    for directory in ('src', 'include', 'benchmarks'):
+        paths.extend(p for p in (runtime / directory).rglob('*')
+                     if p.is_file() and (p.suffix in ('.cpp', '.c', '.h', '.py') or p.name == 'CMakeLists.txt'))
+    return {str(p.relative_to(runtime)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in sorted(paths)}
+
+
+def binary_hashes(binaries):
+    return {k: {'path': str(v), 'sha256': hashlib.sha256(v.read_bytes()).hexdigest()}
+            for k, v in binaries.items()}
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--native', type=Path, required=True)
@@ -33,7 +48,14 @@ def main():
     manifest = {'revision':a.revision, 'utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),
                 'repeats':a.repeats, 'total_rounds':a.total_rounds, 'minimum_ratio':a.minimum_ratio,
                 'cpus':'0-7', 'sample':16, 'warmup':1000, 'scope':'matched event echo; batch1',
-                'binaries':{k:{'path':str(v),'sha256':hashlib.sha256(v.read_bytes()).hexdigest()} for k,v in binaries.items()}}
+                'binaries': binary_hashes(binaries), 'runtime_and_benchmark_sources': source_hashes(),
+                'host': {name: execute(cmd, 20) for name, cmd in (
+                    ('kernel', ['uname', '-a']), ('cpu', ['lscpu']),
+                    ('compiler', ['g++', '--version']), ('cmake', ['cmake', '--version']))},
+                'available_build_flags': {name: {str(p): p.read_text() for p in (
+                    binary.parent / 'CMakeFiles' / (binary.name + '.dir') / 'flags.make',
+                    binary.parent / 'runtime' / 'CMakeFiles' / 'actor_runtime.dir' / 'flags.make') if p.is_file()}
+                    for name, binary in binaries.items()}}
     (a.output/'environment.json').write_text(json.dumps(manifest,indent=2)+'\n')
     rows=[]
     for repetition in range(a.repeats):
@@ -58,6 +80,8 @@ def main():
             if 'validation_error' in r: raise RuntimeError(r)
             rows.append(r)
             print(f"run {repetition+1}/{a.repeats} {name} {case}: {m['rps']:.0f} rps {m['seconds']:.3f}s",flush=True)
+    if source_hashes() != manifest['runtime_and_benchmark_sources'] or binary_hashes(binaries) != manifest['binaries']:
+        raise RuntimeError('source or executable changed during measurement; raw results retained but not accepted')
     summary=[]
     for case in cases:
         result={'case':case}

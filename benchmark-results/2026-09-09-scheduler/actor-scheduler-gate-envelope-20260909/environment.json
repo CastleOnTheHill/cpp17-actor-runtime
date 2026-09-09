@@ -1,0 +1,21 @@
+{
+  "revision": "1bcfdf0-plus-envelope",
+  "utc": "2026-09-08T16:25:30Z",
+  "repeats": 3,
+  "total_rounds": 1000000,
+  "minimum_ratio": 0.8,
+  "cpus": "0-7",
+  "sample": 16,
+  "warmup": 1000,
+  "scope": "matched event echo; batch1",
+  "binaries": {
+    "native": {
+      "path": "/tmp/actor-scheduler-bench-20260909/native_echo",
+      "sha256": "743e2e817029dc6316a56e6396139121fdcfb69cda91477753e4d5167917e81f"
+    },
+    "so5": {
+      "path": "/tmp/actor-benchmark-build-20260907/so5_echo",
+      "sha256": "1d8e2272c6b17e9eef1ea2845d95aff5a8e6f17d13b979cc61dde2102d5d46b5"
+    }
+  }
+}
