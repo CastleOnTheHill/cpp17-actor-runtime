@@ -173,8 +173,6 @@ void ActorSystem::Impl::log(const char* event, ActorId actor, FiberId fiber) con
 }
 
 void ActorSystem::Impl::enqueueGlobal(Job job, bool newJob) {
-    if (config.diagnosticLogging && currentWorker && currentWorker->system == this)
-        ++currentWorker->diagnosticGlobalPosts;
     if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
     Worker* notify;
     {
@@ -280,7 +278,6 @@ void ActorSystem::Impl::enqueueDispatch(Job job, bool newJob) {
         Worker* notify;
         { std::lock_guard<std::mutex> lock(queueMutex); notify = claimWakeup(); }
         if (notify) {
-            if (config.diagnosticLogging) ++worker->diagnosticNotifications;
             notify->wakeCv.notify_one();
         }
     }
@@ -297,7 +294,6 @@ bool ActorSystem::Impl::takeReady(Worker& worker, std::optional<Job>& result, bo
     std::unique_lock<std::mutex> lock(worker.readyMutex, std::defer_lock);
     if (steal) { if (!lock.try_lock()) return false; } else lock.lock();
     if (worker.readyQueue.empty()) return false;
-    if (steal && config.diagnosticLogging) ++currentWorker->diagnosticSteals;
     // Keep new continuations near their publisher; thieves take older work.
     // The owner also takes the oldest entry periodically to bound local starvation.
     if (steal || oldest) { result = std::move(worker.readyQueue.front()); worker.readyQueue.pop_front(); }
@@ -317,7 +313,7 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
         if (localRuns < 8 && takeReady(worker, selected, false, localRuns == 7)) {
             idlePasses = 0;
             ++localRuns;
-            processJob(worker, std::move(*selected));
+            processJob(worker, *selected);
             continue;
         }
         localRuns = 0;
@@ -366,7 +362,7 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
         if (selected) {
             idlePasses = 0;
             lock.unlock();
-            processJob(worker, std::move(*selected));
+            processJob(worker, *selected);
             continue;
         }
 
@@ -375,7 +371,7 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
             for (std::size_t offset = 1; offset < workers.size() && !selected; ++offset)
                 takeReady(*workers[(worker.index + offset) % workers.size()], selected, true);
         }
-        if (selected) { idlePasses = 0; processJob(worker, std::move(*selected)); continue; }
+        if (selected) { idlePasses = 0; processJob(worker, *selected); continue; }
         lock.lock();
         if (!globalQueue.empty() || !worker.localQueue.empty()) continue;
         if (stopping.load(std::memory_order_acquire)) break;
@@ -390,7 +386,6 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
         }
         worker.sleeping = true;
         sleepingWorkers.fetch_add(1);
-        if (config.diagnosticLogging) ++worker.diagnosticParks;
         if (worker.timers.empty()) {
             worker.wakeCv.wait(lock, [&] {
                 return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty() ||
@@ -411,22 +406,13 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
         worker.sleeping = false;
         sleepingWorkers.fetch_sub(1);
     }
-    if (config.diagnosticLogging) {
-        const auto summary = std::string("scheduler.counts dispatch=") + std::to_string(worker.diagnosticDispatches) +
-            " retries=" + std::to_string(worker.diagnosticRetries) + " steals=" + std::to_string(worker.diagnosticSteals) +
-            " waits=" + std::to_string(worker.diagnosticParks) + " notifications=" + std::to_string(worker.diagnosticNotifications) +
-            " global_posts=" + std::to_string(worker.diagnosticGlobalPosts);
-        log(summary.c_str());
-    }
     currentWorker = nullptr;
 }
 
-void ActorSystem::Impl::processJob(Worker& worker, Job job) {
-    if (config.diagnosticLogging && job.kind == JobKind::DispatchMessage) ++worker.diagnosticDispatches;
+void ActorSystem::Impl::processJob(Worker& worker, Job& job) {
     const bool needsOwnership = workers.size() > 1;
     bool idle = false;
     if (needsOwnership && !job.actor->executing.compare_exchange_strong(idle, true, std::memory_order_acquire, std::memory_order_relaxed)) {
-        if (config.diagnosticLogging) ++worker.diagnosticRetries;
         if (job.kind == JobKind::ResumeFiber || job.kind == JobKind::TimerFire) {
             enqueueLocal(worker, std::move(job));
         } else {

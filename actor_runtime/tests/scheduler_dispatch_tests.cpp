@@ -210,8 +210,47 @@ void concurrent_send_stop_and_name_reuse() {
     system.shutdown();
 }
 
+class BurstCreditActor final : public Actor {
+public:
+    BurstCreditActor(ActorSystem& system, std::promise<void>& done) : Actor(system), done_(done) {}
+private:
+    void onMessage(MessagePtr message) override {
+        if (message->typeId == 1) {
+            for (int i = 0; i < 128; ++i) self().send(2, i);
+            // The scheduler must finish accounting even after a handler throws.
+            throw std::runtime_error("intentional error after posting successors");
+        }
+        if (std::any_cast<int>(message->payload) != received_ % 128) invalid_ = true;
+        if (++received_ % 128 == 0) {
+            if (received_ == 128 * 100) {
+                if (invalid_) done_.set_exception(std::make_exception_ptr(std::runtime_error("burst FIFO changed")));
+                else done_.set_value();
+            } else self().send(1, {});
+        }
+    }
+    std::promise<void>& done_;
+    int received_ = 0;
+    bool invalid_ = false;
+};
+void burst_successors_and_exception_drain() {
+    for (const auto workers : {1U, 4U}) {
+        std::promise<void> done;
+        auto finished = done.get_future();
+        ActorSystem system({workers});
+        auto actor = system.registerActor(std::make_unique<BurstCreditActor>(system, done));
+        actor.send(1, {});
+        if (finished.wait_for(3s) != std::future_status::ready)
+            throw std::runtime_error("burst successors stalled");
+        finished.get();
+        // Detect lost/duplicated drain credits after first-successor transfers,
+        // multiple posts, pending dispatch handoff and isolated exceptions.
+        system.shutdown();
+    }
+}
+
 int main() {
     try {
+        burst_successors_and_exception_drain();
         lone_dispatch_wakes_idle_peer();
         older_ready_is_not_starved_by_newer_chain();
         idle_workers_park_after_bounded_backoff();

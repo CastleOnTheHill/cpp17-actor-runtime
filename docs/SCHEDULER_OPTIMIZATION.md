@@ -239,3 +239,67 @@ This checkpoint retains all 21 completed experimental suites, including rejected
 versions. The source still contains temporary opt-in diagnostic counters. Before
 final acceptance remove those probes, rerun the longer gate and finish the
 remaining sanitizer/coverage/fiber/IPC validation against that exact final code.
+
+## Post-checkpoint profiling and cleanup
+
+Checkpoint `ea249a9` committed the implementation, tests, 21 experimental suites
+(1,032 raw runs; no nonzero exit/validation-error/nonpositive-throughput entries),
+and both 12/12 test logs. Teaching was not modified and no remote push was made.
+
+Temporary scheduler counters and ACTOR_BENCH_DIAGNOSTICS were then removed; the
+existing public diagnosticLogging option still controls lifecycle/error logs.
+The cleanup stage passed 12/12 CTest (1.65s) but failed 6/12 short throughput gates.
+This confirms that marginal short-run passes are not stable acceptance evidence.
+
+A new 1w/8c/window16/64B profile of cleanup used 20M round trips, cpu-clock:u at
+199 Hz and DWARF 8192: 1,586 samples, zero lost. sendOwned self samples were 16.14%,
+mutex lock/unlock 20.49%, processJob 6.18%, deque emplace 3.22%, and Job destruction
+1.64%. These are on-CPU samples, not wall-time or predicted optimization gains.
+Some third-party debug-info inline records produced addr2line warnings; the flat
+table was also inspected with --no-inline. Exact binary, source archive and raw
+profile are in `/tmp/actor-scheduler-profile-cleanup-20260909`.
+
+The next isolated change passes the worker's selected Job by reference into
+processJob instead of moving it again. Selection owns it until processing returns;
+rescheduling still transfers its shared owners to a separately queued job. Public
+APIs, handler count, queue order and execution position are unchanged. This passed
+12/12 CTest (1.51s); the job-reference matrix failed 3/12: single-worker 64B 77.5%,
+1024B 76.4%, and 8 clients/window16 75.7%. Raw results are archived, not cherry-picked.
+
+The current job-credit experiment generalizes single-worker count transfer to
+the first locally posted dispatch successor, not just pending-mailbox successors.
+The publishing job retains its one drain obligation through return; only then
+can this single worker execute the successor. A per-job guard skips exactly one
+decrement if transfer occurred. Further successors count normally. Multiworker
+enqueue counting is unchanged. A new burst test posts 128 successors then throws,
+repeats 100 times on 1/4 workers, checks FIFO/completion and shuts down to catch
+lost or duplicate drain obligations. This experiment still requires measured
+results and sanitizer validation; no overall completion is asserted.
+
+### Experiment decision and current validation
+
+The job-credit experiment passed 12/12 normal tests (1.55s) and 20 repetitions
+each of dispatch, wakeup, runtime and API tests. It failed 4/12 short throughput
+gates and showed no demonstrated benefit: single-worker 64B 2,680,295 RPS,
+1024B 2,546,347, 8 clients/window16 2,483,313. It was reverted; its raw evidence
+and the new burst/exception/drain regression were retained. Current runtime is
+the job-reference version, with temporary instrumentation removed.
+
+Fresh checks after that revert, including the added burst test:
+
+- ASan/UBSan: 12/12 CTest, 2.49s, leak detection enabled.
+- Coverage-instrumented CTest: 12/12, 2.11s.
+- All runtime src/include executable lines, no exclusions: **1154/1184 = 97.47%**;
+  project gate remains 90%. Raw gcov branch coverage is 1169/1880 = 62.18%,
+  including C++ exception edges; it is not mislabeled as line coverage.
+- Exact reports/logs: `validation-job-reference` in the scheduler evidence root.
+- Cleanup profile: `profile-cleanup`; 1,586 script events = 1,586 folded samples;
+  generated SVG parses successfully. Snapshot and executable remain locally in
+  ignored reproduction/binaries subdirectories, with hashes in SHA256SUMS.
+
+A five-repeat / 4M-request full matched confirmation was requested, but both
+the initial launch and the allowed retry timed out in permission approval before
+process creation. No running benchmark handle was returned. Do not claim those
+longer measurements ran or use the short three-repeat results as their substitute.
+Next action is to obtain execution approval and run that unchanged confirmation
+matrix, then address its remaining gaps and recheck fiber/IPC performance.

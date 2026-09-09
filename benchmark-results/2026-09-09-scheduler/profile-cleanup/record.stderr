@@ -1,0 +1,2 @@
+[ perf record: Woken up 51 times to write data ]
+[ perf record: Captured and wrote 12.779 MB /tmp/actor-scheduler-profile-cleanup-20260909/perf.data (1586 samples) ]

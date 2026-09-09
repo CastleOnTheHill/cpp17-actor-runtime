@@ -195,8 +195,6 @@ struct Worker final {
     std::deque<Job> readyQueue;
     std::atomic<std::size_t> readyCount{0};
     unsigned readyPosts = 0;
-    std::uint64_t diagnosticDispatches = 0, diagnosticRetries = 0, diagnosticSteals = 0;
-    std::uint64_t diagnosticParks = 0, diagnosticNotifications = 0, diagnosticGlobalPosts = 0;
     std::priority_queue<TimerEntry, std::vector<TimerEntry>, TimerLater> timers;
     std::uint64_t nextTimerSequence = 1;
 };
@@ -213,7 +211,7 @@ struct ActorSystem::Impl final {
     bool takeReady(Worker& worker, std::optional<Job>& result, bool steal = false, bool oldest = false);
     bool postMessage(std::shared_ptr<ActorControl> actor, MessagePtr message);
     void workerLoop(Worker& worker);
-    void processJob(Worker& worker, Job job);
+    void processJob(Worker& worker, Job& job);
     FiberId createFiber(
         const std::shared_ptr<ActorControl>& actor,
         Worker& owner,
