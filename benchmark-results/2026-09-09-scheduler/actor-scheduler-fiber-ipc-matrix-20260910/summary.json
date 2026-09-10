@@ -1,0 +1,275 @@
+[
+  {
+    "case": {
+      "binary": "raw_ipc_echo",
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 64,
+      "hotspot": true,
+      "batch": 1
+    },
+    "rounds": 31097,
+    "warmup": 1000,
+    "runs": 3,
+    "median_rps": 28691.19599,
+    "min_rps": 28382.37941,
+    "max_rps": 30255.08518,
+    "median_rtt_p50_us": 30.014,
+    "median_rtt_p99_us": 73.318,
+    "min_seconds": 1.027827217,
+    "min_samples": 1944
+  },
+  {
+    "case": {
+      "binary": "native_ipc_echo",
+      "workers": 1,
+      "clients": 8,
+      "window": 1,
+      "payload": 64,
+      "hotspot": true,
+      "batch": 1
+    },
+    "rounds": 4356,
+    "warmup": 217,
+    "runs": 3,
+    "median_rps": 38919.87409,
+    "min_rps": 38394.71443,
+    "max_rps": 40543.96812,
+    "median_rtt_p50_us": 180.111,
+    "median_rtt_p99_us": 506.017,
+    "min_seconds": 0.859511331,
+    "min_samples": 2184
+  },
+  {
+    "case": {
+      "binary": "native_ipc_echo",
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 0,
+      "hotspot": true,
+      "batch": 1
+    },
+    "rounds": 10637,
+    "warmup": 531,
+    "runs": 3,
+    "median_rps": 10299.92893,
+    "min_rps": 9968.587292,
+    "max_rps": 10719.17934,
+    "median_rtt_p50_us": 87.464,
+    "median_rtt_p99_us": 195.871,
+    "min_seconds": 0.99233343,
+    "min_samples": 665
+  },
+  {
+    "case": {
+      "binary": "native_fiber_echo",
+      "workers": 2,
+      "clients": 1,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "rounds": 246914,
+    "warmup": 1000,
+    "runs": 3,
+    "median_rps": 249665.5018,
+    "min_rps": 233928.5236,
+    "max_rps": 287227.8249,
+    "median_rtt_p50_us": 2.048,
+    "median_rtt_p99_us": 103.327,
+    "min_seconds": 0.859645127,
+    "min_samples": 15433
+  },
+  {
+    "case": {
+      "binary": "native_fiber_echo",
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "rounds": 888674,
+    "warmup": 1000,
+    "runs": 3,
+    "median_rps": 891950.4784,
+    "min_rps": 853386.1868,
+    "max_rps": 893455.3918,
+    "median_rtt_p50_us": 0.938,
+    "median_rtt_p99_us": 2.192,
+    "min_seconds": 0.994648427,
+    "min_samples": 55543
+  },
+  {
+    "case": {
+      "binary": "native_fiber_echo",
+      "workers": 4,
+      "clients": 64,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "rounds": 16833,
+    "warmup": 841,
+    "runs": 3,
+    "median_rps": 1059999.233,
+    "min_rps": 788864.6255,
+    "max_rps": 1339417.641,
+    "median_rtt_p50_us": 39.531,
+    "median_rtt_p99_us": 209.372,
+    "min_seconds": 0.804313731,
+    "min_samples": 67392
+  },
+  {
+    "case": {
+      "binary": "native_fiber_echo",
+      "workers": 4,
+      "clients": 1,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "rounds": 182981,
+    "warmup": 1000,
+    "runs": 3,
+    "median_rps": 164836.5721,
+    "min_rps": 159126.8224,
+    "max_rps": 166474.1878,
+    "median_rtt_p50_us": 2.286,
+    "median_rtt_p99_us": 122.73,
+    "min_seconds": 1.099155385,
+    "min_samples": 11437
+  },
+  {
+    "case": {
+      "binary": "native_ipc_echo",
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 1024,
+      "hotspot": true,
+      "batch": 1
+    },
+    "rounds": 10720,
+    "warmup": 536,
+    "runs": 3,
+    "median_rps": 10431.48405,
+    "min_rps": 10025.54774,
+    "max_rps": 10634.50229,
+    "median_rtt_p50_us": 89.15,
+    "median_rtt_p99_us": 179.834,
+    "min_seconds": 1.008039653,
+    "min_samples": 670
+  },
+  {
+    "case": {
+      "binary": "raw_ipc_echo",
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 0,
+      "hotspot": true,
+      "batch": 1
+    },
+    "rounds": 29188,
+    "warmup": 1000,
+    "runs": 3,
+    "median_rps": 28918.74781,
+    "min_rps": 27793.52294,
+    "max_rps": 30890.38441,
+    "median_rtt_p50_us": 29.674,
+    "median_rtt_p99_us": 81.985,
+    "min_seconds": 0.944889504,
+    "min_samples": 1825
+  },
+  {
+    "case": {
+      "binary": "raw_ipc_echo",
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 1024,
+      "hotspot": true,
+      "batch": 1
+    },
+    "rounds": 29753,
+    "warmup": 1000,
+    "runs": 3,
+    "median_rps": 29359.23639,
+    "min_rps": 29116.56121,
+    "max_rps": 31062.15383,
+    "median_rtt_p50_us": 29.974,
+    "median_rtt_p99_us": 78.957,
+    "min_seconds": 0.957853733,
+    "min_samples": 1860
+  },
+  {
+    "case": {
+      "binary": "native_ipc_echo",
+      "workers": 1,
+      "clients": 1,
+      "window": 1,
+      "payload": 64,
+      "hotspot": true,
+      "batch": 1
+    },
+    "rounds": 10326,
+    "warmup": 516,
+    "runs": 3,
+    "median_rps": 10719.07672,
+    "min_rps": 10146.63018,
+    "max_rps": 10827.03996,
+    "median_rtt_p50_us": 87.326,
+    "median_rtt_p99_us": 155.006,
+    "min_seconds": 0.953723274,
+    "min_samples": 646
+  },
+  {
+    "case": {
+      "binary": "raw_ipc_echo",
+      "workers": 1,
+      "clients": 8,
+      "window": 1,
+      "payload": 64,
+      "hotspot": true,
+      "batch": 1
+    },
+    "rounds": 12526,
+    "warmup": 626,
+    "runs": 3,
+    "median_rps": 100592.3392,
+    "min_rps": 100092.719,
+    "max_rps": 105341.2901,
+    "median_rtt_p50_us": 75.271,
+    "median_rtt_p99_us": 261.155,
+    "min_seconds": 0.951269914,
+    "min_samples": 6264
+  },
+  {
+    "case": {
+      "binary": "native_fiber_echo",
+      "workers": 4,
+      "clients": 8,
+      "window": 1,
+      "payload": 64,
+      "hotspot": false,
+      "batch": 1
+    },
+    "rounds": 135202,
+    "warmup": 1000,
+    "runs": 3,
+    "median_rps": 1125674.668,
+    "min_rps": 1094080.137,
+    "max_rps": 1130997.833,
+    "median_rtt_p50_us": 3.761,
+    "median_rtt_p99_us": 115.253,
+    "min_seconds": 0.956337818,
+    "min_samples": 67608
+  }
+]

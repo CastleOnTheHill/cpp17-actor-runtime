@@ -6,6 +6,7 @@
 #include "wait_internal.h"
 
 #include <atomic>
+#include <array>
 #include <condition_variable>
 #include <cstddef>
 #include <cstdint>
@@ -194,21 +195,29 @@ struct Worker final {
     std::mutex readyMutex;
     std::deque<Job> readyQueue;
     std::atomic<std::size_t> readyCount{0};
+    std::atomic<std::uint64_t> readyEpoch{0}; // Single publisher; SC sleep handshake.
     unsigned readyPosts = 0;
     std::priority_queue<TimerEntry, std::vector<TimerEntry>, TimerLater> timers;
     std::uint64_t nextTimerSequence = 1;
 };
 
+struct alignas(64) RegistryReader final {
+    std::mutex mutex; // Avoid false sharing between independently locked stripes.
+};
+
 struct ActorSystem::Impl final {
     explicit Impl(ActorSystem& facade, Config options);
     ~Impl();
+    // Caller holds registryMutex. Mutations exclude every striped lookup, in
+    // ascending lock order; lookups never acquire registryMutex while striped.
+    std::array<std::unique_lock<std::mutex>, 64> lockRegistryReaders();
 
     void enqueueGlobal(Job job, bool newJob = true);
     void enqueueLocal(Worker& worker, Job job, bool newJob = true);
     Worker* claimWakeup(); // queueMutex must be held; reserves one specific sleeper.
     // newJob=false transfers an already-counted job; caller must not decrement it.
     void enqueueDispatch(Job job, bool newJob = true);
-    bool takeReady(Worker& worker, std::optional<Job>& result, bool steal = false, bool oldest = false);
+    bool takeReady(Worker& worker, std::optional<Job>& result, bool steal = false);
     bool postMessage(std::shared_ptr<ActorControl> actor, MessagePtr message);
     void workerLoop(Worker& worker);
     void processJob(Worker& worker, Job& job);
@@ -243,6 +252,7 @@ struct ActorSystem::Impl final {
     std::atomic<std::size_t> liveStacks{0};
 
     mutable std::mutex registryMutex;
+    std::array<RegistryReader, 64> registryReaders;
     std::unordered_map<ActorId, std::shared_ptr<ActorControl>> registry;
     std::unordered_map<std::string, ActorId> names;
     std::unordered_map<ActorId, std::shared_ptr<ActorControl>> retiring;
@@ -255,7 +265,6 @@ struct ActorSystem::Impl final {
     std::size_t nextWakeWorker = 0; // queueMutex
     std::atomic<std::size_t> sleepingWorkers{0};
     std::atomic<std::size_t> pendingWakeups{0}; // queueMutex owns changes; atomic reads are hints.
-    std::atomic<std::uint64_t> readyEpoch{0}; // Publication / sleep handshake; see enqueueDispatch.
     std::deque<Job> globalQueue;
     std::atomic<std::size_t> globalCount{0}; // queueMutex publishes this non-owning readiness hint.
     std::vector<std::unique_ptr<Worker>> workers;

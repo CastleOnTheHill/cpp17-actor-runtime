@@ -27,6 +27,8 @@ thread_local Fiber* currentFiber = nullptr;
 namespace {
 
 constexpr std::size_t noLeaf = static_cast<std::size_t>(-1);
+// Bounded scheduler-idle yielding, never an Actor ownership spin loop.
+constexpr unsigned idleYieldBudget = 256;
 
 void fiberTrampoline(std::uint32_t low, std::uint32_t high) {
     const auto id = static_cast<FiberId>(low) | (static_cast<FiberId>(high) << 32U);
@@ -161,6 +163,13 @@ ActorSystem::Impl::Impl(ActorSystem& facadeValue, Config options)
 
 ActorSystem::Impl::~Impl() = default;
 
+std::array<std::unique_lock<std::mutex>, 64> ActorSystem::Impl::lockRegistryReaders() {
+    std::array<std::unique_lock<std::mutex>, 64> locks;
+    for (std::size_t i = 0; i < locks.size(); ++i)
+        locks[i] = std::unique_lock<std::mutex>(registryReaders[i].mutex);
+    return locks;
+}
+
 void ActorSystem::Impl::log(const char* event, ActorId actor, FiberId fiber) const {
     if (!config.diagnosticLogging) return;
     static std::mutex outputMutex;
@@ -267,7 +276,7 @@ void ActorSystem::Impl::enqueueDispatch(Job job, bool newJob) {
     // SC publication precedes the sleeper check; the sleeper's SC registration
     // precedes its epoch check. Either it sees the new epoch or we see a sleeper.
     // Taking the wait mutex in the latter case closes the predicate-to-wait gap.
-    readyEpoch.fetch_add(1);
+    worker->readyEpoch.fetch_add(1);
     const auto sleepers = sleepingWorkers.load();
     // Running jobs are included in outstandingJobs. If all awake workers are
     // occupied and another job is queued, wake a peer. Otherwise an already
@@ -283,21 +292,21 @@ void ActorSystem::Impl::enqueueDispatch(Job job, bool newJob) {
     }
 }
 
-bool ActorSystem::Impl::takeReady(Worker& worker, std::optional<Job>& result, bool steal, bool oldest) {
+bool ActorSystem::Impl::takeReady(Worker& worker, std::optional<Job>& result, bool steal) {
     if (workers.size() == 1) {
         if (worker.readyQueue.empty()) return false;
-        if (oldest) { result = std::move(worker.readyQueue.front()); worker.readyQueue.pop_front(); }
-        else { result = std::move(worker.readyQueue.back()); worker.readyQueue.pop_back(); }
+        result = std::move(worker.readyQueue.front());
+        worker.readyQueue.pop_front();
         return true;
     }
     if (!worker.readyCount.load(std::memory_order_acquire)) return false;
     std::unique_lock<std::mutex> lock(worker.readyMutex, std::defer_lock);
     if (steal) { if (!lock.try_lock()) return false; } else lock.lock();
     if (worker.readyQueue.empty()) return false;
-    // Keep new continuations near their publisher; thieves take older work.
-    // The owner also takes the oldest entry periodically to bound local starvation.
-    if (steal || oldest) { result = std::move(worker.readyQueue.front()); worker.readyQueue.pop_front(); }
-    else { result = std::move(worker.readyQueue.back()); worker.readyQueue.pop_back(); }
+    // Owners and thieves both take oldest-ready work. New continuations do not
+    // repeatedly overtake already-ready independent Actors.
+    result = std::move(worker.readyQueue.front());
+    worker.readyQueue.pop_front();
     worker.readyCount.store(worker.readyQueue.size(), std::memory_order_release);
     return true;
 }
@@ -306,21 +315,44 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
     currentWorker = &worker;
     unsigned localRuns = 0;
     unsigned idlePasses = 0;
+    // Snapshot each publisher before scanning its queue. A publication between
+    // that snapshot and sleep is detected by the final SC predicate; otherwise
+    // the publisher observes our SC sleeper registration and requests a wake.
+    // Separate epochs avoid a global atomic RMW on every private enqueue.
+    std::vector<std::uint64_t> observedEpochs(workers.size());
+    const auto readyChanged = [&] {
+        for (std::size_t i = 0; i < workers.size(); ++i)
+            if (workers[i]->readyEpoch.load() != observedEpochs[i]) return true;
+        return false;
+    };
     for (;;) {
         std::optional<Job> selected;
         // At most eight local dispatches before checking pinned work, global
         // traffic and timers. Every dispatch still handles exactly one message.
-        if (localRuns < 8 && takeReady(worker, selected, false, localRuns == 7)) {
+        if (localRuns < 8 && takeReady(worker, selected)) {
             idlePasses = 0;
             ++localRuns;
             processJob(worker, *selected);
             continue;
         }
         localRuns = 0;
+        // Check other categories every budget even when ordinary work remains.
+        // Their synchronized counts let an empty check avoid the global mutex.
+        // New traffic is checked again at the next local budget; category
+        // round-robin remains unchanged. Parking scans locked queues/epochs.
+        if (!globalCount.load(std::memory_order_acquire) &&
+            !worker.localCount.load(std::memory_order_acquire) &&
+            (worker.timers.empty() || worker.timers.top().deadline > std::chrono::steady_clock::now()) &&
+            takeReady(worker, selected)) {
+            idlePasses = 0;
+            localRuns = 1;
+            processJob(worker, *selected);
+            continue;
+        }
         // Empty backoff checks must not themselves contend on queueMutex.
         // These hints only defer a check; the final sleep still uses the locked
         // queues and epoch handshake, so stale hints cannot lose notifications.
-        if (idlePasses > 0 && idlePasses < 32 && !globalCount.load(std::memory_order_acquire) &&
+        if (idlePasses > 0 && idlePasses < idleYieldBudget && !globalCount.load(std::memory_order_acquire) &&
             !worker.localCount.load(std::memory_order_acquire) &&
             (worker.timers.empty() || worker.timers.top().deadline > std::chrono::steady_clock::now())) {
             bool ready = false;
@@ -333,7 +365,8 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
             }
         }
         std::unique_lock<std::mutex> lock(queueMutex);
-        const auto observedEpoch = readyEpoch.load();
+        for (std::size_t i = 0; i < workers.size(); ++i)
+            observedEpochs[i] = workers[i]->readyEpoch.load();
         for (unsigned attempt = 0; attempt < 3 && !selected; ++attempt) {
             const auto category = (worker.nextQueue + attempt) % 3;
             if (category == 0) {
@@ -378,7 +411,7 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
         // Brief, bounded idle backoff avoids parking between tightly coupled
         // messages. This never retries Actor ownership; busy Actor jobs retain
         // their fair requeue/sleep path. A genuinely idle worker still parks.
-        if (workers.size() > 1 && idlePasses < 32) {
+        if (workers.size() > 1 && idlePasses < idleYieldBudget) {
             ++idlePasses;
             lock.unlock();
             std::this_thread::yield();
@@ -389,12 +422,12 @@ void ActorSystem::Impl::workerLoop(Worker& worker) {
         if (worker.timers.empty()) {
             worker.wakeCv.wait(lock, [&] {
                 return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty() ||
-                    readyEpoch.load() != observedEpoch || worker.wakeRequested;
+                    readyChanged() || worker.wakeRequested;
             });
         } else {
             worker.wakeCv.wait_until(lock, worker.timers.top().deadline, [&] {
                 return stopping.load(std::memory_order_acquire) || !globalQueue.empty() || !worker.localQueue.empty() ||
-                    readyEpoch.load() != observedEpoch || worker.wakeRequested;
+                    readyChanged() || worker.wakeRequested;
             });
         }
         // Each notification belongs to a specific worker and is acknowledged
@@ -470,7 +503,10 @@ void ActorSystem::Impl::processJob(Worker& worker, Job& job) {
         case JobKind::DispatchMessage: {
             MessagePtr message = std::move(job.message);
             if (message) {
-                notifyMessage(job.actor, message);
+                // The wait index is Actor-owned. With no registrations there is
+                // no pre-handler snapshot to notify; avoid hashing/calling the
+                // notification path for ordinary event-only Actors.
+                if (!job.actor->messageWaiters.empty()) notifyMessage(job.actor, message);
                 try {
                     job.actor->actor->onMessage(std::move(message));
                 } catch (...) {
@@ -864,6 +900,7 @@ ActorRef ActorSystem::registerActor(std::string name, std::unique_ptr<Actor> act
     if (!name.empty()) validateName(name);
     if (!actor) throw std::invalid_argument("cannot register a null actor");
     std::lock_guard<std::mutex> lock(impl_->registryMutex);
+    auto readers = impl_->lockRegistryReaders();
     if (!impl_->accepting.load(std::memory_order_acquire)) {
         throw std::runtime_error("actor system is shutting down");
     }
@@ -897,6 +934,7 @@ std::shared_future<void> ActorSystem::stopActor(ActorId id) {
     std::lock_guard<std::mutex> lock(impl_->registryMutex);
     auto pending = impl_->retiring.find(id);
     if (pending != impl_->retiring.end()) return pending->second->stoppedFuture;
+    auto readers = impl_->lockRegistryReaders();
     auto found = impl_->registry.find(id);
     if (found == impl_->registry.end()) throw std::invalid_argument("actor not registered");
     auto actor = found->second;
@@ -925,7 +963,10 @@ MessageId ActorSystem::sendOwned(
     MessageId correlationId) {
     std::shared_ptr<ActorControl> control;
     {
-        std::lock_guard<std::mutex> lock(impl_->registryMutex);
+        // The map is still the one authoritative dynamic registry. Independent
+        // ID lookups share no single mutex; mutations lock all reader stripes.
+        auto& stripe = impl_->registryReaders[recipient % impl_->registryReaders.size()];
+        std::lock_guard<std::mutex> lock(stripe.mutex);
         if (!impl_->accepting.load(std::memory_order_acquire))
             throw std::runtime_error("actor system is shutting down");
         const auto found = impl_->registry.find(recipient);
@@ -942,8 +983,10 @@ MessageId ActorSystem::sendOwned(
     message->correlationId = correlationId;
     message->sender = sender;
     message->payload = std::move(payload);
-    message->senderAddress.process = impl_->config.processName;
-    message->senderAddress.actor = currentActor ? currentActor->name : std::string{};
+    // Fresh Message strings are already empty. Populate only present metadata;
+    // avoid a conditional-expression temporary when the sender has a name.
+    if (!impl_->config.processName.empty()) message->senderAddress.process = impl_->config.processName;
+    if (currentActor && !currentActor->name.empty()) message->senderAddress.actor = currentActor->name;
     if (!impl_->postMessage(std::move(control), MessagePtr(std::move(message)))) {
         if (!impl_->accepting.load(std::memory_order_acquire))
             throw std::runtime_error("actor system is shutting down");
@@ -1000,6 +1043,7 @@ void ActorSystem::shutdown() {
         if (worker->thread.joinable()) worker->thread.join();
     }
     std::lock_guard<std::mutex> lock(impl_->registryMutex);
+    auto readers = impl_->lockRegistryReaders();
     impl_->registry.clear();
     impl_->retiring.clear();
     impl_->transport.reset();

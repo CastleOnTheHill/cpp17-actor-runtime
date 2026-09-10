@@ -1,0 +1,105 @@
+{
+  "revision": "883b53b-plus-ready-hints",
+  "utc": "2026-09-09T13:36:15Z",
+  "repeats": 3,
+  "total_rounds": 1000000,
+  "minimum_ratio": 0.8,
+  "cpus": "0-7",
+  "sample": 16,
+  "warmup": 1000,
+  "scope": "matched event echo; batch1",
+  "binaries": {
+    "native": {
+      "path": "/tmp/actor-scheduler-bench-20260909/native_echo",
+      "sha256": "9a7f40de4cb3611f5c9588d038d9ddba9cac5c1961a0cda532a4228b2033a71b"
+    },
+    "so5": {
+      "path": "/tmp/actor-benchmark-build-20260907/so5_echo",
+      "sha256": "1d8e2272c6b17e9eef1ea2845d95aff5a8e6f17d13b979cc61dde2102d5d46b5"
+    }
+  },
+  "runtime_and_benchmark_sources": {
+    "CMakeLists.txt": "f8c987e5c392d6fea1074c0992f1164e81d22a09b26ebac62a1fb6c7a3cc46be",
+    "benchmarks/CMakeLists.txt": "39add62827d229acd0501f63f752556ef8041d2243ce4c1203f76b10b7095e9e",
+    "benchmarks/archive_results.py": "522bd294feec1d4d02b21a1083d27d8ca36ae7a7f74a44877d5c612043b22c96",
+    "benchmarks/caf_echo.cpp": "384b291c61929b581e624581ed2ec3fc0af92f0e0a196d2b5cfcc2936592ac47",
+    "benchmarks/common.h": "2d9ca144d6c60104e14b671bc7afd4340794a95716dea3cc07a5fb870bd43f37",
+    "benchmarks/compare_so5.py": "9a36b22de42bf14fd38a9c2718436841268ee1db48b964488d476e113b30c997",
+    "benchmarks/confirm_suite.py": "97a7ba8aab57477e5d41cd409b7e4c701e834f50c19dbd7857c5838065ea800c",
+    "benchmarks/harness_tests.cpp": "326c6fa4f48bf45747995cfd4ca1bfb8470c859f020aab7ea5060ca38b2d7a59",
+    "benchmarks/ipc_echo.cpp": "3d5c2d2ab2b3e4127efe8748e784906e2e779f5cb5bdfb365402539081809846",
+    "benchmarks/native_echo.cpp": "30881296340cf876b5c232912185407933106b82d4150d76ef7443d045cf5810",
+    "benchmarks/profile_suite.py": "c88785a94077ca1eccd0bd20104806e9c9f1a74c0d57004072753c3ff011938a",
+    "benchmarks/run_suite.py": "49a362273f615f4cafd8655fd33a804ca73cdb7b6b57a0b4ae3f5b7e3ce81f48",
+    "benchmarks/run_wake_probe.py": "4678be5724566a7a6d8e0ad2c2bceca7120a080f2bc088d0d0a4aa55199c9397",
+    "benchmarks/so5_echo.cpp": "3560276097cbd34b24022cb1b6095f108134357ee4f9f1e65281f8cb0bb0463d",
+    "benchmarks/wake_probe.cpp": "c8cf13021548ac1183b2f9b31fcdd44469bed24ca6cd37bc0ea868778f821dce",
+    "include/actor_runtime/actor.h": "ca6ff526496cca787b922b3f6a0d7a9ebec64f71117f76e791126caaddc23979",
+    "include/actor_runtime/actor_ref.h": "b24f89425a0ba926572f1d3de4cfac0dc2a204c1f38eca0040864f88364854ad",
+    "include/actor_runtime/actor_system.h": "72bd011292c0d9ce2cf19d89bbca634d43cb700d8bb8da8fcb72e6ee585866d1",
+    "include/actor_runtime/c_api.h": "4045385ea2e50c240797bf3ba63ba8d169758c9f1d2b0cc9a5d0c8232f61a4db",
+    "include/actor_runtime/coroutine_context.h": "48354d68a6241604fbb6e99896aed9dee8a8f83169e3af52edb89d36c08ec8e8",
+    "include/actor_runtime/message.h": "df7b4f2ce4f7709b1229cffbd97165213ef13a3a967bb16c807a74fc65614ba1",
+    "include/actor_runtime/wait.h": "da61c5dc242213a8f1bda7f63b3519db58b07d447cefc0d89fabaa558d083597",
+    "src/actor.cpp": "e076649ab7cdc8a8f938ee7af1f2b1d983c274411e22cb5acf32ab7d30f57155",
+    "src/actor_ref.cpp": "8e8a6876b1327b1265b6ed2f19e789ca9357e1595aee57567a78879abaafb028",
+    "src/actor_system.cpp": "9e77b2ae7b6c06023e74aaf6c45f03fa1973287aff58e6a15a7c434d7271cb10",
+    "src/blocking_pool.cpp": "8e84b383d1114449cac66b1501c3ddfeab7eb53f3019262c6ffe3cc2b17f8622",
+    "src/blocking_pool.h": "c952f69476bb730d0330c408bc78ccd59178067838293e9d12ee54e1de14093f",
+    "src/c_api.cpp": "436624528da36a04114e3e1edad163df09f1b6392e6943c74e431f1c6d3eb37f",
+    "src/coroutine_context.cpp": "17f43f8b596dc720decdbecd6901ba2985d4910b9412fb040ff5ac147faf4736",
+    "src/internal.h": "cb650309b45179ae99b6a5e97a5e9305545e16596190ab0ca7c3b399f83adb77",
+    "src/ipc_transport.cpp": "f1a3b393fd76357d79eb6328efab343b5463ed72ac87b41ed4170ceb2b4e4cfd",
+    "src/ipc_transport.h": "a219e7daea9d2b87766fd5a513d462fb1a6dc0dd081b9a6460081c452eb6660e",
+    "src/sanitizer.h": "04df8c592288ec12e558268c6bc25dedac2e2384faa7edfe603064b70eccdce5",
+    "src/wait.cpp": "5595fb9e8ebaf21ab45f03af82edf1774c096cbc97c11aab963e58dce025e3ca",
+    "src/wait_internal.h": "9c7ec0fbaf5f3c4c29fd37820fabe0af4c06407fd7b3dff902717faeb0c849f1"
+  },
+  "host": {
+    "kernel": {
+      "command": [
+        "uname",
+        "-a"
+      ],
+      "returncode": 0,
+      "stdout": "Linux arvins 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux\n",
+      "stderr": ""
+    },
+    "cpu": {
+      "command": [
+        "lscpu"
+      ],
+      "returncode": 0,
+      "stdout": "Architecture:                         x86_64\nCPU op-mode(s):                       32-bit, 64-bit\nAddress sizes:                        46 bits physical, 48 bits virtual\nByte Order:                           Little Endian\nCPU(s):                               18\nOn-line CPU(s) list:                  0-17\nVendor ID:                            GenuineIntel\nModel name:                           Intel(R) Core(TM) Ultra 5 125H\nCPU family:                           6\nModel:                                170\nThread(s) per core:                   2\nCore(s) per socket:                   9\nSocket(s):                            1\nStepping:                             4\nBogoMIPS:                             5990.40\nFlags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology tsc_reliable nonstop_tsc cpuid pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves avx_vnni umip waitpkg gfni vaes vpclmulqdq rdpid movdiri movdir64b fsrm md_clear serialize flush_l1d arch_capabilities\nVirtualization:                       VT-x\nHypervisor vendor:                    Microsoft\nVirtualization type:                  full\nL1d cache:                            432 KiB (9 instances)\nL1i cache:                            576 KiB (9 instances)\nL2 cache:                             18 MiB (9 instances)\nL3 cache:                             18 MiB (1 instance)\nVulnerability Gather data sampling:   Not affected\nVulnerability Itlb multihit:          Not affected\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Not affected\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Mitigation; Enhanced IBRS\nVulnerability Spec rstack overflow:   Not affected\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl and seccomp\nVulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; Enhanced / Automatic IBRS; IBPB conditional; RSB filling; PBRSB-eIBRS SW sequence; BHI BHI_DIS_S\nVulnerability Srbds:                  Not affected\nVulnerability Tsx async abort:        Not affected\n",
+      "stderr": ""
+    },
+    "compiler": {
+      "command": [
+        "g++",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    "cmake": {
+      "command": [
+        "cmake",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "cmake version 3.28.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\n",
+      "stderr": ""
+    }
+  },
+  "available_build_flags": {
+    "native": {
+      "/tmp/actor-scheduler-bench-20260909/CMakeFiles/native_echo.dir/flags.make": "# CMAKE generated file: DO NOT EDIT!\n# Generated by \"Unix Makefiles\" Generator, CMake Version 3.28\n\n# compile CXX with /usr/bin/c++\nCXX_DEFINES = \n\nCXX_INCLUDES = -I/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include\n\nCXX_FLAGS = -O2 -g -DNDEBUG -std=c++17 -fno-omit-frame-pointer\n\n",
+      "/tmp/actor-scheduler-bench-20260909/runtime/CMakeFiles/actor_runtime.dir/flags.make": "# CMAKE generated file: DO NOT EDIT!\n# Generated by \"Unix Makefiles\" Generator, CMake Version 3.28\n\n# compile CXX with /usr/bin/c++\nCXX_DEFINES = \n\nCXX_INCLUDES = -I/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include\n\nCXX_FLAGS = -O2 -g -DNDEBUG -std=c++17 -fno-omit-frame-pointer -Wall -Wextra -Wpedantic -Wconversion -Wshadow\n\n"
+    },
+    "so5": {
+      "/tmp/actor-benchmark-build-20260907/CMakeFiles/so5_echo.dir/flags.make": "# CMAKE generated file: DO NOT EDIT!\n# Generated by \"Unix Makefiles\" Generator, CMake Version 3.28\n\n# compile CXX with /usr/bin/c++\nCXX_DEFINES = -DSO_5_STATIC_LIB\n\nCXX_INCLUDES = -I/tmp/actor-benchmark-deps-20260907/sobjectizer-v.5.8.3/dev\n\nCXX_FLAGS = -O2 -g -DNDEBUG -std=c++17 -fno-omit-frame-pointer\n\n",
+      "/tmp/actor-benchmark-build-20260907/runtime/CMakeFiles/actor_runtime.dir/flags.make": "# CMAKE generated file: DO NOT EDIT!\n# Generated by \"Unix Makefiles\" Generator, CMake Version 3.28\n\n# compile CXX with /usr/bin/c++\nCXX_DEFINES = \n\nCXX_INCLUDES = -I/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include\n\nCXX_FLAGS = -O2 -g -DNDEBUG -std=c++17 -fno-omit-frame-pointer -Wall -Wextra -Wpedantic -Wconversion -Wshadow\n\n"
+    }
+  }
+}

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <thread>
 #include <vector>
+#include <unistd.h>
 
 using namespace actor_runtime;
 using namespace std::chrono_literals;
@@ -103,8 +104,48 @@ void owning_send_entry_points() {
     }
 }
 
+class MetadataSink final : public Actor {
+public:
+    MetadataSink(ActorSystem& system, std::promise<MessagePtr>& result) : Actor(system), result_(result) {}
+private:
+    void onMessage(MessagePtr message) override { result_.set_value(std::move(message)); }
+    std::promise<MessagePtr>& result_;
+};
+class MetadataSource final : public Actor {
+public:
+    MetadataSource(ActorSystem& system, ActorRef target) : Actor(system), target_(target) {}
+private:
+    void onMessage(MessagePtr message) override { target_.send(message->typeId, message->payload, message->id); }
+    ActorRef target_;
+};
+void sender_metadata_remains_owned() {
+    for (const auto workers : {1U, 4U}) {
+        for (const bool named : {false, true}) {
+            std::promise<MessagePtr> result;
+            auto received = result.get_future();
+            ActorSystem::Config config; config.workerCount = workers;
+            if (named) config.processName = "metadata-test-" + std::to_string(::getpid());
+            ActorSystem system(config);
+            auto target = system.registerActor(std::make_unique<MetadataSink>(system, result));
+            const std::string name = named ? "named-source-with-heap-owned-address" : "";
+            auto source = system.registerActor(name, std::make_unique<MetadataSource>(system, target));
+            const auto request = source.send(41, std::string("payload"));
+            require(received.wait_for(3s) == std::future_status::ready, "metadata forwarding stalled");
+            const auto message = received.get();
+            system.stopActor(source.id()).get();
+            system.shutdown();
+            require(message->sender == source.id(), "sender id lost");
+            require(message->senderAddress.process == config.processName, "sender process changed");
+            require(message->senderAddress.actor == name, "sender name lost ownership");
+            require(message->correlationId == request && message->typeId == 41, "forward metadata changed");
+            require(std::any_cast<const std::string&>(message->payload) == "payload", "forward payload changed");
+        }
+    }
+}
+
 int main() {
     try {
+        sender_metadata_remains_owned();
         owning_send_entry_points();
         expectInvalid([] { WaitSpec::any({}); });
         expectInvalid([] { WaitSpec::all({}); });

@@ -1,0 +1,37 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 1K of event 'cpu-clock:u'
+# Event count (approx.): 7070350875
+#
+# Overhead  Command      Shared Object        Symbol
+# ........  ...........  ...................  ....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    11.73%  native_echo  native_echo          [.] actor_runtime::ActorSystem::sendOwned(unsigned long, unsigned long, std::any&&, unsigned long)
+    10.02%  native_echo  libc.so.6            [.] pthread_mutex_lock
+     8.74%  native_echo  libc.so.6            [.] pthread_mutex_unlock
+     7.68%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job&)
+     4.55%  native_echo  native_echo          [.] std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+     4.19%  native_echo  native_echo          [.] actor_runtime::Job& std::deque<actor_runtime::Job, std::allocator<actor_runtime::Job> >::emplace_back<actor_runtime::Job>(actor_runtime::Job&&) [clone .isra.0]
+     4.12%  native_echo  libc.so.6            [.] cfree
+     4.12%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+     3.77%  native_echo  libc.so.6            [.] malloc
+     3.62%  native_echo  native_echo          [.] std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(unsigned long const&) [clone .isra.0]
+     3.27%  native_echo  native_echo          [.] Client::issue()
+     3.20%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::takeReady(actor_runtime::Worker&, std::optional<actor_runtime::Job>&, bool)
+     2.63%  native_echo  native_echo          [.] std::any::_Manager_external<bench::Packet>::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+     2.56%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::enqueueDispatch(actor_runtime::Job, bool)
+     2.49%  native_echo  native_echo          [.] Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+     1.92%  native_echo  native_echo          [.] Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+     1.78%  native_echo  libstdc++.so.6.0.33  [.] operator new(unsigned long)
+     1.56%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::postMessage(std::shared_ptr<actor_runtime::ActorControl>, std::shared_ptr<actor_runtime::Message const>)
+     1.28%  native_echo  native_echo          [.] std::_Sp_counted_ptr_inplace<actor_runtime::Message, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+     1.21%  native_echo  native_echo          [.] actor_runtime::(anonymous namespace)::decrementJobs(actor_runtime::ActorSystem::Impl&)
+     1.14%  native_echo  native_echo          [.] void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag) [clone .isra.0]
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

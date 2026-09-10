@@ -1,0 +1,390 @@
+Start testing: Sep 10 10:03 CST
+----------------------------------------------------------
+1/12 Testing: blocking_tests
+1/12 Test: blocking_tests
+Command: "/tmp/actor-scheduler-coverage-20260909/blocking_tests"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"blocking_tests" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+[actor-runtime] t=318714998 pid=663956 process= worker=-1 event=actor.register actor=3411329215671304193 fiber=0
+[actor-runtime] t=318714999 pid=663956 process= worker=0 event=blocking.submitted actor=3411329215671304193 fiber=1
+[actor-runtime] t=318714999 pid=663956 process= worker=0 event=blocking.completed actor=3411329215671304193 fiber=1
+[actor-runtime] t=318714999 pid=663956 process= worker=0 event=blocking.submitted actor=3411329215671304193 fiber=2
+[actor-runtime] t=318714999 pid=663956 process= worker=0 event=blocking.completed actor=3411329215671304193 fiber=2
+[actor-runtime] t=318714999 pid=663956 process= worker=0 event=blocking.submitted actor=3411329215671304193 fiber=3
+[actor-runtime] t=318715019 pid=663956 process= worker=0 event=blocking.completed actor=3411329215671304193 fiber=3
+[actor-runtime] t=318715020 pid=663956 process= worker=-1 event=actor.register actor=3411329215671304194 fiber=0
+[actor-runtime] t=318715020 pid=663956 process= worker=0 event=blocking.submitted actor=3411329215671304194 fiber=4
+[actor-runtime] t=318715020 pid=663956 process= worker=-1 event=actor.stop_requested actor=3411329215671304194 fiber=0
+[actor-runtime] t=318715020 pid=663956 process= worker=0 event=fiber.cancel actor=3411329215671304194 fiber=2
+[actor-runtime] t=318715020 pid=663956 process= worker=0 event=actor.stopped actor=3411329215671304194 fiber=0
+[actor-runtime] t=318715020 pid=663956 process= worker=0 event=actor.stopped actor=3411329215671304193 fiber=0
+[PASS] isolated blocking work, timeout, ping fairness, late join, actor stop during I/O
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"blocking_tests" end time: Sep 10 10:03 CST
+"blocking_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/12 Testing: ipc_lifecycle_tests
+2/12 Test: ipc_lifecycle_tests
+Command: "/tmp/actor-scheduler-coverage-20260909/ipc_lifecycle_tests"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"ipc_lifecycle_tests" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+[actor-runtime] t=318715046 pid=663959 process=ipc_life_663959a worker=-1 event=actor.register actor=8451242062128349185 fiber=0
+[actor-runtime] t=318715046 pid=663959 process=ipc_life_663959b worker=-1 event=actor.register actor=13272209003527536641 fiber=0
+[actor-runtime] t=318715047 pid=663959 process=ipc_life_663959a worker=-1 event=ipc.send actor=0 fiber=0
+[actor-runtime] t=318715047 pid=663959 process=ipc_life_663959a worker=-1 event=actor.stop_requested actor=8451242062128349185 fiber=0
+[actor-runtime] t=318715047 pid=663959 process=ipc_life_663959b worker=-1 event=ipc.receive actor=0 fiber=0
+[actor-runtime] t=318715047 pid=663959 process=ipc_life_663959a worker=0 event=actor.stopped actor=8451242062128349185 fiber=0
+[actor-runtime] t=318715047 pid=663959 process=ipc_life_663959a worker=-1 event=actor.register actor=8451242062128349186 fiber=0
+[actor-runtime] t=318715047 pid=663959 process=ipc_life_663959b worker=-1 event=ipc.send actor=0 fiber=0
+[actor-runtime] t=318715047 pid=663959 process=ipc_life_663959b worker=-1 event=ipc.send actor=0 fiber=0
+[actor-runtime] t=318715047 pid=663959 process=ipc_life_663959a worker=-1 event=ipc.dead_letter actor=0 fiber=0
+[actor-runtime] t=318715047 pid=663959 process=ipc_life_663959a worker=-1 event=ipc.receive actor=0 fiber=0
+[actor-runtime] t=318715047 pid=663959 process=ipc_life_663959a worker=-1 event=ipc.receive actor=0 fiber=0
+[actor-runtime] t=318715048 pid=663959 process=ipc_life_663959a worker=1 event=actor.stopped actor=8451242062128349186 fiber=0
+[actor-runtime] t=318715049 pid=663959 process=ipc_life_663959b worker=1 event=actor.stopped actor=13272209003527536641 fiber=0
+[PASS] process collision, stale reply isolation, dynamic rebinding, datagram bounds
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"ipc_lifecycle_tests" end time: Sep 10 10:03 CST
+"ipc_lifecycle_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/12 Testing: c_api_lifecycle_tests
+3/12 Test: c_api_lifecycle_tests
+Command: "/tmp/actor-scheduler-coverage-20260909/c_api_lifecycle_tests"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"c_api_lifecycle_tests" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+[PASS] C borrowed runtime, local request, cleanup, post-shutdown client, invalid inputs
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"c_api_lifecycle_tests" end time: Sep 10 10:03 CST
+"c_api_lifecycle_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/12 Testing: blocking_capacity_tests
+4/12 Test: blocking_capacity_tests
+Command: "/tmp/actor-scheduler-coverage-20260909/blocking_capacity_tests"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"blocking_capacity_tests" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+[PASS] bounded blocking queue backpressure and continued work
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"blocking_capacity_tests" end time: Sep 10 10:03 CST
+"blocking_capacity_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-coverage-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=142.893
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:03 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-coverage-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   1.11 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:03 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:01
+----------------------------------------------------------
+
+7/12 Testing: ipc_c_processes
+7/12 Test: ipc_c_processes
+Command: "/usr/bin/python3" "/mnt/c/Users/icema/Documents/ChatGPT/下一代ipc框架-dev/actor_runtime/tests/run_ipc_tests.py" "/tmp/actor-scheduler-coverage-20260909/c_api_process_test"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"ipc_c_processes" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+[PASS] 100 C/POD cross-process requests, duplicate names, errors, timeouts, shutdown
+[PASS] C server shutdown
+[PASS] C server shutdown
+<end of output>
+Test time =   0.23 sec
+----------------------------------------------------------
+Test Passed.
+"ipc_c_processes" end time: Sep 10 10:03 CST
+"ipc_c_processes" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/12 Testing: lifecycle_tests
+8/12 Test: lifecycle_tests
+Command: "/tmp/actor-scheduler-coverage-20260909/lifecycle_tests"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"lifecycle_tests" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+[actor-runtime] t=318716498 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388609 fiber=0
+[actor-runtime] t=318716498 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388609 fiber=0
+[actor-runtime] t=318716498 pid=664136 process= worker=3 event=fiber.cancel actor=3570754519048388609 fiber=1
+[actor-runtime] t=318716498 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388611 fiber=0
+[actor-runtime] t=318716498 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388609 fiber=0
+[actor-runtime] t=318716498 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388611 fiber=0
+[actor-runtime] t=318716498 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388612 fiber=0
+[actor-runtime] t=318716498 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388611 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=0 event=fiber.cancel actor=3570754519048388612 fiber=2
+[actor-runtime] t=318716499 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388612 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388614 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388614 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=0 event=actor.stopped actor=3570754519048388612 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388614 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388615 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388615 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=0 event=fiber.cancel actor=3570754519048388615 fiber=3
+[actor-runtime] t=318716499 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388617 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388615 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388617 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=0 event=actor.stopped actor=3570754519048388617 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388618 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388618 fiber=0
+[actor-runtime] t=318716499 pid=664136 process= worker=0 event=fiber.cancel actor=3570754519048388618 fiber=4
+[actor-runtime] t=318716499 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388620 fiber=0
+[actor-runtime] t=318716500 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388620 fiber=0
+[actor-runtime] t=318716500 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388621 fiber=0
+[actor-runtime] t=318716500 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388618 fiber=0
+[actor-runtime] t=318716500 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388621 fiber=0
+[actor-runtime] t=318716500 pid=664136 process= worker=0 event=actor.stopped actor=3570754519048388620 fiber=0
+[actor-runtime] t=318716500 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388623 fiber=0
+[actor-runtime] t=318716500 pid=664136 process= worker=1 event=fiber.cancel actor=3570754519048388621 fiber=5
+[actor-runtime] t=318716500 pid=664136 process= worker=1 event=actor.stopped actor=3570754519048388621 fiber=0
+[actor-runtime] t=318716502 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388623 fiber=0
+[actor-runtime] t=318716502 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388624 fiber=0
+[actor-runtime] t=318716502 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388623 fiber=0
+[actor-runtime] t=318716502 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388624 fiber=0
+[actor-runtime] t=318716502 pid=664136 process= worker=2 event=fiber.cancel actor=3570754519048388624 fiber=6
+[actor-runtime] t=318716502 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388626 fiber=0
+[actor-runtime] t=318716502 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388626 fiber=0
+[actor-runtime] t=318716502 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388626 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388627 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388624 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388627 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=2 event=fiber.cancel actor=3570754519048388627 fiber=7
+[actor-runtime] t=318716503 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388629 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388627 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388629 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388630 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388629 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388630 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=2 event=fiber.cancel actor=3570754519048388630 fiber=8
+[actor-runtime] t=318716503 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388632 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388630 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388632 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388632 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388633 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388633 fiber=0
+[actor-runtime] t=318716503 pid=664136 process= worker=3 event=fiber.cancel actor=3570754519048388633 fiber=9
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388635 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388633 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388635 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388635 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388636 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388636 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=2 event=fiber.cancel actor=3570754519048388636 fiber=10
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388638 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388636 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388638 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388638 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388639 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388639 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=2 event=fiber.cancel actor=3570754519048388639 fiber=11
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388641 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388639 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388641 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388641 fiber=0
+[actor-runtime] t=318716504 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388642 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388642 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=2 event=fiber.cancel actor=3570754519048388642 fiber=12
+[actor-runtime] t=318716505 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388644 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388642 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388644 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388645 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388644 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388645 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=2 event=fiber.cancel actor=3570754519048388645 fiber=13
+[actor-runtime] t=318716505 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388647 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=0 event=actor.stopped actor=3570754519048388645 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388647 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388648 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=0 event=actor.stopped actor=3570754519048388647 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388648 fiber=0
+[actor-runtime] t=318716505 pid=664136 process= worker=0 event=fiber.cancel actor=3570754519048388648 fiber=14
+[actor-runtime] t=318716506 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388650 fiber=0
+[actor-runtime] t=318716506 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388648 fiber=0
+[actor-runtime] t=318716506 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388650 fiber=0
+[actor-runtime] t=318716506 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388651 fiber=0
+[actor-runtime] t=318716506 pid=664136 process= worker=0 event=actor.stopped actor=3570754519048388650 fiber=0
+[actor-runtime] t=318716506 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388651 fiber=0
+[actor-runtime] t=318716506 pid=664136 process= worker=2 event=fiber.cancel actor=3570754519048388651 fiber=15
+[actor-runtime] t=318716506 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388653 fiber=0
+[actor-runtime] t=318716506 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388651 fiber=0
+[actor-runtime] t=318716506 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388653 fiber=0
+[actor-runtime] t=318716506 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388653 fiber=0
+[actor-runtime] t=318716506 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388654 fiber=0
+[actor-runtime] t=318716507 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388654 fiber=0
+[actor-runtime] t=318716507 pid=664136 process= worker=2 event=fiber.cancel actor=3570754519048388654 fiber=16
+[actor-runtime] t=318716507 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388656 fiber=0
+[actor-runtime] t=318716507 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388654 fiber=0
+[actor-runtime] t=318716507 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388656 fiber=0
+[actor-runtime] t=318716508 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388657 fiber=0
+[actor-runtime] t=318716508 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388656 fiber=0
+[actor-runtime] t=318716508 pid=664136 process= worker=1 event=fiber.cancel actor=3570754519048388657 fiber=17
+[actor-runtime] t=318716508 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388657 fiber=0
+[actor-runtime] t=318716508 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388659 fiber=0
+[actor-runtime] t=318716508 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388659 fiber=0
+[actor-runtime] t=318716508 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388660 fiber=0
+[actor-runtime] t=318716508 pid=664136 process= worker=1 event=actor.stopped actor=3570754519048388657 fiber=0
+[actor-runtime] t=318716508 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388659 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388660 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=2 event=fiber.cancel actor=3570754519048388660 fiber=18
+[actor-runtime] t=318716510 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388662 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388660 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388662 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388662 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388663 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388663 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=3 event=fiber.cancel actor=3570754519048388663 fiber=19
+[actor-runtime] t=318716510 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388665 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388663 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388665 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388666 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388665 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388666 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=3 event=fiber.cancel actor=3570754519048388666 fiber=20
+[actor-runtime] t=318716510 pid=664136 process= worker=-1 event=actor.register actor=3570754519048388668 fiber=0
+[actor-runtime] t=318716510 pid=664136 process= worker=3 event=actor.stopped actor=3570754519048388666 fiber=0
+[actor-runtime] t=318716511 pid=664136 process= worker=-1 event=actor.stop_requested actor=3570754519048388668 fiber=0
+[actor-runtime] t=318716511 pid=664136 process= worker=2 event=actor.stopped actor=3570754519048388668 fiber=0
+[PASS] dynamic creation, cancellation, name reuse, stale refs, destruction
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"lifecycle_tests" end time: Sep 10 10:03 CST
+"lifecycle_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-coverage-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"actor_runtime_tests" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.67 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:03 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/12 Testing: wait_semantics_tests
+10/12 Test: wait_semantics_tests
+Command: "/tmp/actor-scheduler-coverage-20260909/wait_semantics_tests"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"wait_semantics_tests" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+[PASS] immediate timers and already-completed child outcomes
+[PASS] invalid waits are recoverable; next generation still works
+[PASS] cancel suspended child unwinds RAII; cancellation is sticky
+[PASS] nested Any winner remains fixed while outer All waits
+[PASS] allSettled preserves success/error/cancellation in input order
+[PASS] late timer from a losing Any cannot complete the next wait generation
+[PASS] All aggregates a rethrowable child error after all children finish
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"wait_semantics_tests" end time: Sep 10 10:03 CST
+"wait_semantics_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-coverage-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"api_contract_tests" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:03 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/12 Testing: order_fulfillment
+12/12 Test: order_fulfillment
+Command: "/tmp/actor-scheduler-coverage-20260909/order_fulfillment_example"
+Directory: /tmp/actor-scheduler-coverage-20260909
+"order_fulfillment" start time: Sep 10 10:03 CST
+Output:
+----------------------------------------------------------
+[PASS] workers=1，订单结果=成交，已释放资源=5
+[PASS] workers=1，订单结果=缺货，订单拒绝，已释放资源=3
+[PASS] workers=1，订单结果=支付超时，已释放资源=5
+[PASS] workers=1，订单结果=用户撤单，已释放资源=5
+[PASS] workers=4，订单结果=成交，已释放资源=5
+[PASS] workers=4，订单结果=缺货，订单拒绝，已释放资源=3
+[PASS] workers=4，订单结果=支付超时，已释放资源=5
+[PASS] workers=4，订单结果=用户撤单，已释放资源=5
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"order_fulfillment" end time: Sep 10 10:03 CST
+"order_fulfillment" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 10 10:03 CST

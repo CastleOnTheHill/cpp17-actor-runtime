@@ -1,0 +1,194 @@
+[
+  {
+    "case": {
+      "binary": "native_echo",
+      "workers": 1,
+      "clients": 1,
+      "sample": 16,
+      "rounds": 6000000
+    },
+    "runs": 5,
+    "median_rps": 3071855.077,
+    "min_rps": 3035284.925,
+    "max_rps": 3184411.987,
+    "median_p99_us": 0.653,
+    "min_seconds": 1.884178311,
+    "median_cpu_per_wall": 0.9999690537525502
+  },
+  {
+    "case": {
+      "binary": "native_echo",
+      "workers": 4,
+      "clients": 8,
+      "sample": 16,
+      "rounds": 1500000
+    },
+    "runs": 5,
+    "median_rps": 3615530.864,
+    "min_rps": 3543346.133,
+    "max_rps": 3911789.946,
+    "median_p99_us": 7.169,
+    "min_seconds": 3.067649379,
+    "median_cpu_per_wall": 3.87172957430821
+  },
+  {
+    "case": {
+      "binary": "caf_echo",
+      "workers": 1,
+      "clients": 1,
+      "sample": 16,
+      "rounds": 6000000
+    },
+    "runs": 5,
+    "median_rps": 2488517.581,
+    "min_rps": 2450837.951,
+    "max_rps": 2503428.212,
+    "median_p99_us": 0.853,
+    "min_seconds": 2.396713423,
+    "median_cpu_per_wall": 0.9999726325279065
+  },
+  {
+    "case": {
+      "binary": "caf_echo",
+      "workers": 4,
+      "clients": 8,
+      "sample": 16,
+      "rounds": 1500000
+    },
+    "runs": 5,
+    "median_rps": 5919929.616,
+    "min_rps": 5211381.501,
+    "max_rps": 6835726.985,
+    "median_p99_us": 1.28,
+    "min_seconds": 1.755482632,
+    "median_cpu_per_wall": 3.7731665824954006
+  },
+  {
+    "case": {
+      "binary": "so5_echo",
+      "workers": 1,
+      "clients": 1,
+      "sample": 16,
+      "rounds": 6000000
+    },
+    "runs": 5,
+    "median_rps": 3611485.49,
+    "min_rps": 3585741.068,
+    "max_rps": 3726384.215,
+    "median_p99_us": 0.582,
+    "min_seconds": 1.610139925,
+    "median_cpu_per_wall": 1.000110396003118
+  },
+  {
+    "case": {
+      "binary": "so5_echo",
+      "workers": 4,
+      "clients": 8,
+      "sample": 16,
+      "rounds": 1500000
+    },
+    "runs": 5,
+    "median_rps": 1334099.527,
+    "min_rps": 1325382.306,
+    "max_rps": 1344865.963,
+    "median_p99_us": 8.588,
+    "min_seconds": 8.922822299,
+    "median_cpu_per_wall": 3.998487724366476
+  },
+  {
+    "case": {
+      "binary": "native_ipc_echo",
+      "workers": 1,
+      "clients": 1,
+      "sample": 16,
+      "rounds": 60000
+    },
+    "runs": 5,
+    "median_rps": 10508.20148,
+    "min_rps": 9766.097123,
+    "max_rps": 10792.13646,
+    "median_p99_us": 176.249,
+    "min_seconds": 5.559603533,
+    "median_cpu_per_wall": 0.47318536014032
+  },
+  {
+    "case": {
+      "binary": "raw_ipc_echo",
+      "workers": 1,
+      "clients": 1,
+      "sample": 16,
+      "rounds": 60000
+    },
+    "runs": 5,
+    "median_rps": 29958.7307,
+    "min_rps": 28742.23603,
+    "max_rps": 31770.02031,
+    "median_p99_us": 75.105,
+    "min_seconds": 1.888572919,
+    "median_cpu_per_wall": 0.39547065301079787
+  },
+  {
+    "case": {
+      "binary": "native_fiber_echo",
+      "workers": 4,
+      "clients": 1,
+      "sample": 1,
+      "rounds": 6000
+    },
+    "runs": 5,
+    "median_rps": 176137.507,
+    "min_rps": 146326.5488,
+    "max_rps": 190184.0075,
+    "median_p99_us": 116.521,
+    "min_seconds": 0.031548394,
+    "median_cpu_per_wall": 1.3700855984249782
+  },
+  {
+    "case": {
+      "binary": "native_fiber_echo",
+      "workers": 4,
+      "clients": 8,
+      "sample": 16,
+      "rounds": 100000
+    },
+    "runs": 5,
+    "median_rps": 814011.39,
+    "min_rps": 710524.2055,
+    "max_rps": 859688.0567,
+    "median_p99_us": 118.433,
+    "min_seconds": 0.930570099,
+    "median_cpu_per_wall": 2.355298578558038
+  },
+  {
+    "case": {
+      "binary": "native_fiber_echo",
+      "workers": 4,
+      "clients": 64,
+      "sample": 16,
+      "rounds": 10000
+    },
+    "runs": 5,
+    "median_rps": 1263655.563,
+    "min_rps": 1183533.711,
+    "max_rps": 1377371.893,
+    "median_p99_us": 177.294,
+    "min_seconds": 0.464653013,
+    "median_cpu_per_wall": 3.3589710256843843
+  },
+  {
+    "case": {
+      "binary": "native_echo",
+      "workers": 1,
+      "clients": 1,
+      "sample": 100000000,
+      "rounds": 6000000
+    },
+    "runs": 5,
+    "median_rps": 3134134.297,
+    "min_rps": 2979381.302,
+    "max_rps": 3216574.906,
+    "median_p99_us": 0.814,
+    "min_seconds": 1.865338186,
+    "median_cpu_per_wall": 0.9999762016952873
+  }
+]

@@ -116,6 +116,11 @@ private:
     void onMessage(MessagePtr message) override {
         if (message->typeId == 1) {
             older_.send(1, {});
+        } else if (message->typeId == 3) {
+            // Force publication through globalQueue before continuing the local
+            // chain. A local-ready fast path must not starve external traffic.
+            auto external = std::async(std::launch::async, [older = older_] { older.send(1, {}); });
+            external.get();
         } else {
             ++state_->newerRuns;
             if (state_->olderRan || state_->newerRuns == 1000) {
@@ -129,14 +134,14 @@ private:
     ActorRef older_;
     std::shared_ptr<FairState> state_;
 };
-void older_ready_is_not_starved_by_newer_chain() {
+void older_ready_is_not_starved_by_newer_chain(TypeId startType = 1) {
     auto state = std::make_shared<FairState>();
     auto done = state->done.get_future();
     ActorSystem::Config config; config.workerCount = 1;
     ActorSystem system(config);
     auto older = system.registerActor(std::make_unique<OlderReady>(system, state));
     auto chain = system.registerActor(std::make_unique<NewerChain>(system, older, state));
-    chain.send(1, {});
+    chain.send(startType, {});
     if (done.wait_for(2s) != std::future_status::ready)
         throw std::runtime_error("newer-chain fairness fixture stalled");
     const bool fair = done.get();
@@ -248,11 +253,58 @@ void burst_successors_and_exception_drain() {
     }
 }
 
+struct RegistryStressState {
+    std::atomic<int> received{0};
+    std::atomic<bool> invalid{false};
+    std::promise<void> done;
+};
+class RegistryStressActor final : public Actor {
+public:
+    RegistryStressActor(ActorSystem& system, std::shared_ptr<RegistryStressState> state)
+        : Actor(system), state_(std::move(state)) {}
+private:
+    void onMessage(MessagePtr) override {
+        if (state_->received.fetch_add(1) + 1 == 8000) state_->done.set_value();
+    }
+    std::shared_ptr<RegistryStressState> state_;
+};
+void concurrent_registry_growth_and_lookup() {
+    auto state = std::make_shared<RegistryStressState>();
+    auto done = state->done.get_future();
+    ActorSystem system({4});
+    std::vector<ActorRef> stable;
+    for (int i = 0; i < 64; ++i)
+        stable.push_back(system.registerActor(std::make_unique<RegistryStressActor>(system, state)));
+    std::vector<std::thread> senders;
+    struct Join {
+        std::vector<std::thread>& threads;
+        ~Join() { for (auto& thread : threads) if (thread.joinable()) thread.join(); }
+    } join{senders};
+    for (int sender = 0; sender < 4; ++sender) senders.emplace_back([&, sender] {
+        try {
+            for (int i = 0; i < 2000; ++i) stable[(i + sender) % stable.size()].send(1, i);
+        } catch (...) { state->invalid = true; }
+    });
+    // Force map growth/rehash and erasure while lookups use different stripes.
+    // The registry must remain authoritative; no per-reference cache is used.
+    std::vector<ActorRef> transient;
+    for (int i = 0; i < 256; ++i)
+        transient.push_back(system.registerActor(std::make_unique<RegistryStressActor>(system, state)));
+    for (const auto ref : transient) system.stopActor(ref.id());
+    for (auto& sender : senders) sender.join();
+    if (done.wait_for(5s) != std::future_status::ready || state->invalid || state->received != 8000)
+        throw std::runtime_error("concurrent registry growth/lookup lost messages or failed");
+    done.get();
+    system.shutdown();
+}
+
 int main() {
     try {
+        concurrent_registry_growth_and_lookup();
         burst_successors_and_exception_drain();
         lone_dispatch_wakes_idle_peer();
         older_ready_is_not_starved_by_newer_chain();
+        older_ready_is_not_starved_by_newer_chain(3);
         idle_workers_park_after_bounded_backoff();
         concurrent_send_stop_and_name_reuse();
         auto state=std::make_shared<State>(); auto entered=state->entered.get_future(); auto done=state->done.get_future();

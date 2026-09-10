@@ -1,0 +1,56 @@
+{
+  "timestamp_utc": "2026-09-10T02:07:55Z",
+  "revision": "dev-registry-stripes",
+  "method": "closed-loop, per-adapter count calibrated for duration; one round trip = two messages",
+  "cpus": "0-7",
+  "target_seconds": 0.5,
+  "repeats": 3,
+  "sample_stride": 16,
+  "latency_percentile": "sorted sample floor(q*(n-1)); no histogram interpolation",
+  "resource_scope": "RUSAGE_SELF: IPC CPU/RSS exclude server child; wall throughput includes round trip",
+  "uname": {
+    "returncode": 0,
+    "stdout": "Linux arvins 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux\n",
+    "stderr": ""
+  },
+  "cpu": {
+    "returncode": 0,
+    "stdout": "Architecture:                         x86_64\nCPU op-mode(s):                       32-bit, 64-bit\nAddress sizes:                        46 bits physical, 48 bits virtual\nByte Order:                           Little Endian\nCPU(s):                               18\nOn-line CPU(s) list:                  0-17\nVendor ID:                            GenuineIntel\nModel name:                           Intel(R) Core(TM) Ultra 5 125H\nCPU family:                           6\nModel:                                170\nThread(s) per core:                   2\nCore(s) per socket:                   9\nSocket(s):                            1\nStepping:                             4\nBogoMIPS:                             5990.40\nFlags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology tsc_reliable nonstop_tsc cpuid pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves avx_vnni umip waitpkg gfni vaes vpclmulqdq rdpid movdiri movdir64b fsrm md_clear serialize flush_l1d arch_capabilities\nVirtualization:                       VT-x\nHypervisor vendor:                    Microsoft\nVirtualization type:                  full\nL1d cache:                            432 KiB (9 instances)\nL1i cache:                            576 KiB (9 instances)\nL2 cache:                             18 MiB (9 instances)\nL3 cache:                             18 MiB (1 instance)\nVulnerability Gather data sampling:   Not affected\nVulnerability Itlb multihit:          Not affected\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Not affected\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Mitigation; Enhanced IBRS\nVulnerability Spec rstack overflow:   Not affected\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl and seccomp\nVulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; Enhanced / Automatic IBRS; IBPB conditional; RSB filling; PBRSB-eIBRS SW sequence; BHI BHI_DIS_S\nVulnerability Srbds:                  Not affected\nVulnerability Tsx async abort:        Not affected\n",
+    "stderr": ""
+  },
+  "compiler": {
+    "returncode": 0,
+    "stdout": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "stderr": ""
+  },
+  "cmake": {
+    "returncode": 0,
+    "stdout": "cmake version 3.28.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\n",
+    "stderr": ""
+  },
+  "binaries": {
+    "caf_echo": "d696c8930f1149a8075a408f3a775fc80f14b46b9327e89fae98559b6c86f12a",
+    "native_echo": "931a6231b9367bb64697f1973f69a033e57a9a1ea08f38041aa62cae89947f9b",
+    "native_fiber_echo": "48fb88f727407df4d3ee5aff2e462fa5f92cc3eeb44f30f3d3410bcc7e56645b",
+    "native_ipc_echo": "1e8e2fc0fab837ce61e661130c63600f9eb8ee91a4c3f779325bc9dcdb6dc5ff",
+    "raw_ipc_echo": "880112dad4c6b61e416d8cb167b5e7d729837a147153fa0c853ce0b9763e5cb5",
+    "so5_echo": "1d8e2272c6b17e9eef1ea2845d95aff5a8e6f17d13b979cc61dde2102d5d46b5"
+  },
+  "benchmark_sources": {
+    "archive_results.py": "522bd294feec1d4d02b21a1083d27d8ca36ae7a7f74a44877d5c612043b22c96",
+    "caf_echo.cpp": "384b291c61929b581e624581ed2ec3fc0af92f0e0a196d2b5cfcc2936592ac47",
+    "CMakeLists.txt": "39add62827d229acd0501f63f752556ef8041d2243ce4c1203f76b10b7095e9e",
+    "common.h": "2d9ca144d6c60104e14b671bc7afd4340794a95716dea3cc07a5fb870bd43f37",
+    "compare_so5.py": "9a36b22de42bf14fd38a9c2718436841268ee1db48b964488d476e113b30c997",
+    "confirm_suite.py": "97a7ba8aab57477e5d41cd409b7e4c701e834f50c19dbd7857c5838065ea800c",
+    "harness_tests.cpp": "326c6fa4f48bf45747995cfd4ca1bfb8470c859f020aab7ea5060ca38b2d7a59",
+    "ipc_echo.cpp": "3d5c2d2ab2b3e4127efe8748e784906e2e779f5cb5bdfb365402539081809846",
+    "native_echo.cpp": "30881296340cf876b5c232912185407933106b82d4150d76ef7443d045cf5810",
+    "profile_suite.py": "c88785a94077ca1eccd0bd20104806e9c9f1a74c0d57004072753c3ff011938a",
+    "README.md": "04bfeab89ae802dfac60b47ba91440013e2ad1cb5ff19ede092c1bfacbfb1cda",
+    "run_suite.py": "49a362273f615f4cafd8655fd33a804ca73cdb7b6b57a0b4ae3f5b7e3ce81f48",
+    "run_wake_probe.py": "4678be5724566a7a6d8e0ad2c2bceca7120a080f2bc088d0d0a4aa55199c9397",
+    "so5_echo.cpp": "3560276097cbd34b24022cb1b6095f108134357ee4f9f1e65281f8cb0bb0463d",
+    "wake_probe.cpp": "c8cf13021548ac1183b2f9b31fcdd44469bed24ca6cd37bc0ea868778f821dce"
+  }
+}

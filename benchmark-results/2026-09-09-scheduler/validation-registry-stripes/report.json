@@ -1,0 +1,147 @@
+{
+  "scope": "all runtime src/include C++ files; no exclusions",
+  "line_covered": 1178,
+  "line_total": 1209,
+  "line_percent": 97.43589743589743,
+  "branch_covered": 1197,
+  "branch_total": 1918,
+  "branch_percent": 62.40875912408759,
+  "minimum_line_percent": 90.0,
+  "files": [
+    {
+      "file": "include/actor_runtime/actor_ref.h",
+      "covered": 1,
+      "lines": 1,
+      "percent": 100.0,
+      "uncovered_lines": []
+    },
+    {
+      "file": "include/actor_runtime/actor_system.h",
+      "covered": 1,
+      "lines": 1,
+      "percent": 100.0,
+      "uncovered_lines": []
+    },
+    {
+      "file": "include/actor_runtime/wait.h",
+      "covered": 2,
+      "lines": 2,
+      "percent": 100.0,
+      "uncovered_lines": []
+    },
+    {
+      "file": "src/actor.cpp",
+      "covered": 12,
+      "lines": 12,
+      "percent": 100.0,
+      "uncovered_lines": []
+    },
+    {
+      "file": "src/actor_ref.cpp",
+      "covered": 7,
+      "lines": 7,
+      "percent": 100.0,
+      "uncovered_lines": []
+    },
+    {
+      "file": "src/actor_system.cpp",
+      "covered": 798,
+      "lines": 822,
+      "percent": 97.08,
+      "uncovered_lines": [
+        37,
+        123,
+        124,
+        129,
+        130,
+        131,
+        132,
+        171,
+        241,
+        242,
+        243,
+        245,
+        246,
+        540,
+        541,
+        543,
+        580,
+        619,
+        663,
+        664,
+        682,
+        992,
+        1085,
+        1088
+      ]
+    },
+    {
+      "file": "src/blocking_pool.cpp",
+      "covered": 26,
+      "lines": 27,
+      "percent": 96.3,
+      "uncovered_lines": [
+        8
+      ]
+    },
+    {
+      "file": "src/c_api.cpp",
+      "covered": 95,
+      "lines": 97,
+      "percent": 97.94,
+      "uncovered_lines": [
+        21,
+        23
+      ]
+    },
+    {
+      "file": "src/coroutine_context.cpp",
+      "covered": 61,
+      "lines": 63,
+      "percent": 96.83,
+      "uncovered_lines": [
+        33,
+        80
+      ]
+    },
+    {
+      "file": "src/internal.h",
+      "covered": 9,
+      "lines": 10,
+      "percent": 90.0,
+      "uncovered_lines": [
+        176
+      ]
+    },
+    {
+      "file": "src/ipc_transport.cpp",
+      "covered": 108,
+      "lines": 109,
+      "percent": 99.08,
+      "uncovered_lines": [
+        133
+      ]
+    },
+    {
+      "file": "src/sanitizer.h",
+      "covered": 4,
+      "lines": 4,
+      "percent": 100.0,
+      "uncovered_lines": []
+    },
+    {
+      "file": "src/wait.cpp",
+      "covered": 52,
+      "lines": 52,
+      "percent": 100.0,
+      "uncovered_lines": []
+    },
+    {
+      "file": "src/wait_internal.h",
+      "covered": 2,
+      "lines": 2,
+      "percent": 100.0,
+      "uncovered_lines": []
+    }
+  ]
+}

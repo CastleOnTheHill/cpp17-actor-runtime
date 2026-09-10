@@ -1,0 +1,1046 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" width="1200" height="374" onload="init(evt)" viewBox="0 0 1200 374" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Flame graph stack visualization. See https://github.com/brendangregg/FlameGraph for latest version, and http://www.brendangregg.com/flamegraphs.html for examples. -->
+<!-- NOTES:  -->
+<defs>
+	<linearGradient id="background" y1="0" y2="1" x1="0" x2="0" >
+		<stop stop-color="#eeeeee" offset="5%" />
+		<stop stop-color="#eeeeb0" offset="95%" />
+	</linearGradient>
+</defs>
+<style type="text/css">
+	text { font-family:Verdana; font-size:12px; fill:rgb(0,0,0); }
+	#search, #ignorecase { opacity:0.1; cursor:pointer; }
+	#search:hover, #search.show, #ignorecase:hover, #ignorecase.show { opacity:1; }
+	#subtitle { text-anchor:middle; font-color:rgb(160,160,160); }
+	#title { text-anchor:middle; font-size:17px}
+	#unzoom { cursor:pointer; }
+	#frames > *:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+	.hide { display:none; }
+	.parent { opacity:0.5; }
+</style>
+<script type="text/ecmascript">
+<![CDATA[
+	"use strict";
+	var details, searchbtn, unzoombtn, matchedtxt, svg, searching, currentSearchTerm, ignorecase, ignorecaseBtn;
+	function init(evt) {
+		details = document.getElementById("details").firstChild;
+		searchbtn = document.getElementById("search");
+		ignorecaseBtn = document.getElementById("ignorecase");
+		unzoombtn = document.getElementById("unzoom");
+		matchedtxt = document.getElementById("matched");
+		svg = document.getElementsByTagName("svg")[0];
+		searching = 0;
+		currentSearchTerm = null;
+
+		// use GET parameters to restore a flamegraphs state.
+		var params = get_params();
+		if (params.x && params.y)
+			zoom(find_group(document.querySelector('[x="' + params.x + '"][y="' + params.y + '"]')));
+                if (params.s) search(params.s);
+	}
+
+	// event listeners
+	window.addEventListener("click", function(e) {
+		var target = find_group(e.target);
+		if (target) {
+			if (target.nodeName == "a") {
+				if (e.ctrlKey === false) return;
+				e.preventDefault();
+			}
+			if (target.classList.contains("parent")) unzoom(true);
+			zoom(target);
+			if (!document.querySelector('.parent')) {
+				// we have basically done a clearzoom so clear the url
+				var params = get_params();
+				if (params.x) delete params.x;
+				if (params.y) delete params.y;
+				history.replaceState(null, null, parse_params(params));
+				unzoombtn.classList.add("hide");
+				return;
+			}
+
+			// set parameters for zoom state
+			var el = target.querySelector("rect");
+			if (el && el.attributes && el.attributes.y && el.attributes._orig_x) {
+				var params = get_params()
+				params.x = el.attributes._orig_x.value;
+				params.y = el.attributes.y.value;
+				history.replaceState(null, null, parse_params(params));
+			}
+		}
+		else if (e.target.id == "unzoom") clearzoom();
+		else if (e.target.id == "search") search_prompt();
+		else if (e.target.id == "ignorecase") toggle_ignorecase();
+	}, false)
+
+	// mouse-over for info
+	// show
+	window.addEventListener("mouseover", function(e) {
+		var target = find_group(e.target);
+		if (target) details.nodeValue = "Function: " + g_to_text(target);
+	}, false)
+
+	// clear
+	window.addEventListener("mouseout", function(e) {
+		var target = find_group(e.target);
+		if (target) details.nodeValue = ' ';
+	}, false)
+
+	// ctrl-F for search
+	// ctrl-I to toggle case-sensitive search
+	window.addEventListener("keydown",function (e) {
+		if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+			e.preventDefault();
+			search_prompt();
+		}
+		else if (e.ctrlKey && e.keyCode === 73) {
+			e.preventDefault();
+			toggle_ignorecase();
+		}
+	}, false)
+
+	// functions
+	function get_params() {
+		var params = {};
+		var paramsarr = window.location.search.substr(1).split('&');
+		for (var i = 0; i < paramsarr.length; ++i) {
+			var tmp = paramsarr[i].split("=");
+			if (!tmp[0] || !tmp[1]) continue;
+			params[tmp[0]]  = decodeURIComponent(tmp[1]);
+		}
+		return params;
+	}
+	function parse_params(params) {
+		var uri = "?";
+		for (var key in params) {
+			uri += key + '=' + encodeURIComponent(params[key]) + '&';
+		}
+		if (uri.slice(-1) == "&")
+			uri = uri.substring(0, uri.length - 1);
+		if (uri == '?')
+			uri = window.location.href.split('?')[0];
+		return uri;
+	}
+	function find_child(node, selector) {
+		var children = node.querySelectorAll(selector);
+		if (children.length) return children[0];
+	}
+	function find_group(node) {
+		var parent = node.parentElement;
+		if (!parent) return;
+		if (parent.id == "frames") return node;
+		return find_group(parent);
+	}
+	function orig_save(e, attr, val) {
+		if (e.attributes["_orig_" + attr] != undefined) return;
+		if (e.attributes[attr] == undefined) return;
+		if (val == undefined) val = e.attributes[attr].value;
+		e.setAttribute("_orig_" + attr, val);
+	}
+	function orig_load(e, attr) {
+		if (e.attributes["_orig_"+attr] == undefined) return;
+		e.attributes[attr].value = e.attributes["_orig_" + attr].value;
+		e.removeAttribute("_orig_"+attr);
+	}
+	function g_to_text(e) {
+		var text = find_child(e, "title").firstChild.nodeValue;
+		return (text)
+	}
+	function g_to_func(e) {
+		var func = g_to_text(e);
+		// if there's any manipulation we want to do to the function
+		// name before it's searched, do it here before returning.
+		return (func);
+	}
+	function update_text(e) {
+		var r = find_child(e, "rect");
+		var t = find_child(e, "text");
+		var w = parseFloat(r.attributes.width.value) -3;
+		var txt = find_child(e, "title").textContent.replace(/\([^(]*\)$/,"");
+		t.attributes.x.value = parseFloat(r.attributes.x.value) + 3;
+
+		// Smaller than this size won't fit anything
+		if (w < 2 * 12 * 0.59) {
+			t.textContent = "";
+			return;
+		}
+
+		t.textContent = txt;
+		var sl = t.getSubStringLength(0, txt.length);
+		// check if only whitespace or if we can fit the entire string into width w
+		if (/^ *$/.test(txt) || sl < w)
+			return;
+
+		// this isn't perfect, but gives a good starting point
+		// and avoids calling getSubStringLength too often
+		var start = Math.floor((w/sl) * txt.length);
+		for (var x = start; x > 0; x = x-2) {
+			if (t.getSubStringLength(0, x + 2) <= w) {
+				t.textContent = txt.substring(0, x) + "..";
+				return;
+			}
+		}
+		t.textContent = "";
+	}
+
+	// zoom
+	function zoom_reset(e) {
+		if (e.attributes != undefined) {
+			orig_load(e, "x");
+			orig_load(e, "width");
+		}
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_reset(c[i]);
+		}
+	}
+	function zoom_child(e, x, ratio) {
+		if (e.attributes != undefined) {
+			if (e.attributes.x != undefined) {
+				orig_save(e, "x");
+				e.attributes.x.value = (parseFloat(e.attributes.x.value) - x - 10) * ratio + 10;
+				if (e.tagName == "text")
+					e.attributes.x.value = find_child(e.parentNode, "rect[x]").attributes.x.value + 3;
+			}
+			if (e.attributes.width != undefined) {
+				orig_save(e, "width");
+				e.attributes.width.value = parseFloat(e.attributes.width.value) * ratio;
+			}
+		}
+
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_child(c[i], x - 10, ratio);
+		}
+	}
+	function zoom_parent(e) {
+		if (e.attributes) {
+			if (e.attributes.x != undefined) {
+				orig_save(e, "x");
+				e.attributes.x.value = 10;
+			}
+			if (e.attributes.width != undefined) {
+				orig_save(e, "width");
+				e.attributes.width.value = parseInt(svg.width.baseVal.value) - (10 * 2);
+			}
+		}
+		if (e.childNodes == undefined) return;
+		for (var i = 0, c = e.childNodes; i < c.length; i++) {
+			zoom_parent(c[i]);
+		}
+	}
+	function zoom(node) {
+		var attr = find_child(node, "rect").attributes;
+		var width = parseFloat(attr.width.value);
+		var xmin = parseFloat(attr.x.value);
+		var xmax = parseFloat(xmin + width);
+		var ymin = parseFloat(attr.y.value);
+		var ratio = (svg.width.baseVal.value - 2 * 10) / width;
+
+		// XXX: Workaround for JavaScript float issues (fix me)
+		var fudge = 0.0001;
+
+		unzoombtn.classList.remove("hide");
+
+		var el = document.getElementById("frames").children;
+		for (var i = 0; i < el.length; i++) {
+			var e = el[i];
+			var a = find_child(e, "rect").attributes;
+			var ex = parseFloat(a.x.value);
+			var ew = parseFloat(a.width.value);
+			var upstack;
+			// Is it an ancestor
+			if (0 == 0) {
+				upstack = parseFloat(a.y.value) > ymin;
+			} else {
+				upstack = parseFloat(a.y.value) < ymin;
+			}
+			if (upstack) {
+				// Direct ancestor
+				if (ex <= xmin && (ex+ew+fudge) >= xmax) {
+					e.classList.add("parent");
+					zoom_parent(e);
+					update_text(e);
+				}
+				// not in current path
+				else
+					e.classList.add("hide");
+			}
+			// Children maybe
+			else {
+				// no common path
+				if (ex < xmin || ex + fudge >= xmax) {
+					e.classList.add("hide");
+				}
+				else {
+					zoom_child(e, xmin, ratio);
+					update_text(e);
+				}
+			}
+		}
+		search();
+	}
+	function unzoom(dont_update_text) {
+		unzoombtn.classList.add("hide");
+		var el = document.getElementById("frames").children;
+		for(var i = 0; i < el.length; i++) {
+			el[i].classList.remove("parent");
+			el[i].classList.remove("hide");
+			zoom_reset(el[i]);
+			if(!dont_update_text) update_text(el[i]);
+		}
+		search();
+	}
+	function clearzoom() {
+		unzoom();
+
+		// remove zoom state
+		var params = get_params();
+		if (params.x) delete params.x;
+		if (params.y) delete params.y;
+		history.replaceState(null, null, parse_params(params));
+	}
+
+	// search
+	function toggle_ignorecase() {
+		ignorecase = !ignorecase;
+		if (ignorecase) {
+			ignorecaseBtn.classList.add("show");
+		} else {
+			ignorecaseBtn.classList.remove("show");
+		}
+		reset_search();
+		search();
+	}
+	function reset_search() {
+		var el = document.querySelectorAll("#frames rect");
+		for (var i = 0; i < el.length; i++) {
+			orig_load(el[i], "fill")
+		}
+		var params = get_params();
+		delete params.s;
+		history.replaceState(null, null, parse_params(params));
+	}
+	function search_prompt() {
+		if (!searching) {
+			var term = prompt("Enter a search term (regexp " +
+			    "allowed, eg: ^ext4_)"
+			    + (ignorecase ? ", ignoring case" : "")
+			    + "\nPress Ctrl-i to toggle case sensitivity", "");
+			if (term != null) search(term);
+		} else {
+			reset_search();
+			searching = 0;
+			currentSearchTerm = null;
+			searchbtn.classList.remove("show");
+			searchbtn.firstChild.nodeValue = "Search"
+			matchedtxt.classList.add("hide");
+			matchedtxt.firstChild.nodeValue = ""
+		}
+	}
+	function search(term) {
+		if (term) currentSearchTerm = term;
+		if (currentSearchTerm === null) return;
+
+		var re = new RegExp(currentSearchTerm, ignorecase ? 'i' : '');
+		var el = document.getElementById("frames").children;
+		var matches = new Object();
+		var maxwidth = 0;
+		for (var i = 0; i < el.length; i++) {
+			var e = el[i];
+			var func = g_to_func(e);
+			var rect = find_child(e, "rect");
+			if (func == null || rect == null)
+				continue;
+
+			// Save max width. Only works as we have a root frame
+			var w = parseFloat(rect.attributes.width.value);
+			if (w > maxwidth)
+				maxwidth = w;
+
+			if (func.match(re)) {
+				// highlight
+				var x = parseFloat(rect.attributes.x.value);
+				orig_save(rect, "fill");
+				rect.attributes.fill.value = "rgb(230,0,230)";
+
+				// remember matches
+				if (matches[x] == undefined) {
+					matches[x] = w;
+				} else {
+					if (w > matches[x]) {
+						// overwrite with parent
+						matches[x] = w;
+					}
+				}
+				searching = 1;
+			}
+		}
+		if (!searching)
+			return;
+		var params = get_params();
+		params.s = currentSearchTerm;
+		history.replaceState(null, null, parse_params(params));
+
+		searchbtn.classList.add("show");
+		searchbtn.firstChild.nodeValue = "Reset Search";
+
+		// calculate percent matched, excluding vertical overlap
+		var count = 0;
+		var lastx = -1;
+		var lastw = 0;
+		var keys = Array();
+		for (k in matches) {
+			if (matches.hasOwnProperty(k))
+				keys.push(k);
+		}
+		// sort the matched frames by their x location
+		// ascending, then width descending
+		keys.sort(function(a, b){
+			return a - b;
+		});
+		// Step through frames saving only the biggest bottom-up frames
+		// thanks to the sort order. This relies on the tree property
+		// where children are always smaller than their parents.
+		var fudge = 0.0001;	// JavaScript floating point
+		for (var k in keys) {
+			var x = parseFloat(keys[k]);
+			var w = matches[keys[k]];
+			if (x >= lastx + lastw - fudge) {
+				count += w;
+				lastx = x;
+				lastw = w;
+			}
+		}
+		// display matched percent
+		matchedtxt.classList.remove("hide");
+		var pct = 100 * count / maxwidth;
+		if (pct != 100) pct = pct.toFixed(1)
+		matchedtxt.firstChild.nodeValue = "Matched: " + pct + "%";
+	}
+]]>
+</script>
+<rect x="0.0" y="0" width="1200.0" height="374.0" fill="url(#background)"  />
+<text id="title" x="600.00" y="24" >Registry-stripes-1w8c-window16</text>
+<text id="details" x="10.00" y="357" > </text>
+<text id="unzoom" x="10.00" y="24" class="hide">Reset Zoom</text>
+<text id="search" x="1090.00" y="24" >Search</text>
+<text id="ignorecase" x="1174.00" y="24" >ic</text>
+<text id="matched" x="1090.00" y="357" > </text>
+<g id="frames">
+<g >
+<title>actor_runtime::ActorSystem::sendOwned (282 samples, 20.04%)</title><rect x="216.3" y="181" width="236.5" height="15.0" fill="rgb(226,98,23)" rx="2" ry="2" />
+<text  x="219.31" y="191.5" >actor_runtime::ActorSystem::sen..</text>
+</g>
+<g >
+<title>bench::Harness::report (11 samples, 0.78%)</title><rect x="1174.1" y="229" width="9.2" height="15.0" fill="rgb(215,47,11)" rx="2" ry="2" />
+<text  x="1177.07" y="239.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (86 samples, 6.11%)</title><rect x="784.9" y="197" width="72.2" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="787.93" y="207.5" >std::any..</text>
+</g>
+<g >
+<title>Echo::onMessage (1 samples, 0.07%)</title><rect x="10.8" y="293" width="0.9" height="15.0" fill="rgb(232,125,30)" rx="2" ry="2" />
+<text  x="13.84" y="303.5" ></text>
+</g>
+<g >
+<title>actor_runtime::Job&amp; std::deque&lt;actor_runtime::Job, std::allocator&lt;actor_runtime::Job&gt; &gt;::emplace_back&lt;actor_runtime::Job&gt; (26 samples, 1.85%)</title><rect x="896.5" y="197" width="21.8" height="15.0" fill="rgb(241,166,39)" rx="2" ry="2" />
+<text  x="899.47" y="207.5" >a..</text>
+</g>
+<g >
+<title>cfree (16 samples, 1.14%)</title><rect x="1153.9" y="213" width="13.5" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1156.94" y="223.5" ></text>
+</g>
+<g >
+<title>operator new (4 samples, 0.28%)</title><rect x="660.8" y="133" width="3.4" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="663.80" y="143.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_create (3 samples, 0.21%)</title><rect x="477.1" y="165" width="2.6" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="480.14" y="175.5" ></text>
+</g>
+<g >
+<title>std::_Hashtable&lt;unsigned long, std::pair&lt;unsigned long const, std::shared_ptr&lt;actor_runtime::ActorControl&gt; &gt;, std::allocator&lt;std::pair&lt;unsigned long const, std::shared_ptr&lt;actor_runtime::ActorControl&gt; &gt; &gt;, std::__detail::_Select1st, std::equal_to&lt;unsigned long&gt;, std::hash&lt;unsigned long&gt;, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::find (29 samples, 2.06%)</title><rect x="405.8" y="165" width="24.4" height="15.0" fill="rgb(232,125,30)" rx="2" ry="2" />
+<text  x="408.85" y="175.5" >s..</text>
+</g>
+<g >
+<title>cfree (36 samples, 2.56%)</title><rect x="1045.7" y="181" width="30.2" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1048.75" y="191.5" >cf..</text>
+</g>
+<g >
+<title>operator new (1 samples, 0.07%)</title><rect x="1187.5" y="277" width="0.8" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1190.48" y="287.5" ></text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.07%)</title><rect x="712.8" y="165" width="0.8" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="715.80" y="175.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (9 samples, 0.64%)</title><rect x="801.7" y="181" width="7.5" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="804.70" y="191.5" ></text>
+</g>
+<g >
+<title>malloc (2 samples, 0.14%)</title><rect x="662.5" y="117" width="1.7" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="665.48" y="127.5" ></text>
+</g>
+<g >
+<title>Echo::onMessage (441 samples, 31.34%)</title><rect x="487.2" y="213" width="369.9" height="15.0" fill="rgb(232,125,30)" rx="2" ry="2" />
+<text  x="490.20" y="223.5" >Echo::onMessage</text>
+</g>
+<g >
+<title>pthread_mutex_unlock (1 samples, 0.07%)</title><rect x="1173.2" y="229" width="0.9" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="1176.23" y="239.5" ></text>
+</g>
+<g >
+<title>[libstdc++.so.6.0.33] (1,386 samples, 98.51%)</title><rect x="11.7" y="261" width="1162.4" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="14.68" y="271.5" >[libstdc++.so.6.0.33]</text>
+</g>
+<g >
+<title>malloc (1 samples, 0.07%)</title><rect x="660.0" y="133" width="0.8" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="662.96" y="143.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (1 samples, 0.07%)</title><rect x="1182.5" y="53" width="0.8" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1185.45" y="63.5" ></text>
+</g>
+<g >
+<title>clock_gettime (3 samples, 0.21%)</title><rect x="480.5" y="165" width="2.5" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="483.49" y="175.5" ></text>
+</g>
+<g >
+<title>native_echo (1,407 samples, 100.00%)</title><rect x="10.0" y="309" width="1180.0" height="15.0" fill="rgb(239,158,37)" rx="2" ry="2" />
+<text  x="13.00" y="319.5" >native_echo</text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (7 samples, 0.50%)</title><rect x="1177.4" y="149" width="5.9" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1180.42" y="159.5" ></text>
+</g>
+<g >
+<title>operator new (10 samples, 0.71%)</title><rect x="810.1" y="181" width="8.4" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="813.09" y="191.5" ></text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.07%)</title><rect x="363.9" y="149" width="0.9" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="366.92" y="159.5" ></text>
+</g>
+<g >
+<title>memcpy@plt (1 samples, 0.07%)</title><rect x="467.9" y="165" width="0.8" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="470.91" y="175.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (14 samples, 1.00%)</title><rect x="1095.2" y="149" width="11.8" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1098.23" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (23 samples, 1.63%)</title><rect x="741.3" y="181" width="19.3" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="744.31" y="191.5" ></text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.07%)</title><rect x="817.6" y="165" width="0.9" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="820.63" y="175.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_base&lt; (137 samples, 9.74%)</title><rect x="994.6" y="213" width="114.9" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="997.59" y="223.5" >std::_Sp_count..</text>
+</g>
+<g >
+<title>actor_runtime::Job&amp; std::deque&lt;actor_runtime::Job, std::allocator&lt;actor_runtime::Job&gt; &gt;::emplace_back&lt;actor_runtime::Job&gt; (44 samples, 3.13%)</title><rect x="627.3" y="149" width="36.9" height="15.0" fill="rgb(241,166,39)" rx="2" ry="2" />
+<text  x="630.26" y="159.5" >act..</text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::ref (3 samples, 0.21%)</title><rect x="522.4" y="197" width="2.5" height="15.0" fill="rgb(218,62,14)" rx="2" ry="2" />
+<text  x="525.42" y="207.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock@plt (1 samples, 0.07%)</title><rect x="760.6" y="181" width="0.8" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="763.60" y="191.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (20 samples, 1.42%)</title><rect x="388.2" y="165" width="16.8" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="391.24" y="175.5" ></text>
+</g>
+<g >
+<title>main (11 samples, 0.78%)</title><rect x="1174.1" y="245" width="9.2" height="15.0" fill="rgb(243,179,42)" rx="2" ry="2" />
+<text  x="1177.07" y="255.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorRef::send (3 samples, 0.21%)</title><rect x="213.8" y="181" width="2.5" height="15.0" fill="rgb(239,160,38)" rx="2" ry="2" />
+<text  x="216.80" y="191.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::postMessage (80 samples, 5.69%)</title><rect x="291.0" y="165" width="67.0" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="293.95" y="175.5" >actor_r..</text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::workerLoop (1,386 samples, 98.51%)</title><rect x="11.7" y="245" width="1162.4" height="15.0" fill="rgb(219,65,15)" rx="2" ry="2" />
+<text  x="14.68" y="255.5" >actor_runtime::ActorSystem::Impl::workerLoop</text>
+</g>
+<g >
+<title>malloc (1 samples, 0.07%)</title><rect x="301.9" y="133" width="0.8" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="304.86" y="143.5" ></text>
+</g>
+<g >
+<title>actor_runtime::(anonymous namespace)::decrementJobs (17 samples, 1.21%)</title><rect x="878.0" y="213" width="14.3" height="15.0" fill="rgb(205,3,0)" rx="2" ry="2" />
+<text  x="881.02" y="223.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::takeReady (72 samples, 5.12%)</title><rect x="1109.5" y="229" width="60.4" height="15.0" fill="rgb(214,41,9)" rx="2" ry="2" />
+<text  x="1112.49" y="239.5" >actor_..</text>
+</g>
+<g >
+<title>actor_runtime::Job::~Job (1 samples, 0.07%)</title><rect x="664.2" y="165" width="0.8" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="667.16" y="175.5" ></text>
+</g>
+<g >
+<title>Client::issue (369 samples, 26.23%)</title><rect x="173.5" y="197" width="309.5" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="176.54" y="207.5" >Client::issue</text>
+</g>
+<g >
+<title>memcmp@plt (2 samples, 0.14%)</title><rect x="483.0" y="197" width="1.7" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="486.01" y="207.5" ></text>
+</g>
+<g >
+<title>free@plt (1 samples, 0.07%)</title><rect x="1075.9" y="181" width="0.9" height="15.0" fill="rgb(229,112,26)" rx="2" ry="2" />
+<text  x="1078.94" y="191.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (25 samples, 1.78%)</title><rect x="685.1" y="165" width="21.0" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="688.12" y="175.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (5 samples, 0.36%)</title><rect x="1163.2" y="197" width="4.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1166.16" y="207.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_ptr_inplace&lt;actor_runtime::Message, std::allocator&lt;void&gt;,  (1 samples, 0.07%)</title><rect x="1185.8" y="277" width="0.8" height="15.0" fill="rgb(247,193,46)" rx="2" ry="2" />
+<text  x="1188.81" y="287.5" ></text>
+</g>
+<g >
+<title>actor_runtime::Actor::id (2 samples, 0.14%)</title><rect x="591.2" y="181" width="1.7" height="15.0" fill="rgb(208,16,4)" rx="2" ry="2" />
+<text  x="594.19" y="191.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (5 samples, 0.36%)</title><rect x="1179.1" y="133" width="4.2" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1182.10" y="143.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock@plt (2 samples, 0.14%)</title><rect x="386.6" y="165" width="1.6" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="389.56" y="175.5" ></text>
+</g>
+<g >
+<title>operator new (10 samples, 0.71%)</title><rect x="468.7" y="165" width="8.4" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="471.75" y="175.5" ></text>
+</g>
+<g >
+<title>malloc (1 samples, 0.07%)</title><rect x="831.9" y="165" width="0.8" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="834.89" y="175.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (1 samples, 0.07%)</title><rect x="10.8" y="277" width="0.9" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="13.84" y="287.5" ></text>
+</g>
+<g >
+<title>malloc (17 samples, 1.21%)</title><rect x="838.6" y="149" width="14.3" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="841.60" y="159.5" ></text>
+</g>
+<g >
+<title>std::_Hashtable&lt;unsigned long, std::pair&lt;unsigned long const, std::shared_ptr&lt;actor_runtime::ActorControl&gt; &gt;, std::allocator&lt;std::pair&lt;unsigned long const, std::shared_ptr&lt;actor_runtime::ActorControl&gt; &gt; &gt;, std::__detail::_Select1st, std::equal_to&lt;unsigned long&gt;, std::hash&lt;unsigned long&gt;, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits&lt;false, false, true&gt; &gt;::find (22 samples, 1.56%)</title><rect x="761.4" y="181" width="18.5" height="15.0" fill="rgb(232,125,30)" rx="2" ry="2" />
+<text  x="764.44" y="191.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (1 samples, 0.07%)</title><rect x="460.4" y="181" width="0.8" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="463.36" y="191.5" ></text>
+</g>
+<g >
+<title>_start (11 samples, 0.78%)</title><rect x="1174.1" y="293" width="9.2" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
+<text  x="1177.07" y="303.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (1 samples, 0.07%)</title><rect x="1187.5" y="293" width="0.8" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="1190.48" y="303.5" ></text>
+</g>
+<g >
+<title>malloc (5 samples, 0.36%)</title><rect x="359.7" y="149" width="4.2" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="362.72" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (3 samples, 0.21%)</title><rect x="1170.7" y="229" width="2.5" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="1173.71" y="239.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_ptr_inplace&lt;actor_runtime::Message, std::allocator&lt;void&gt;,  (94 samples, 6.68%)</title><rect x="1030.7" y="197" width="78.8" height="15.0" fill="rgb(247,193,46)" rx="2" ry="2" />
+<text  x="1033.65" y="207.5" >std::_Sp_..</text>
+</g>
+<g >
+<title>operator delete (2 samples, 0.14%)</title><rect x="1107.8" y="165" width="1.7" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="1110.81" y="175.5" ></text>
+</g>
+<g >
+<title>memcpy@plt (1 samples, 0.07%)</title><rect x="832.7" y="165" width="0.9" height="15.0" fill="rgb(224,88,21)" rx="2" ry="2" />
+<text  x="835.73" y="175.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::sendOwned (306 samples, 21.75%)</title><rect x="524.9" y="197" width="256.7" height="15.0" fill="rgb(226,98,23)" rx="2" ry="2" />
+<text  x="527.94" y="207.5" >actor_runtime::ActorSystem::sendOw..</text>
+</g>
+<g >
+<title>std::_Sp_counted_base&lt; (22 samples, 1.56%)</title><rect x="430.2" y="165" width="18.4" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="433.17" y="175.5" ></text>
+</g>
+<g >
+<title>clock_gettime (2 samples, 0.14%)</title><rect x="485.5" y="181" width="1.7" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="488.52" y="191.5" ></text>
+</g>
+<g >
+<title>operator new (9 samples, 0.64%)</title><rect x="452.8" y="181" width="7.6" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="455.81" y="191.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (1 samples, 0.07%)</title><rect x="784.1" y="197" width="0.8" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="787.09" y="207.5" ></text>
+</g>
+<g >
+<title>Client::onMessage (401 samples, 28.50%)</title><rect x="150.9" y="213" width="336.3" height="15.0" fill="rgb(235,139,33)" rx="2" ry="2" />
+<text  x="153.90" y="223.5" >Client::onMessage</text>
+</g>
+<g >
+<title>operator delete (1 samples, 0.07%)</title><rect x="1076.8" y="181" width="0.8" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="1079.78" y="191.5" ></text>
+</g>
+<g >
+<title>std::_Sp_counted_base&lt; (1 samples, 0.07%)</title><rect x="1185.8" y="293" width="0.8" height="15.0" fill="rgb(211,31,7)" rx="2" ry="2" />
+<text  x="1188.81" y="303.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (1,386 samples, 98.51%)</title><rect x="11.7" y="293" width="1162.4" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="14.68" y="303.5" >[libc.so.6]</text>
+</g>
+<g >
+<title>malloc@plt (3 samples, 0.21%)</title><rect x="457.8" y="165" width="2.6" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="460.85" y="175.5" ></text>
+</g>
+<g >
+<title>all (1,407 samples, 100%)</title><rect x="10.0" y="325" width="1180.0" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="13.00" y="335.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (25 samples, 1.78%)</title><rect x="857.1" y="213" width="20.9" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="860.05" y="223.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (1 samples, 0.07%)</title><rect x="1182.5" y="37" width="0.8" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1185.45" y="47.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (3 samples, 0.21%)</title><rect x="1180.8" y="101" width="2.5" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1183.77" y="111.5" ></text>
+</g>
+<g >
+<title>actor_runtime::Job::~Job (4 samples, 0.28%)</title><rect x="918.3" y="213" width="3.3" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="921.27" y="223.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (32 samples, 2.27%)</title><rect x="713.6" y="181" width="26.9" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="716.64" y="191.5" >p..</text>
+</g>
+<g >
+<title>malloc (1 samples, 0.07%)</title><rect x="809.2" y="181" width="0.9" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="812.25" y="191.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (38 samples, 2.70%)</title><rect x="1077.6" y="181" width="31.9" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="1080.62" y="191.5" >st..</text>
+</g>
+<g >
+<title>operator new (23 samples, 1.63%)</title><rect x="833.6" y="165" width="19.3" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="836.57" y="175.5" ></text>
+</g>
+<g >
+<title>operator new (2 samples, 0.14%)</title><rect x="1188.3" y="277" width="1.7" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1191.32" y="287.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (1,386 samples, 98.51%)</title><rect x="11.7" y="277" width="1162.4" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="14.68" y="287.5" >[libc.so.6]</text>
+</g>
+<g >
+<title>operator new (8 samples, 0.57%)</title><rect x="358.0" y="165" width="6.8" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="361.05" y="175.5" ></text>
+</g>
+<g >
+<title>void std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_construct&lt;char*&gt; (2 samples, 0.14%)</title><rect x="1188.3" y="293" width="1.7" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="1191.32" y="303.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_assign (20 samples, 1.42%)</title><rect x="462.9" y="181" width="16.8" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="465.88" y="191.5" ></text>
+</g>
+<g >
+<title>operator new (1 samples, 0.07%)</title><rect x="1186.6" y="277" width="0.9" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1189.65" y="287.5" ></text>
+</g>
+<g >
+<title>__vdso_clock_gettime (3 samples, 0.21%)</title><rect x="480.5" y="149" width="2.5" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+<text  x="483.49" y="159.5" ></text>
+</g>
+<g >
+<title>malloc (2 samples, 0.14%)</title><rect x="915.8" y="165" width="1.6" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="918.76" y="175.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock@plt (5 samples, 0.36%)</title><rect x="353.9" y="149" width="4.1" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="356.85" y="159.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorRef::send (7 samples, 0.50%)</title><rect x="516.6" y="197" width="5.8" height="15.0" fill="rgb(239,160,38)" rx="2" ry="2" />
+<text  x="519.55" y="207.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (24 samples, 1.71%)</title><rect x="935.0" y="197" width="20.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="938.05" y="207.5" ></text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.07%)</title><rect x="917.4" y="165" width="0.9" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="920.43" y="175.5" ></text>
+</g>
+<g >
+<title>std::chrono::_V2::steady_clock::now (3 samples, 0.21%)</title><rect x="484.7" y="197" width="2.5" height="15.0" fill="rgb(249,203,48)" rx="2" ry="2" />
+<text  x="487.68" y="207.5" ></text>
+</g>
+<g >
+<title>operator new (1 samples, 0.07%)</title><rect x="10.0" y="277" width="0.8" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="13.00" y="287.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (16 samples, 1.14%)</title><rect x="1062.5" y="165" width="13.4" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1065.52" y="175.5" ></text>
+</g>
+<g >
+<title>malloc (6 samples, 0.43%)</title><rect x="452.8" y="165" width="5.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="455.81" y="175.5" ></text>
+</g>
+<g >
+<title>cfree (1 samples, 0.07%)</title><rect x="1169.9" y="229" width="0.8" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1172.87" y="239.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (24 samples, 1.71%)</title><rect x="665.0" y="165" width="20.1" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="668.00" y="175.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (2 samples, 0.14%)</title><rect x="212.1" y="181" width="1.7" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="215.12" y="191.5" ></text>
+</g>
+<g >
+<title>free@plt (1 samples, 0.07%)</title><rect x="1107.0" y="165" width="0.8" height="15.0" fill="rgb(229,112,26)" rx="2" ry="2" />
+<text  x="1109.97" y="175.5" ></text>
+</g>
+<g >
+<title>operator delete (4 samples, 0.28%)</title><rect x="955.2" y="213" width="3.3" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="958.17" y="223.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_assign (1 samples, 0.07%)</title><rect x="1186.6" y="293" width="0.9" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="1189.65" y="303.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (8 samples, 0.57%)</title><rect x="1176.6" y="165" width="6.7" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1179.58" y="175.5" ></text>
+</g>
+<g >
+<title>malloc (6 samples, 0.43%)</title><rect x="471.3" y="149" width="5.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="474.27" y="159.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock@plt (1 samples, 0.07%)</title><rect x="978.7" y="213" width="0.8" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="981.66" y="223.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorRef::ActorRef (1 samples, 0.07%)</title><rect x="524.1" y="181" width="0.8" height="15.0" fill="rgb(238,154,36)" rx="2" ry="2" />
+<text  x="527.10" y="191.5" ></text>
+</g>
+<g >
+<title>operator new (2 samples, 0.14%)</title><rect x="301.0" y="149" width="1.7" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="304.02" y="159.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (3 samples, 0.21%)</title><rect x="1085.2" y="165" width="2.5" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1088.17" y="175.5" ></text>
+</g>
+<g >
+<title>operator new (3 samples, 0.21%)</title><rect x="1183.3" y="277" width="2.5" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="1186.29" y="287.5" ></text>
+</g>
+<g >
+<title>[libc.so.6] (11 samples, 0.78%)</title><rect x="1174.1" y="261" width="9.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1177.07" y="271.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::postMessage (135 samples, 9.59%)</title><rect x="592.9" y="181" width="113.2" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+<text  x="595.87" y="191.5" >actor_runtime..</text>
+</g>
+<g >
+<title>[libc.so.6] (1 samples, 0.07%)</title><rect x="1044.9" y="181" width="0.8" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1047.91" y="191.5" ></text>
+</g>
+<g >
+<title>std::chrono::_V2::steady_clock::now (4 samples, 0.28%)</title><rect x="479.7" y="181" width="3.3" height="15.0" fill="rgb(249,203,48)" rx="2" ry="2" />
+<text  x="482.65" y="191.5" ></text>
+</g>
+<g >
+<title>operator delete (3 samples, 0.21%)</title><rect x="1167.4" y="213" width="2.5" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="1170.36" y="223.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (9 samples, 0.64%)</title><rect x="1175.7" y="197" width="7.6" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1178.74" y="207.5" ></text>
+</g>
+<g >
+<title>malloc@plt (1 samples, 0.07%)</title><rect x="476.3" y="149" width="0.8" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="479.30" y="159.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (2 samples, 0.14%)</title><rect x="1181.6" y="85" width="1.7" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1184.61" y="95.5" ></text>
+</g>
+<g >
+<title>malloc (6 samples, 0.43%)</title><rect x="812.6" y="165" width="5.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="815.60" y="175.5" ></text>
+</g>
+<g >
+<title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_create (5 samples, 0.36%)</title><rect x="852.9" y="165" width="4.2" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="855.86" y="175.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (10 samples, 0.71%)</title><rect x="1174.9" y="213" width="8.4" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1177.90" y="223.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (33 samples, 2.35%)</title><rect x="326.2" y="149" width="27.7" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="329.18" y="159.5" >p..</text>
+</g>
+<g >
+<title>pthread_mutex_lock (28 samples, 1.99%)</title><rect x="302.7" y="149" width="23.5" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="305.69" y="159.5" >p..</text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (5 samples, 0.36%)</title><rect x="1179.1" y="117" width="4.2" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1182.10" y="127.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::enqueueDispatch (75 samples, 5.33%)</title><rect x="601.3" y="165" width="62.9" height="15.0" fill="rgb(239,157,37)" rx="2" ry="2" />
+<text  x="604.26" y="175.5" >actor_..</text>
+</g>
+<g >
+<title>operator new (9 samples, 0.64%)</title><rect x="706.1" y="181" width="7.5" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="709.09" y="191.5" ></text>
+</g>
+<g >
+<title>malloc (5 samples, 0.36%)</title><rect x="708.6" y="165" width="4.2" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="711.61" y="175.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::sendOwned (3 samples, 0.21%)</title><rect x="1183.3" y="293" width="2.5" height="15.0" fill="rgb(226,98,23)" rx="2" ry="2" />
+<text  x="1186.29" y="303.5" ></text>
+</g>
+<g >
+<title>actor_runtime::Actor::id (3 samples, 0.21%)</title><rect x="288.4" y="165" width="2.6" height="15.0" fill="rgb(208,16,4)" rx="2" ry="2" />
+<text  x="291.44" y="175.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (2 samples, 0.14%)</title><rect x="779.9" y="181" width="1.7" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="782.89" y="191.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock@plt (1 samples, 0.07%)</title><rect x="405.0" y="165" width="0.8" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="408.01" y="175.5" ></text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (1 samples, 0.07%)</title><rect x="1182.5" y="69" width="0.8" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1185.45" y="79.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (24 samples, 1.71%)</title><rect x="958.5" y="213" width="20.2" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="961.53" y="223.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (2 samples, 0.14%)</title><rect x="461.2" y="181" width="1.7" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="464.20" y="191.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (26 samples, 1.85%)</title><rect x="364.8" y="165" width="21.8" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="367.75" y="175.5" >p..</text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::enqueueDispatch (31 samples, 2.20%)</title><rect x="892.3" y="213" width="26.0" height="15.0" fill="rgb(239,157,37)" rx="2" ry="2" />
+<text  x="895.27" y="223.5" >a..</text>
+</g>
+<g >
+<title>actor_runtime::Job::~Job (5 samples, 0.36%)</title><rect x="1149.7" y="213" width="4.2" height="15.0" fill="rgb(224,91,21)" rx="2" ry="2" />
+<text  x="1152.74" y="223.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock@plt (1 samples, 0.07%)</title><rect x="740.5" y="181" width="0.8" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="743.48" y="191.5" ></text>
+</g>
+<g >
+<title>cfree (40 samples, 2.84%)</title><rect x="921.6" y="213" width="33.6" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="924.63" y="223.5" >cf..</text>
+</g>
+<g >
+<title>void std::__introsort_loop&lt;__gnu_cxx::__normal_iterator&lt;double*, std::vector&lt;double, std::allocator&lt;double&gt; &gt; &gt;, long, __gnu_cxx::__ops::_Iter_less_iter&gt; (8 samples, 0.57%)</title><rect x="1176.6" y="181" width="6.7" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="1179.58" y="191.5" ></text>
+</g>
+<g >
+<title>cfree (1 samples, 0.07%)</title><rect x="1029.8" y="197" width="0.9" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1032.82" y="207.5" ></text>
+</g>
+<g >
+<title>__libc_start_main (11 samples, 0.78%)</title><rect x="1174.1" y="277" width="9.2" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
+<text  x="1177.07" y="287.5" ></text>
+</g>
+<g >
+<title>Client::issue (1 samples, 0.07%)</title><rect x="10.0" y="293" width="0.8" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="13.00" y="303.5" ></text>
+</g>
+<g >
+<title>actor_runtime::ActorSystem::Impl::processJob (1,251 samples, 88.91%)</title><rect x="60.3" y="229" width="1049.2" height="15.0" fill="rgb(237,148,35)" rx="2" ry="2" />
+<text  x="63.32" y="239.5" >actor_runtime::ActorSystem::Impl::processJob</text>
+</g>
+<g >
+<title>[libc.so.6] (3 samples, 0.21%)</title><rect x="1147.2" y="213" width="2.5" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1150.23" y="223.5" ></text>
+</g>
+<g >
+<title>std::any::_Manager_external&lt;bench::Packet&gt;::_S_manage (5 samples, 0.36%)</title><rect x="448.6" y="165" width="4.2" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="451.62" y="175.5" ></text>
+</g>
+<g >
+<title>cfree (23 samples, 1.63%)</title><rect x="1087.7" y="165" width="19.3" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1090.68" y="175.5" ></text>
+</g>
+<g >
+<title>operator new (6 samples, 0.43%)</title><rect x="913.2" y="181" width="5.1" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="916.24" y="191.5" ></text>
+</g>
+<g >
+<title>__vdso_clock_gettime (2 samples, 0.14%)</title><rect x="485.5" y="165" width="1.7" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+<text  x="488.52" y="175.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_lock (3 samples, 0.21%)</title><rect x="781.6" y="197" width="2.5" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+<text  x="784.57" y="207.5" ></text>
+</g>
+<g >
+<title>pthread_mutex_unlock (18 samples, 1.28%)</title><rect x="979.5" y="213" width="15.1" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="982.50" y="223.5" ></text>
+</g>
+<g >
+<title>void std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_construct&lt;char*&gt; (46 samples, 3.27%)</title><rect x="818.5" y="181" width="38.6" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="821.47" y="191.5" >voi..</text>
+</g>
+</g>
+</svg>

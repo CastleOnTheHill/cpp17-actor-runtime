@@ -303,3 +303,169 @@ process creation. No running benchmark handle was returned. Do not claim those
 longer measurements ran or use the short three-repeat results as their substitute.
 Next action is to obtain execution approval and run that unchanged confirmation
 matrix, then address its remaining gaps and recheck fiber/IPC performance.
+
+## Long confirmation and latency-oriented experiments
+
+The launch issue recovered on continuation. The committed `883b53b` runtime was
+rebuilt, then `confirm-job-reference` completed all 12 configurations with 5
+repeats and 4M round trips each. It failed 3/12 throughput gates: single worker
+64B 76.6%, 1024B 77.2%, and 8 clients/window16 74.1%. The other nine passed.
+4w/64c p99 was 584.026 us versus SO5 63.787 us. All raw results and the manifest
+are retained; these long measurements supersede the earlier unexecuted plan.
+
+Subsequent isolated experiments use the complete three-repeat / 1M matrix:
+
+- FIFO: owners and thieves take the oldest ready dispatch; the eight-job check
+  for pinned/global/timer work remains. Normal CTest passed 12/12 (1.70s).
+  4w/64c p99 decreased to 191.107 us, with throughput 1,756,530 RPS (129.8% SO5).
+  Hotspot throughput fell to 492,906 RPS (85.1% SO5); no claim of a free gain.
+- FIFO plus 256 bounded idle yields: normal CTest 12/12 (1.59s), including idle
+  CPU parking. Sparse 4w/1c p99 was 4.599 us (SO5 3.067) and throughput 724,337.
+  CPU seconds/wall second rose from about 1.4 to 3.1-3.3 (SO5 about 2.5).
+  Idle backoff is bounded and never retries Actor ownership; ownership failures
+  still requeue and sleep. This latency/CPU tradeoff is explicitly retained.
+- Empty waiters: avoid calling/hash-building the notification path when the
+  Actor-owned wait index is empty. Existing broadcast/snapshot semantics remain
+  on the nonempty path. Normal CTest passed 12/12 (1.54s); 5/12 throughput gates
+  still failed, so this change alone was insufficient.
+- Present metadata: freshly allocated address strings are already empty. Only
+  copy present process/name metadata, avoiding a conditional-expression string
+  temporary. New API tests first passed against old code and then with the change;
+  they retain sender IDs, address strings and payload after sender destruction
+  and shutdown for anonymous/named Actors on 1/4 workers. Full CTest 12/12 (2.03s).
+  This matrix failed only 1/12: 4w/8c/window16 was 1,606,407 RPS (78.7% SO5).
+  Single-worker 64B reached 3,103,210 (84.5%), 1024B 2,687,711 (83.0%), and
+  8c/window16 2,788,673 (80.2%). These remain short, exploratory results.
+
+Current experiment separates the global private-publication epoch into per-worker
+epochs. Each private queue has one publisher. Before scanning queues, a worker
+snapshots all epochs; its final sleeping predicate checks all for changes. SC
+publication and SC sleeper registration retain the original notification handshake.
+Pinned/global queues still use queueMutex and targeted condition variables. This
+removes a global RMW on every private enqueue while adding epoch reads to the
+infrequent slow/sleep path. Normal CTest passed 12/12, followed by 20 repetitions
+each of scheduler/wakeup/runtime tests. The short matrix still failed 1/12:
+4w/8c/window16 reached 1,589,864 RPS (79.70% SO5).
+
+All of FIFO/idle/empty-waiter/metadata/per-worker-epoch work is newer than the
+97.47% coverage and sanitizer checkpoint. Revalidate those gates against the
+chosen final code; do not treat earlier green reports as proof of later changes.
+
+## Ready hints and striped registry reads
+
+The next isolated change checks synchronized global/local readiness counts and
+the owner-only timer heap after the eight-job local budget. If those categories
+are empty, it can take another local dispatch without queueMutex. Actual parking
+still performs the locked scan and epoch handshake. A regression posts older
+work from an external thread into globalQueue before starting a continuous local
+chain; the existing <=32-newer-dispatch fairness assertion remains unchanged.
+Normal CTest passed 12/12 plus 20 repeated scheduler/wakeup/runtime suites.
+The full short matrix failed 1/12: 4w/8c/window16 was 79.9765%, not rounded up
+to a pass. Its 1,609,655 RPS was insufficient evidence of improvement alone.
+
+Registry lookup profiling motivated the following independent change. There is
+still one authoritative unordered_map and ActorRef still resolves its ID for
+every send. Normal C++ sends lock one of 64 cache-line-separated reader mutexes,
+copy the ActorControl shared pointer, then release the lock before allocation
+and mailbox admission. Registration, erasure and final clear take registryMutex
+then every reader mutex in ascending order. Other registry readers still use
+registryMutex. This allows concurrent reads while excluding all readers during
+rehash/mutation; it does not cache stale Actor references or duplicate the map.
+Membership changes now pay for 64 locks (about 4 KiB of reader-lock storage).
+
+The new registry-growth regression sends 8,000 messages to 64 stable Actors from
+four external threads while registering and stopping 256 transient Actors.
+Normal CTest passed 12/12 (1.73s), then 20 repetitions each of dispatch, wakeup,
+runtime and API tests passed (22.72s). The three-repeat / 1M matched matrix:
+
+| Configuration (64B, batch1) | Native RPS | Native / SO5 | p99 native / SO5 (us) |
+| --- | ---: | ---: | ---: |
+| 1w/1c/window1 | 3,061,957 | 91.5% | 0.717 / 0.618 |
+| 4w/8c/window1 | 2,836,676 | 210.6% | 7.716 / 8.339 |
+| 1w/8c/window16 | 2,824,212 | 77.3% | 125.262 / 93.962 |
+| 4w/8c/window16 | 2,722,533 | 136.2% | 388.862 / 100.034 |
+| 4w/8c/window16, shared hotspot | 579,302 | 102.2% | 437.529 / 1110.828 |
+| 4w/64c/window1 | 3,786,727 | 284.1% | 79.513 / 67.524 |
+
+Eleven of twelve throughput configurations passed, but the one failing case
+and elevated tails remain real gaps. These are exploratory medians, not a claim
+of overall superiority to SO5 or a current CAF comparison. All eight new matrices,
+including unfavorable experiments and the earlier long confirmation, are kept
+under benchmark-results/2026-09-09-scheduler.
+
+### 2026-09-10 long confirmation and refreshed safety gates
+
+`actor-scheduler-gate-confirm-stripes-20260910` completed all 120 matched runs
+(12 configurations x 2 frameworks x 5 repeats, 4M round trips per run). Source
+and executable hashes were stable throughout. It still fails 1/12: 1w/8c/window16
+reaches 2,813,253 RPS versus 3,620,627 (77.70%). This repeats the short-test gap;
+do not rerun unchanged code merely to obtain a favorable median.
+
+| Configuration (64B, batch1) | Native RPS | Native / SO5 | p99 native / SO5 (us) |
+| --- | ---: | ---: | ---: |
+| 1w/1c/window1 | 3,092,471 | 85.94% | 0.671 / 0.559 |
+| 1w/8c/window1 | 2,973,493 | 86.86% | 5.516 / 5.489 |
+| 4w/8c/window1 | 3,493,064 | 261.01% | 7.393 / 8.400 |
+| 1w/8c/window16 | 2,813,253 | 77.70% | 111.194 / 91.441 |
+| 4w/8c/window16 | 3,273,295 | 166.93% | 177.014 / 101.978 |
+| 4w/8c/window16, shared hotspot | 569,760 | 95.06% | 455.599 / 827.535 |
+| 4w/64c/window1 | 3,739,517 | 287.13% | 100.359 / 69.615 |
+
+Latency columns remain medians of per-run p99, not a pooled percentile. The
+4w/window16 tail is lower than in the earlier short run, but remains 1.74x SO5;
+this is not a blanket latency pass. CPU affinity, batch1, fixed dependency
+versions and unlocked WSL host-frequency/load limitations remain unchanged.
+
+Fresh validation includes all changes above and the comment-only clarification
+that category round-robin can defer service beyond one local-budget check:
+
+- ASan/UBSan with leak detection: 12/12 CTest, 3.17s.
+- Coverage-instrumented CTest: 12/12, 2.39s.
+- Runtime src/include lines, no exclusions: **1178/1209 = 97.44%**, gate 90%.
+- Raw gcov branches: **1197/1918 = 62.41%**, including C++ exception edges.
+- Benchmark harness self-tests: 1/1, 1.01s; all six adapter smoke tests passed.
+- Exact logs/reports: `validation-registry-stripes` in the scheduler evidence root.
+
+The complete throughput acceptance criterion is still unachieved. Remaining
+work includes the repeatable single-worker backlog gap and tail-latency diagnosis.
+Existing green safety gates do not substitute for performance measurements or
+prove race freedom.
+
+### Current-code compatibility and comparison measurements
+
+The six-adapter smoke run, 12 fixed-budget configurations x 5 repeats, and the
+full 13-configuration fiber/IPC matrix x 3 repeats all completed. Outputs are
+`actor-scheduler-compat-smoke-20260910`, `actor-scheduler-compat-confirm-20260910`
+and `actor-scheduler-fiber-ipc-matrix-20260910`. The smoke manifest hashes current
+native event/fiber/IPC binaries and the preserved CAF/SO5/raw-socket comparators.
+The runtime source snapshot and matching native event executable are preserved
+in `actor-scheduler-profile-stripes-20260910`; binaries/large traces/archives
+remain local and ignored, with SHA256SUMS committed. No runtime changes occurred
+during the compatibility, profile or fiber/IPC runs.
+
+Five-repeat matched 64B/window1/batch1 results: 1w/1c native 3,071,855 RPS,
+CAF 2,488,518, SO5 3,611,485; 4w/8c native 3,615,531, CAF 5,919,930,
+SO5 1,334,100. The native 4w p99 is 7.169 us versus CAF 1.280 and SO5 8.588.
+These are current-code comparisons, not reused CAF historical measurements.
+
+The 13-case matrix is separately calibrated per adapter for about one second,
+not an equal-request-budget ranking. Fiber results (median RPS / p99 us):
+1w/1c 891,950 / 2.192; 2w/1c 249,666 / 103.327;
+4w/1c 164,837 / 122.730; 4w/8c 1,125,675 / 115.253;
+4w/64c 1,059,999 / 209.372. The latter spans 788,865-1,339,418 RPS,
+so substantial variance remains. IPC 0/64/1024B and 8-client count/payload checks
+passed. The five-repeat fixed-budget 64B single-client IPC median is 10,508 RPS
+(p99 176.249 us), raw socket 29,959 (75.105 us). Do not claim an IPC speedup
+comparable to the event scheduler gains.
+
+The six-run wake diagnostic uses 40k round trips each with all RTTs sampled:
+without pulse 153,627-179,656 RPS, p99 113.494-122.726 us; with pulse
+135,864-173,542 RPS, p99 115.397-140.756 us. No old ~10ms p99 step was
+observed in these runs; this finite evidence does not prove an absolute SLA.
+
+Fresh backlog profile: 20M round trips, user cpu-clock at 199Hz with DWARF8192,
+1,407 script events = 1,407 folded samples, zero lost samples, valid SVG XML.
+Flat no-inline self samples: mutex lock/unlock 18.76%, sendOwned 11.73%,
+processJob 7.68%, deque emplace 4.19%. The profile is not a timing-gate run;
+it shows on-CPU cost, not kernel/wait time or guaranteed optimization gains.
+See BENCHMARK_PROGRESS_2026-09-10.md for the user-facing comparison.
