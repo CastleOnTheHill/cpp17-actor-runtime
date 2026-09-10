@@ -229,7 +229,7 @@ bool ActorSystem::Impl::postMessage(std::shared_ptr<ActorControl> actor, Message
         recipient->dispatchState.store(DispatchState::Scheduled, std::memory_order_release);
         // Admission stays locked: stop/shutdown cannot remove the registered
         // owner before this scope exits. Transfer our reference to the job.
-        enqueueDispatch(Job{JobKind::DispatchMessage, std::move(actor), 0, 0, 0, {}, {}, std::move(message)});
+        enqueueDispatch(std::move(actor), std::move(message));
     } else {
         recipient->mailbox.push_back(std::move(message));
         // Publish after queueing. If the consumer retired meanwhile, this
@@ -242,33 +242,37 @@ bool ActorSystem::Impl::postMessage(std::shared_ptr<ActorControl> actor, Message
             recipient->mailbox.pop_front();
             recipient->dispatchState.store(recipient->mailbox.empty() ? DispatchState::Scheduled : DispatchState::Pending,
                 std::memory_order_release);
-            enqueueDispatch(Job{JobKind::DispatchMessage, std::move(actor), 0, 0, 0, {}, {}, std::move(next)});
+            enqueueDispatch(std::move(actor), std::move(next));
         }
     }
     return true;
 }
 
-void ActorSystem::Impl::enqueueDispatch(Job job, bool newJob) {
+void ActorSystem::Impl::enqueueDispatch(std::shared_ptr<ActorControl> actor, MessagePtr message, bool newJob) {
     Worker* worker = currentWorker;
-    if (!worker || worker->system != this) { enqueueGlobal(std::move(job), newJob); return; }
+    if (!worker || worker->system != this) {
+        enqueueGlobal(Job{JobKind::DispatchMessage, std::move(actor), 0, 0, 0, {}, {}, std::move(message)}, newJob);
+        return;
+    }
     // Migration cadence is separate from the eight-dispatch fairness check.
     // Each job handles one message; this is not a mailbox-draining batch.
     // Only this job is directed; the Actor has no permanent worker owner.
     if (workers.size() > 1 && ++worker->readyPosts == 64) {
         worker->readyPosts = 0;
-        enqueueLocal(*workers[(worker->index + 1) % workers.size()], std::move(job), newJob);
+        enqueueLocal(*workers[(worker->index + 1) % workers.size()],
+            Job{JobKind::DispatchMessage, std::move(actor), 0, 0, 0, {}, {}, std::move(message)}, newJob);
         return;
     }
     if (workers.size() == 1) {
         // Only this thread can access its ready queue; external sends still use
         // globalQueue, and remote completions use the synchronized pinned queue.
-        worker->readyQueue.push_back(std::move(job));
+        worker->readyQueue.push_back(ReadyDispatch{std::move(actor), std::move(message)});
         if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
         return;
     }
     {
         std::lock_guard<std::mutex> lock(worker->readyMutex);
-        worker->readyQueue.push_back(std::move(job));
+        worker->readyQueue.push_back(ReadyDispatch{std::move(actor), std::move(message)});
         if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
         worker->readyCount.store(worker->readyQueue.size(), std::memory_order_release);
     }
@@ -295,7 +299,9 @@ void ActorSystem::Impl::enqueueDispatch(Job job, bool newJob) {
 bool ActorSystem::Impl::takeReady(Worker& worker, std::optional<Job>& result, bool steal) {
     if (workers.size() == 1) {
         if (worker.readyQueue.empty()) return false;
-        result = std::move(worker.readyQueue.front());
+        result.emplace();
+        result->actor = std::move(worker.readyQueue.front().actor);
+        result->message = std::move(worker.readyQueue.front().message);
         worker.readyQueue.pop_front();
         return true;
     }
@@ -305,7 +311,9 @@ bool ActorSystem::Impl::takeReady(Worker& worker, std::optional<Job>& result, bo
     if (worker.readyQueue.empty()) return false;
     // Owners and thieves both take oldest-ready work. New continuations do not
     // repeatedly overtake already-ready independent Actors.
-    result = std::move(worker.readyQueue.front());
+    result.emplace();
+    result->actor = std::move(worker.readyQueue.front().actor);
+    result->message = std::move(worker.readyQueue.front().message);
     worker.readyQueue.pop_front();
     worker.readyCount.store(worker.readyQueue.size(), std::memory_order_release);
     return true;
@@ -587,7 +595,7 @@ void ActorSystem::Impl::processJob(Worker& worker, Job& job) {
             // wake-demand accounting includes the publishing worker until return.
             if (reschedule) {
                 const bool transferCredit = workers.size() == 1;
-                enqueueDispatch(Job{JobKind::DispatchMessage, std::move(job.actor), 0, 0, 0, {}, {}, std::move(next)}, !transferCredit);
+                enqueueDispatch(std::move(job.actor), std::move(next), !transferCredit);
                 if (transferCredit) return;
             }
         }

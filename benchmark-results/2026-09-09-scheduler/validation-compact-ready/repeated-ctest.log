@@ -1,0 +1,1543 @@
+Start testing: Sep 10 10:38 CST
+----------------------------------------------------------
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=94.182
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=84.277
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=63.605
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=62.243
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=75.67
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=108.905
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=86.344
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=80.911
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=69.343
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=64.202
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=97.223
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=93.608
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=69.955
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=90.119
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=93.364
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=62.848
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=80.447
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=71.393
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=88.038
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: scheduler_wakeup_tests
+5/12 Test: scheduler_wakeup_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_wakeup_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_wakeup_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+blocking completion -> coroutine resume median_us=88.415
+PASS local-only completion wakes sleeping owner
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_wakeup_tests" end time: Sep 10 10:38 CST
+"scheduler_wakeup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.40 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.40 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.40 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.38 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.38 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.42 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.42 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.38 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: scheduler_dispatch_tests
+6/12 Test: scheduler_dispatch_tests
+Command: "/tmp/actor-scheduler-fix-20260909/scheduler_dispatch_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"scheduler_dispatch_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+PASS idle-peer wakeup, oldest-ready fairness, idle parking, concurrent FIFO, serial dispatch, queued drain, stale ref, name reuse, self-send
+<end of output>
+Test time =   0.41 sec
+----------------------------------------------------------
+Test Passed.
+"scheduler_dispatch_tests" end time: Sep 10 10:38 CST
+"scheduler_dispatch_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.66 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.65 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.66 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.65 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.66 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.65 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.66 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.66 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.65 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.67 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.69 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.67 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:38 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:38 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.66 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:39 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.66 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:39 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.67 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:39 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.66 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:39 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.67 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:39 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.65 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:39 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.65 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:39 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: actor_runtime_tests
+9/12 Test: actor_runtime_tests
+Command: "/tmp/actor-scheduler-fix-20260909/actor_runtime_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"actor_runtime_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] basic post calls onMessage exactly once
+[PASS] ucontext timer preserves nested stack locals
+[PASS] message wait matches type and correlation
+[PASS] message wait is broadcast
+[PASS] dispatch snapshot excludes new waiters
+[PASS] child join and error propagation
+[PASS] Any, All, and nested waits
+[PASS] response/timeout race never double resumes
+[PASS] child lifetime and shutdown cancellation
+[PASS] actor is serial but migrates across workers
+[PASS] fiber owner is stable and stack is reclaimed
+[PASS] busy actor does not starve another actor
+[PASS] invalid inputs have clear errors
+<end of output>
+Test time =   0.65 sec
+----------------------------------------------------------
+Test Passed.
+"actor_runtime_tests" end time: Sep 10 10:39 CST
+"actor_runtime_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: api_contract_tests
+11/12 Test: api_contract_tests
+Command: "/tmp/actor-scheduler-fix-20260909/api_contract_tests"
+Directory: /tmp/actor-scheduler-fix-20260909
+"api_contract_tests" start time: Sep 10 10:39 CST
+Output:
+----------------------------------------------------------
+[PASS] public API validation, exception isolation, idempotent shutdown
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"api_contract_tests" end time: Sep 10 10:39 CST
+"api_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 10 10:39 CST

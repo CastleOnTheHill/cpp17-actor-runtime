@@ -1,0 +1,37 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 1K of event 'cpu-clock:u'
+# Event count (approx.): 7261305625
+#
+# Overhead  Command      Shared Object        Symbol
+# ........  ...........  ...................  ....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    11.56%  native_echo  native_echo          [.] actor_runtime::ActorSystem::sendOwned(unsigned long, unsigned long, std::any&&, unsigned long)
+     9.62%  native_echo  libc.so.6            [.] pthread_mutex_lock
+     9.48%  native_echo  libc.so.6            [.] pthread_mutex_unlock
+     5.74%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::processJob(actor_runtime::Worker&, actor_runtime::Job&)
+     5.54%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::takeReady(actor_runtime::Worker&, std::optional<actor_runtime::Job>&, bool)
+     4.29%  native_echo  libc.so.6            [.] cfree
+     4.15%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::enqueueDispatch(std::shared_ptr<actor_runtime::ActorControl>, std::shared_ptr<actor_runtime::Message const>, bool)
+     4.08%  native_echo  native_echo          [.] std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+     4.01%  native_echo  native_echo          [.] std::_Hashtable<unsigned long, std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> >, std::allocator<std::pair<unsigned long const, std::shared_ptr<actor_runtime::ActorControl> > >, std::__detail::_Select1st, std::equal_to<unsigned long>, std::hash<unsigned long>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(unsigned long const&) [clone .isra.0]
+     3.81%  native_echo  native_echo          [.] std::any::_Manager_external<bench::Packet>::_S_manage(std::any::_Op, std::any const*, std::any::_Arg*)
+     3.60%  native_echo  native_echo          [.] actor_runtime::ReadyDispatch& std::deque<actor_runtime::ReadyDispatch, std::allocator<actor_runtime::ReadyDispatch> >::emplace_back<actor_runtime::ReadyDispatch>(actor_runtime::ReadyDispatch&&) [clone .isra.0]
+     3.32%  native_echo  libc.so.6            [.] malloc
+     3.25%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::workerLoop(actor_runtime::Worker&)
+     3.18%  native_echo  native_echo          [.] Client::issue()
+     2.08%  native_echo  native_echo          [.] Client::onMessage(std::shared_ptr<actor_runtime::Message const>)
+     2.08%  native_echo  native_echo          [.] Echo::onMessage(std::shared_ptr<actor_runtime::Message const>)
+     1.66%  native_echo  libstdc++.so.6.0.33  [.] operator new(unsigned long)
+     1.59%  native_echo  native_echo          [.] actor_runtime::(anonymous namespace)::decrementJobs(actor_runtime::ActorSystem::Impl&)
+     1.25%  native_echo  native_echo          [.] actor_runtime::ActorSystem::Impl::postMessage(std::shared_ptr<actor_runtime::ActorControl>, std::shared_ptr<actor_runtime::Message const>)
+     1.11%  native_echo  native_echo          [.] std::_Sp_counted_ptr_inplace<actor_runtime::Message, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+     1.11%  native_echo  native_echo          [.] void std::__introsort_loop<__gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >, long, __gnu_cxx::__ops::_Iter_less_iter>(__gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >, __gnu_cxx::__normal_iterator<double*, std::vector<double, std::allocator<double> > >, long, __gnu_cxx::__ops::_Iter_less_iter) [clone .isra.0]
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

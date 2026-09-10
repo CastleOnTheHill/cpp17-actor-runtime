@@ -161,6 +161,13 @@ struct Job final {
     MessagePtr message{}; // Dispatch token carries its next immutable message.
 };
 
+// Ordinary-ready queues never contain fiber/timer/completion jobs. Keep their
+// ownership token compact; materialize the general Job only when selected.
+struct ReadyDispatch final {
+    std::shared_ptr<ActorControl> actor;
+    MessagePtr message;
+};
+
 struct TimerEntry final {
     std::chrono::steady_clock::time_point deadline;
     std::uint64_t sequence = 0;
@@ -193,7 +200,7 @@ struct Worker final {
     std::atomic<std::size_t> localCount{0}; // Hint for bounded idle checks, not the sleep predicate.
     // Ordinary dispatch can be stolen. Pinned fiber jobs stay in localQueue.
     std::mutex readyMutex;
-    std::deque<Job> readyQueue;
+    std::deque<ReadyDispatch> readyQueue;
     std::atomic<std::size_t> readyCount{0};
     std::atomic<std::uint64_t> readyEpoch{0}; // Single publisher; SC sleep handshake.
     unsigned readyPosts = 0;
@@ -216,7 +223,7 @@ struct ActorSystem::Impl final {
     void enqueueLocal(Worker& worker, Job job, bool newJob = true);
     Worker* claimWakeup(); // queueMutex must be held; reserves one specific sleeper.
     // newJob=false transfers an already-counted job; caller must not decrement it.
-    void enqueueDispatch(Job job, bool newJob = true);
+    void enqueueDispatch(std::shared_ptr<ActorControl> actor, MessagePtr message, bool newJob = true);
     bool takeReady(Worker& worker, std::optional<Job>& result, bool steal = false);
     bool postMessage(std::shared_ptr<ActorControl> actor, MessagePtr message);
     void workerLoop(Worker& worker);

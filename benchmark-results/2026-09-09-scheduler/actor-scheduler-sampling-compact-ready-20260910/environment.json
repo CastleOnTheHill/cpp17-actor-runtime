@@ -1,0 +1,60 @@
+{
+  "scope": "4 workers, 8 independent clients, window16, 64B, batch1",
+  "cpus": "0-7",
+  "warmup_per_client": 1000,
+  "total_rounds": 4000000,
+  "repeats": 3,
+  "strides": [
+    1,
+    16
+  ],
+  "binaries": {
+    "native": {
+      "path": "/tmp/actor-scheduler-bench-20260909/native_echo",
+      "sha256": "c16b89ef750f7dadf6bb073a2ff1fa4d5dd3eaab36bf186f58f73e908a89b7b5"
+    },
+    "so5": {
+      "path": "/tmp/actor-benchmark-build-20260907/so5_echo",
+      "sha256": "1d8e2272c6b17e9eef1ea2845d95aff5a8e6f17d13b979cc61dde2102d5d46b5"
+    }
+  },
+  "sources": {
+    "CMakeLists.txt": "f8c987e5c392d6fea1074c0992f1164e81d22a09b26ebac62a1fb6c7a3cc46be",
+    "benchmarks/CMakeLists.txt": "39add62827d229acd0501f63f752556ef8041d2243ce4c1203f76b10b7095e9e",
+    "benchmarks/archive_results.py": "522bd294feec1d4d02b21a1083d27d8ca36ae7a7f74a44877d5c612043b22c96",
+    "benchmarks/caf_echo.cpp": "384b291c61929b581e624581ed2ec3fc0af92f0e0a196d2b5cfcc2936592ac47",
+    "benchmarks/common.h": "2d9ca144d6c60104e14b671bc7afd4340794a95716dea3cc07a5fb870bd43f37",
+    "benchmarks/compare_so5.py": "9a36b22de42bf14fd38a9c2718436841268ee1db48b964488d476e113b30c997",
+    "benchmarks/confirm_suite.py": "97a7ba8aab57477e5d41cd409b7e4c701e834f50c19dbd7857c5838065ea800c",
+    "benchmarks/harness_tests.cpp": "326c6fa4f48bf45747995cfd4ca1bfb8470c859f020aab7ea5060ca38b2d7a59",
+    "benchmarks/ipc_echo.cpp": "3d5c2d2ab2b3e4127efe8748e784906e2e779f5cb5bdfb365402539081809846",
+    "benchmarks/native_echo.cpp": "30881296340cf876b5c232912185407933106b82d4150d76ef7443d045cf5810",
+    "benchmarks/probe_sampling.py": "e3537e2492fe86fcf0cc663ff16bd3ebd6c2abcf22c33dc5defa2bd314fd63c4",
+    "benchmarks/profile_suite.py": "c88785a94077ca1eccd0bd20104806e9c9f1a74c0d57004072753c3ff011938a",
+    "benchmarks/run_suite.py": "49a362273f615f4cafd8655fd33a804ca73cdb7b6b57a0b4ae3f5b7e3ce81f48",
+    "benchmarks/run_wake_probe.py": "4678be5724566a7a6d8e0ad2c2bceca7120a080f2bc088d0d0a4aa55199c9397",
+    "benchmarks/so5_echo.cpp": "3560276097cbd34b24022cb1b6095f108134357ee4f9f1e65281f8cb0bb0463d",
+    "benchmarks/wake_probe.cpp": "c8cf13021548ac1183b2f9b31fcdd44469bed24ca6cd37bc0ea868778f821dce",
+    "include/actor_runtime/actor.h": "ca6ff526496cca787b922b3f6a0d7a9ebec64f71117f76e791126caaddc23979",
+    "include/actor_runtime/actor_ref.h": "b24f89425a0ba926572f1d3de4cfac0dc2a204c1f38eca0040864f88364854ad",
+    "include/actor_runtime/actor_system.h": "72bd011292c0d9ce2cf19d89bbca634d43cb700d8bb8da8fcb72e6ee585866d1",
+    "include/actor_runtime/c_api.h": "4045385ea2e50c240797bf3ba63ba8d169758c9f1d2b0cc9a5d0c8232f61a4db",
+    "include/actor_runtime/coroutine_context.h": "48354d68a6241604fbb6e99896aed9dee8a8f83169e3af52edb89d36c08ec8e8",
+    "include/actor_runtime/message.h": "df7b4f2ce4f7709b1229cffbd97165213ef13a3a967bb16c807a74fc65614ba1",
+    "include/actor_runtime/wait.h": "da61c5dc242213a8f1bda7f63b3519db58b07d447cefc0d89fabaa558d083597",
+    "src/actor.cpp": "e076649ab7cdc8a8f938ee7af1f2b1d983c274411e22cb5acf32ab7d30f57155",
+    "src/actor_ref.cpp": "8e8a6876b1327b1265b6ed2f19e789ca9357e1595aee57567a78879abaafb028",
+    "src/actor_system.cpp": "9d61212a606748ca8ed570b6e6362cdf3c0fb11298838f41a0f6fc2cf7791338",
+    "src/blocking_pool.cpp": "8e84b383d1114449cac66b1501c3ddfeab7eb53f3019262c6ffe3cc2b17f8622",
+    "src/blocking_pool.h": "c952f69476bb730d0330c408bc78ccd59178067838293e9d12ee54e1de14093f",
+    "src/c_api.cpp": "436624528da36a04114e3e1edad163df09f1b6392e6943c74e431f1c6d3eb37f",
+    "src/coroutine_context.cpp": "17f43f8b596dc720decdbecd6901ba2985d4910b9412fb040ff5ac147faf4736",
+    "src/internal.h": "c2b4deb60e33847a5ac3684d0ad4659dd38b27a5f147c45f2c26402751e8c21e",
+    "src/ipc_transport.cpp": "f1a3b393fd76357d79eb6328efab343b5463ed72ac87b41ed4170ceb2b4e4cfd",
+    "src/ipc_transport.h": "a219e7daea9d2b87766fd5a513d462fb1a6dc0dd081b9a6460081c452eb6660e",
+    "src/sanitizer.h": "04df8c592288ec12e558268c6bc25dedac2e2384faa7edfe603064b70eccdce5",
+    "src/wait.cpp": "5595fb9e8ebaf21ab45f03af82edf1774c096cbc97c11aab963e58dce025e3ca",
+    "src/wait_internal.h": "9c7ec0fbaf5f3c4c29fd37820fabe0af4c06407fd7b3dff902717faeb0c849f1"
+  },
+  "caveat": "stride changes measurement overhead; diagnostic, not ranking"
+}

@@ -37,18 +37,18 @@ Reproduction command (after building target):
 - GREEN: median **75.369 us**, exit0. Full runtime CTest: **11/11 passed**, 1.64 s.
 - This first commit intentionally does not optimize shared-queue contention.
 
-## Remaining acceptance work
+## Acceptance checklist (final state; evidence at end of this log)
 
 - [x] Commit existing implementation/benchmark baseline.
 - [x] Red/green local-only completion regression and full runtime regression.
-- [ ] Reduce global critical sections and duplicate Actor scheduling safely.
-- [ ] Exercise concurrent senders, FIFO, no concurrent handler execution,
+- [x] Reduce global critical sections and duplicate Actor scheduling safely.
+- [x] Exercise concurrent senders, FIFO, no concurrent handler execution,
       self-send, stop/re-register, timer/cancellation and shutdown races.
-- [ ] Repeat unchanged matched native/SObjectizer matrix and five-run key cases;
+- [x] Repeat unchanged matched native/SObjectizer matrix and five-run key cases;
       record all failures/ranges and verify >=80% throughput where applicable.
-- [ ] Recheck multiworker fiber wakeup stability, IPC, sanitizers and coverage.
-- [ ] Profile final code, retain new raw data, document locks/invariants and results.
-- [ ] Commit final fixes and verify clean development worktree.
+- [x] Recheck multiworker fiber wakeup stability, IPC, sanitizers and coverage.
+- [x] Profile final code, retain new raw data, document locks/invariants and results.
+- [x] Commit final fixes and verify clean development worktree.
 
 Diagnosis order: missed local wakeup (reproduced), redundant scheduling/lock
 contention (measured), allocation overhead (secondary hypothesis). No claimed
@@ -469,3 +469,72 @@ Flat no-inline self samples: mutex lock/unlock 18.76%, sendOwned 11.73%,
 processJob 7.68%, deque emplace 4.19%. The profile is not a timing-gate run;
 it shows on-CPU cost, not kernel/wait time or guaranteed optimization gains.
 See BENCHMARK_PROGRESS_2026-09-10.md for the user-facing comparison.
+
+## Compact ordinary-ready token experiment
+
+Starting from clean commit a7bb1a7, the current profile ranks three remaining
+hypotheses: ordinary-ready Job movement/queue block allocation, consumer mailbox
+locking, and owning Message/any allocation. Only the first is changed here.
+ReadyDispatch contains just the ActorControl and immutable Message shared owners;
+the worker-private ready deque cannot hold fiber/timer/completion jobs. The
+internal enqueueDispatch interface now accepts those two owners directly.
+External/global and directed/pinned publication still materialize general Jobs;
+selection materializes a general Job before the unchanged processJob path.
+
+This removes unused fiber ID, wait token, leaf index, any result and exception
+state from the ordinary queue. It changes neither the public interface nor
+owning payload semantics, dynamic registry lookup, job accounting, migration,
+queue synchronization, FIFO, eight-job fairness budget or one-handler-per-job.
+Existing burst/exception/drain, many-producer FIFO, metadata retention, stop and
+actual migration regressions exercise the changed paths; full CTest passed
+12/12 in 1.58s before benchmarking.
+
+The full three-repeat / 1M matrix first passed all 12 throughput configurations.
+The formerly failing 1w/8c/window16 case reached 2,916,204 RPS (84.48% SO5),
+with p99 102.993 versus 95.962 us. However, its range is 2,711,065-3,143,998;
+4w/8c/window16 still has p99 357.337 versus 90.377 us. These short results alone
+are not a completion claim. The unchanged implementation is undergoing the full
+five-repeat / 4M confirmation before any second optimization is added.
+Raw short evidence: actor-scheduler-gate-compact-ready-20260910.
+
+### Final confirmation and audit
+
+The unchanged compact-ready runtime passed the full five-repeat / 4M matrix:
+12/12 >=80% SO5, weakest 1w/8c/window16 at 2,914,687 / 3,538,382 RPS = 82.37%.
+This is the pre-existing throughput criterion, not a new or relaxed threshold.
+4w/8c/window1 is 3,589,534 RPS (268.31%); the shared hotspot is 600,318 RPS
+(99.95%). All 120 raw runs, ranges, p99, flags and stable hashes are archived in
+actor-scheduler-gate-confirm-compact-ready-20260910. The earlier short pass is
+retained separately, as are every previous failure and reverted experiment.
+
+Fresh final checks: ASan/UBSan 12/12 (2.53s), coverage CTest 12/12,
+1185/1216 runtime lines = 97.45% without exclusions, 1203/1918 raw branches
+= 62.72%. Four concurrency/wakeup/runtime/API suites each repeated 20 times
+passed in 22.96s. Owner-local wakeup median per test was 62.243-108.905 us
+across these 20 repeats, compared with the original 7951.64 us RED result.
+Logs and reports are in validation-compact-ready. Existing API and regression
+tests were not weakened or modified for this final representation change.
+
+Current native event/fiber/IPC binaries passed smoke checks; all 13 fiber/IPC
+configurations x 3 repeats completed. Fiber 4w/64c still varies widely,
+587,632-1,168,128 RPS, with a lower median than the previous matrix; no claim
+of uniform fiber improvement. IPC remains around 10k RPS single-client.
+The pulse/no-pulse full-sampling probe no longer observes the old 10ms p99 step.
+
+Tail review is explicit: 4w/8c/window16 long-gate p99 is 165.800 us versus SO5
+97.546. A new three-repeat 4M-round-trip sampling sensitivity probe compares
+stride1 and stride16 without changing runtime code. Full sampling still gives
+151.920 / 105.637 us; stride16 gives 157.849 / 100.614. Changing sampling does
+not remove the gap, and also changes measurement overhead. No tail parity or
+production SLA is asserted. These tradeoffs are visible, not silently excluded
+from the report or turned into a different throughput acceptance rule.
+
+Final profile and source/test snapshot: actor-scheduler-profile-compact-ready-20260910,
+1445 script events = 1445 folded samples, zero lost, SVG XML validated. All three
+native binaries and actual compile flags are preserved, with hashes. The final
+probe script was added after the gate; runtime source and measured executable
+did not change. Compact-ready source, results, probe and this audit are committed
+together; verify the resulting commit and clean dev status before marking the goal
+complete. No teaching worktree edits or remote push are part of this checkpoint.
+
+Full requirement-to-evidence mapping and limitations: SCHEDULER_ACCEPTANCE.md.

@@ -1,0 +1,34 @@
+[
+  {
+    "framework": "native",
+    "stride": 1,
+    "median_rps": 3307784.166,
+    "median_p99_us": 151.92,
+    "min_p99_us": 149.165,
+    "max_p99_us": 171.569
+  },
+  {
+    "framework": "native",
+    "stride": 16,
+    "median_rps": 3432448.678,
+    "median_p99_us": 157.849,
+    "min_p99_us": 154.178,
+    "max_p99_us": 187.476
+  },
+  {
+    "framework": "so5",
+    "stride": 1,
+    "median_rps": 1801045.527,
+    "median_p99_us": 105.637,
+    "min_p99_us": 101.733,
+    "max_p99_us": 109.206
+  },
+  {
+    "framework": "so5",
+    "stride": 16,
+    "median_rps": 1963550.845,
+    "median_p99_us": 100.614,
+    "min_p99_us": 98.091,
+    "max_p99_us": 101.184
+  }
+]
