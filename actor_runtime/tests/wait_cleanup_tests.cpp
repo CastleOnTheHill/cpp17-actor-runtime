@@ -15,6 +15,11 @@ private:
     static void clean() {
         check(currentActor->messageWaiters.empty(), "message registration retained");
         check(currentWorker->timers.empty(), "losing timer retained");
+        // Ten thousand cancelled long timers must not leave the heap holding a
+        // capacity proportional to the historical peak. The queue shrinks once
+        // the live set drops below a quarter of the capacity, so the bound stays
+        // far below the number of cancellations this scenario performs.
+        check(currentWorker->timers.capacity() <= 1024, "timer heap capacity not reclaimed");
     }
     void onMessage(MessagePtr message) override {
         if (message->typeId != 1) return;
