@@ -1,0 +1,24 @@
+------------------------------------------------------------------------------
+                           GCC Code Coverage Report
+Directory: ../../../../mnt/c/Users/icema/Documents/ChatGPT/下一代ipc框架-dev/actor_runtime
+------------------------------------------------------------------------------
+File                                       Lines     Exec  Cover   Missing
+------------------------------------------------------------------------------
+include/actor_runtime/actor_ref.h              1        1   100%
+include/actor_runtime/actor_system.h           1        1   100%
+include/actor_runtime/wait.h                   8        6    75%   54-55
+src/actor.cpp                                 12       12   100%
+src/actor_ref.cpp                             10       10   100%
+src/actor_system.cpp                         965      931    96%   51,61,147-148,153-156,195,260,286-288,352-360,599-600,701-702,704,781,825-826,1031,1170-1171,1294
+src/blocking_pool.cpp                         27       26    96%   8
+src/c_api.cpp                                 97       95    97%   21,23
+src/coroutine_context.cpp                     93       85    91%   33,81,94,98,106,117-119
+src/internal.h                                17       16    94%   200
+src/ipc_transport.cpp                        109      108    99%   133
+src/sanitizer.h                                4        4   100%
+src/timer_queue.cpp                           44       42    95%   54-55
+src/wait.cpp                                  52       52   100%
+src/wait_internal.h                            2        2   100%
+------------------------------------------------------------------------------
+TOTAL                                       1442     1391    96%
+------------------------------------------------------------------------------
