@@ -18,6 +18,7 @@
 #include <thread>
 #include <ucontext.h>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -51,6 +52,7 @@ struct StackMapping final {
 };
 
 struct RuntimeWaitNode final {
+    std::size_t timerIndex = static_cast<std::size_t>(-1);
     WaitKind kind = WaitKind::Timer;
     MessageKey messageKey{};
     FiberId childId = 0;
@@ -94,6 +96,7 @@ struct Fiber final {
     FiberId parentId = 0;
     ChildLifetime lifetime = ChildLifetime::DetachedFromParent;
     std::unordered_map<FiberId, ChildLifetime> children;
+    std::unordered_set<TaskId> ownedTasks;
 };
 
 struct MessageKeyHash final {
@@ -135,6 +138,14 @@ struct ActorControl final {
     std::atomic<bool> executing{false};
     std::mutex mailboxMutex;
     std::deque<MessagePtr> mailbox;
+    // Producers serialize cumulative admissions with mailboxMutex. The Actor
+    // execution owner alone publishes cumulative returns (including discarded
+    // queued messages). Unsigned differences give occupancy across wraparound;
+    // outstanding bytes/count remain bounded. A stale return only rejects early.
+    std::size_t admittedMessages = 0;
+    std::size_t admittedBytes = 0;
+    std::atomic<std::size_t> returnedMessages{0};
+    std::atomic<std::size_t> returnedBytes{0};
     // Pending owns the same dispatch token, with additional messages in mailbox.
     // Producers serialize via mailboxMutex; an empty consumer retires by CAS.
     std::atomic<DispatchState> dispatchState{DispatchState::Idle};
@@ -175,6 +186,7 @@ struct TimerEntry final {
     FiberId fiberId = 0;
     std::uint64_t token = 0;
     std::size_t leafIndex = 0;
+    RuntimeWaitNode* leaf = nullptr; // Stable until its owner removes the registration.
 };
 
 struct TimerLater final {
@@ -182,6 +194,25 @@ struct TimerLater final {
         if (left.deadline != right.deadline) return left.deadline > right.deadline;
         return left.sequence > right.sequence;
     }
+};
+
+// Owner-worker-only indexed heap. Cancellation uses the registration's stable
+// node, avoiding a second allocation/hash lookup for every logical timer.
+class TimerQueue final {
+public:
+    bool empty() const noexcept { return entries_.empty(); }
+    std::size_t size() const noexcept { return entries_.size(); }
+    std::size_t capacity() const noexcept { return entries_.capacity(); }
+    const TimerEntry& top() const noexcept { return entries_.front(); }
+    void push(TimerEntry entry);
+    void pop() noexcept;
+    void cancel(RuntimeWaitNode& leaf) noexcept;
+private:
+    void erase(std::size_t index) noexcept;
+    void exchange(std::size_t left, std::size_t right) noexcept;
+    void up(std::size_t index) noexcept;
+    void down(std::size_t index) noexcept;
+    std::vector<TimerEntry> entries_;
 };
 
 struct Worker final {
@@ -204,7 +235,7 @@ struct Worker final {
     std::atomic<std::size_t> readyCount{0};
     std::atomic<std::uint64_t> readyEpoch{0}; // Single publisher; SC sleep handshake.
     unsigned readyPosts = 0;
-    std::priority_queue<TimerEntry, std::vector<TimerEntry>, TimerLater> timers;
+    TimerQueue timers;
     std::uint64_t nextTimerSequence = 1;
 };
 
@@ -225,7 +256,9 @@ struct ActorSystem::Impl final {
     // newJob=false transfers an already-counted job; caller must not decrement it.
     void enqueueDispatch(std::shared_ptr<ActorControl> actor, MessagePtr message, bool newJob = true);
     bool takeReady(Worker& worker, std::optional<Job>& result, bool steal = false);
-    bool postMessage(std::shared_ptr<ActorControl> actor, MessagePtr message);
+    SendStatus postMessage(std::shared_ptr<ActorControl> actor, std::shared_ptr<Message> message);
+    void releaseMessage(ActorControl& actor, const Message& message);
+    void discardMailbox(ActorControl& actor);
     void workerLoop(Worker& worker);
     void processJob(Worker& worker, Job& job);
     FiberId createFiber(
@@ -238,10 +271,11 @@ struct ActorSystem::Impl final {
     void finishFiber(const std::shared_ptr<ActorControl>& actor, FiberId id);
     void requestCancellation(const std::shared_ptr<ActorControl>& actor, Fiber& fiber);
     std::optional<WaitResult> installWait(Fiber& fiber, const WaitSpec& spec);
+    void cleanupWait(Fiber& fiber, WaitRegistration& registration) noexcept;
     void triggerWait(const std::shared_ptr<ActorControl>& actor, const LeafRef& leaf, WaitResult result);
     void notifyMessage(const std::shared_ptr<ActorControl>& actor, const MessagePtr& message);
     void log(const char* event, ActorId actor = 0, FiberId fiber = 0) const;
-    void receiveNamed(const std::string& name, ActorId incarnation, MessagePtr message);
+    void receiveNamed(const std::string& name, ActorId incarnation, std::shared_ptr<Message> message);
     MessageId sendBytes(const ActorAddress& target, ActorId incarnation, TypeId type,
                         const void* data, std::size_t size, MessageId correlation, ActorId sender);
     TaskId submitBlocking(Fiber& fiber, std::function<std::any()> work);
@@ -250,13 +284,16 @@ struct ActorSystem::Impl final {
     Config config;
     std::atomic<bool> accepting{true};
     std::atomic<bool> stopping{false};
-    std::atomic<ActorId> nextActorId{1};
+    // ID/job writes must not invalidate read-mostly config/admission flags.
+    alignas(64) std::atomic<ActorId> nextActorId{1};
     std::atomic<MessageId> nextMessageId{1};
     std::atomic<FiberId> nextFiberId{1};
     std::atomic<TaskId> nextTaskId{1};
-    std::atomic<std::size_t> outstandingJobs{0};
+    alignas(64) std::atomic<std::size_t> outstandingJobs{0};
     std::atomic<std::size_t> liveFibers{0};
     std::atomic<std::size_t> liveStacks{0};
+    // Keep global budget writes off the scheduler/ID counter cache line.
+    alignas(64) std::atomic<std::size_t> queuedMailboxBytes{0};
 
     mutable std::mutex registryMutex;
     std::array<RegistryReader, 64> registryReaders;

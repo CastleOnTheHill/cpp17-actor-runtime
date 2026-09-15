@@ -1,0 +1,18 @@
+[
+  {
+    "case": "event-single",
+    "median_rps": {
+      "baseline": 3067385.706,
+      "candidate": 2725095.564
+    },
+    "candidate_over_baseline": 0.888409813826002
+  },
+  {
+    "case": "event-parallel",
+    "median_rps": {
+      "baseline": 3417081.292,
+      "candidate": 2663843.22
+    },
+    "candidate_over_baseline": 0.7795668268813314
+  }
+]

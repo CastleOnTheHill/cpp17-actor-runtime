@@ -1,0 +1,50 @@
+[
+  {
+    "case": "event-single",
+    "median_rps": {
+      "baseline": 3334258.468,
+      "candidate": 2837176.455
+    },
+    "candidate_over_baseline": 0.850916772718533
+  },
+  {
+    "case": "event-window",
+    "median_rps": {
+      "baseline": 3078139.918,
+      "candidate": 2767088.676
+    },
+    "candidate_over_baseline": 0.8989483096005254
+  },
+  {
+    "case": "event-parallel",
+    "median_rps": {
+      "baseline": 3416676.902,
+      "candidate": 2001131.027
+    },
+    "candidate_over_baseline": 0.5856951313800289
+  },
+  {
+    "case": "event-hotspot",
+    "median_rps": {
+      "baseline": 580871.3407,
+      "candidate": 553559.2438
+    },
+    "candidate_over_baseline": 0.9529808152230639
+  },
+  {
+    "case": "fiber-single",
+    "median_rps": {
+      "baseline": 932258.5859,
+      "candidate": 890601.7892
+    },
+    "candidate_over_baseline": 0.9553162638241786
+  },
+  {
+    "case": "fiber-parallel",
+    "median_rps": {
+      "baseline": 717004.8836,
+      "candidate": 774824.5375
+    },
+    "candidate_over_baseline": 1.0806405301030784
+  }
+]

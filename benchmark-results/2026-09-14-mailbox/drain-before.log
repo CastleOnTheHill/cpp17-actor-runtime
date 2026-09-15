@@ -1,0 +1,30 @@
+[OUTPUT] 
+Internal ctest changing into directory: /var/tmp/actor-p0-20260914-e4S6fw/candidate-build
+
+[HANDLER_OUTPUT] 
+Test project /var/tmp/actor-p0-20260914-e4S6fw/candidate-build
+
+    Start 1: mailbox_capacity_tests
+    Test #1: mailbox_capacity_tests ...........   Passed    0.11 sec
+    Start 1: mailbox_capacity_tests
+    Test #1: mailbox_capacity_tests ...........   Passed    0.10 sec
+    Start 1: mailbox_capacity_tests
+    Test #1: mailbox_capacity_tests ...........   Passed    0.11 sec
+    Start 1: mailbox_capacity_tests
+    Test #1: mailbox_capacity_tests ...........   Passed    0.14 sec
+    Start 1: mailbox_capacity_tests
+    Test #1: mailbox_capacity_tests ...........   Passed    0.10 sec
+    Start 1: mailbox_capacity_tests
+    Test #1: mailbox_capacity_tests ...........   Passed    0.13 sec
+    Start 1: mailbox_capacity_tests
+    Test #1: mailbox_capacity_tests ...........   Passed    0.15 sec
+    Start 1: mailbox_capacity_tests
+    Test #1: mailbox_capacity_tests ...........   Passed    0.11 sec
+    Start 1: mailbox_capacity_tests
+    Test #1: mailbox_capacity_tests ...........   Passed    0.11 sec
+    Start 1: mailbox_capacity_tests
+1/1 Test #1: mailbox_capacity_tests ...........   Passed    0.12 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   1.21 sec

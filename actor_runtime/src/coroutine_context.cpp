@@ -36,6 +36,7 @@ WaitResult CoroutineContext::await(WaitSpec spec) {
     if (!fiber.pendingWait) throw std::logic_error("resumed coroutine has no wait result");
     WaitResult result = std::move(*fiber.pendingWait);
     fiber.pendingWait.reset();
+    currentWorker->system->cleanupWait(fiber, *fiber.wait);
     fiber.wait.reset();
     return result;
 }
@@ -75,6 +76,31 @@ void CoroutineContext::throwIfCancelled() const {
     if (cancellationRequested()) throw OperationCancelled();
 }
 
+void CoroutineContext::forgetChild(FiberId childId) {
+    if (!impl_ || !impl_->fiber || currentFiber != impl_->fiber || !currentWorker)
+        throw std::logic_error("forgetChild requires a running coroutine");
+    auto& fiber = *impl_->fiber;
+    const auto child = fiber.children.find(childId);
+    if (child == fiber.children.end()) throw std::invalid_argument("unknown child");
+    if (fiber.actor->fibers.find(childId) != fiber.actor->fibers.end())
+        throw std::logic_error("cannot forget a running child");
+    fiber.actor->completions.erase(childId);
+    fiber.actor->childWaiters.erase(childId);
+    fiber.children.erase(child);
+}
+
+void CoroutineContext::forgetTask(TaskId taskId) {
+    if (!impl_ || !impl_->fiber || currentFiber != impl_->fiber || !currentWorker)
+        throw std::logic_error("forgetTask requires a running coroutine");
+    auto& fiber = *impl_->fiber;
+    const auto task = fiber.actor->tasks.find(taskId);
+    if (task == fiber.actor->tasks.end() || task->second.parentId != fiber.id)
+        throw std::invalid_argument("unknown task or foreign task owner");
+    fiber.actor->taskWaiters.erase(taskId);
+    fiber.actor->tasks.erase(task);
+    fiber.ownedTasks.erase(taskId);
+}
+
 TaskId CoroutineContext::submitBlocking(std::function<std::any()> work) {
     if (!impl_ || !impl_->fiber || currentFiber != impl_->fiber || !currentWorker)
         throw std::logic_error("submitBlocking requires a running coroutine");
@@ -83,7 +109,14 @@ TaskId CoroutineContext::submitBlocking(std::function<std::any()> work) {
 }
 WaitResult CoroutineContext::blocking(std::function<std::any()> work, std::chrono::steady_clock::time_point deadline) {
     auto id = submitBlocking(std::move(work));
-    return await(WaitSpec::any({WaitSpec::task(id), WaitSpec::timer(deadline)}));
+    try {
+        auto result = await(WaitSpec::any({WaitSpec::task(id), WaitSpec::timer(deadline)}));
+        forgetTask(id);
+        return result;
+    } catch (...) {
+        forgetTask(id);
+        throw;
+    }
 }
 
 ActorRef CoroutineContext::self() const noexcept {

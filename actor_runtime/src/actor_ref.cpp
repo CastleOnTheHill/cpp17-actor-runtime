@@ -18,4 +18,9 @@ MessageId ActorRef::send(TypeId typeId, std::any payload, MessageId correlationI
     return system_->sendOwned(id_, typeId, std::move(payload), correlationId);
 }
 
+SendResult ActorRef::trySend(TypeId typeId, std::any payload, MessageId correlationId) const {
+    if (!*this) return {SendStatus::Stopped, 0};
+    return system_->trySendOwned(id_, typeId, std::move(payload), correlationId);
+}
+
 } // namespace actor_runtime

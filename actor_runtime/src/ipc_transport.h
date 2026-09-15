@@ -11,7 +11,7 @@ void validateName(const std::string& name);
 // 每个进程名独占一个 Linux abstract Unix 数据报地址，无目录服务或中转。
 class IpcTransport final {
 public:
-    using Receiver = std::function<void(const std::string&, ActorId, MessagePtr)>;
+    using Receiver = std::function<void(const std::string&, ActorId, std::shared_ptr<Message>)>;
     using Logger = std::function<void(const char*)>;
     IpcTransport(std::string process, Receiver receive, Logger log);
     ~IpcTransport();

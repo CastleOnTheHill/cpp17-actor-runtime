@@ -1,0 +1,50 @@
+[OUTPUT] 
+Internal ctest changing into directory: /tmp/actor-p0-20260913/candidate-build
+
+[HANDLER_OUTPUT] 
+Test project /tmp/actor-p0-20260913/candidate-build
+
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.03 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.03 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+    Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+    Start 2: wait_cleanup_tests
+1/1 Test #2: wait_cleanup_tests ...............   Passed    0.02 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.45 sec

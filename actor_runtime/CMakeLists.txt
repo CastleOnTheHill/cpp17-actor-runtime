@@ -30,6 +30,7 @@ add_library(actor_runtime
     src/actor_system.cpp
     src/coroutine_context.cpp
     src/wait.cpp
+    src/timer_queue.cpp
     src/ipc_transport.cpp
     src/blocking_pool.cpp
     src/c_api.cpp
@@ -39,12 +40,13 @@ target_compile_options(actor_runtime PRIVATE -Wall -Wextra -Wpedantic -Wconversi
 target_link_libraries(actor_runtime PUBLIC Threads::Threads)
 
 enable_testing()
-foreach(test_name blocking_tests ipc_lifecycle_tests c_api_lifecycle_tests blocking_capacity_tests scheduler_wakeup_tests scheduler_dispatch_tests)
+foreach(test_name mailbox_capacity_tests result_lifetime_tests wait_cleanup_tests blocking_tests ipc_lifecycle_tests c_api_lifecycle_tests blocking_capacity_tests scheduler_wakeup_tests scheduler_dispatch_tests)
     add_executable(${test_name} tests/${test_name}.cpp)
     target_link_libraries(${test_name} PRIVATE actor_runtime)
     add_test(NAME ${test_name} COMMAND ${test_name})
     set_tests_properties(${test_name} PROPERTIES TIMEOUT 30)
 endforeach()
+target_include_directories(wait_cleanup_tests PRIVATE src)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 add_executable(c_api_process_test tests/c_api_process_test.c)
 target_link_libraries(c_api_process_test PRIVATE actor_runtime)
@@ -88,6 +90,6 @@ if(ACTOR_RUNTIME_COVERAGE)
             --gcov ${GCOV_EXECUTABLE} --minimum 90
         DEPENDS actor_runtime_tests wait_semantics_tests api_contract_tests order_fulfillment_example
             lifecycle_tests blocking_tests ipc_lifecycle_tests c_api_process_test c_api_lifecycle_tests blocking_capacity_tests
-            scheduler_wakeup_tests scheduler_dispatch_tests
+            scheduler_wakeup_tests scheduler_dispatch_tests result_lifetime_tests wait_cleanup_tests mailbox_capacity_tests
         USES_TERMINAL VERBATIM)
 endif()

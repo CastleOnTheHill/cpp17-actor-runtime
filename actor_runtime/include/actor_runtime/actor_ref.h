@@ -20,6 +20,10 @@ public:
         std::any payload,
         MessageId correlationId = NoCorrelation) const;
 
+    // Never waits for capacity. Allocation/payload estimation may still throw.
+    SendResult trySend(TypeId typeId, std::any payload,
+                       MessageId correlationId = NoCorrelation) const;
+
 private:
     friend class ActorSystem;
     ActorRef(ActorSystem* system, ActorId id) noexcept;

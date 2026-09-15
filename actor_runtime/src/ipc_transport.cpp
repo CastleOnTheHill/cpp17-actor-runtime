@@ -133,7 +133,7 @@ void IpcTransport::loop() {
                 throw std::invalid_argument("sender address mismatch");
             Bytes payload(header.payloadSize);
             if (!payload.empty()) std::memcpy(payload.data(), buffer.data() + sizeof(header), payload.size());
-            auto message = std::make_shared<const Message>(Message{header.type, header.id, header.correlation,
+            auto message = std::make_shared<Message>(Message{header.type, header.id, header.correlation,
                 header.senderId, std::move(payload), {std::move(process), std::move(sourceActor)}});
             receive_(targetActor, header.targetId, std::move(message));
             log_("ipc.receive");

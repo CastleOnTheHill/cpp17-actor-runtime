@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <memory>
 #include <future>
+#include <functional>
 #include <string>
 
 namespace actor_runtime {
@@ -17,6 +18,7 @@ struct RuntimeStats {
     std::size_t liveStacks = 0;
     std::size_t workerCount = 0;
     bool acceptingMessages = false;
+    std::size_t queuedMailboxBytes = 0;
 };
 
 class ActorSystem final {
@@ -31,6 +33,16 @@ public:
         bool diagnosticLogging = false;
         std::size_t blockingThreads = 2;
         std::size_t blockingQueueCapacity = 64;
+        // Queue only: includes the ready-dispatch message, excludes running
+        // handlers, retained MessagePtr values and control jobs. Zero rejects all.
+        std::size_t mailboxMaxMessages = 65536;
+        std::size_t mailboxMaxBytes = 64U * 1024U * 1024U;
+        std::size_t systemMailboxMaxBytes = 256U * 1024U * 1024U;
+        std::size_t maxMessageBytes = 16U * 1024U * 1024U;
+        // Optional pure, thread-safe estimator, called outside admission locks.
+        // Default: Bytes/string capacity; opaque any: sizeof(any). Deep custom
+        // payloads need an estimator. Shared storage is charged per message.
+        std::function<std::size_t(const std::any&)> payloadSizer;
     };
 
     ActorSystem();
@@ -57,6 +69,8 @@ public:
         MessageId correlationId = NoCorrelation);
 
     RuntimeStats stats() const noexcept;
+    SendResult trySend(ActorId recipient, TypeId typeId, std::any payload,
+                       MessageId correlationId = NoCorrelation);
     void shutdown();
 
 private:
@@ -67,6 +81,8 @@ private:
     // that ownership without constructing another type-erased intermediate.
     MessageId sendOwned(ActorId recipient, TypeId typeId, std::any&& payload,
                         MessageId correlationId);
+    SendResult trySendOwned(ActorId recipient, TypeId typeId, std::any&& payload,
+                            MessageId correlationId);
     std::unique_ptr<Impl> impl_;
 };
 

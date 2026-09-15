@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <utility>
 #include <iostream>
+#include <limits>
 #include <sys/random.h>
 
 namespace actor_runtime {
@@ -29,6 +30,29 @@ namespace {
 constexpr std::size_t noLeaf = static_cast<std::size_t>(-1);
 // Bounded scheduler-idle yielding, never an Actor ownership spin loop.
 constexpr unsigned idleYieldBudget = 256;
+
+std::size_t saturatedAdd(std::size_t left, std::size_t right) noexcept {
+    const auto max = std::numeric_limits<std::size_t>::max();
+    return right > max - left ? max : left + right;
+}
+
+std::size_t defaultPayloadBytes(const std::any& payload) noexcept {
+    if (!payload.has_value()) return 0;
+    if (const auto* bytes = std::any_cast<Bytes>(&payload))
+        return saturatedAdd(sizeof(Bytes), bytes->capacity());
+    if (const auto* string = std::any_cast<std::string>(&payload))
+        return saturatedAdd(sizeof(std::string), saturatedAdd(string->capacity(), 1));
+    return sizeof(std::any);
+}
+
+void throwSendFailure(SendStatus status) {
+    switch (status) {
+    case SendStatus::Full: throw std::runtime_error("mailbox capacity exceeded");
+    case SendStatus::MessageTooLarge: throw std::length_error("message exceeds mailbox size limit");
+    case SendStatus::Stopped: throw std::runtime_error("actor system or recipient is stopping");
+    case SendStatus::Accepted: return;
+    }
+}
 
 void fiberTrampoline(std::uint32_t low, std::uint32_t high) {
     const auto id = static_cast<FiberId>(low) | (static_cast<FiberId>(high) << 32U);
@@ -182,11 +206,11 @@ void ActorSystem::Impl::log(const char* event, ActorId actor, FiberId fiber) con
 }
 
 void ActorSystem::Impl::enqueueGlobal(Job job, bool newJob) {
-    if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
     Worker* notify;
     {
         std::lock_guard<std::mutex> lock(queueMutex);
         globalQueue.push_back(std::move(job));
+        if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
         globalCount.store(globalQueue.size(), std::memory_order_release);
         notify = claimWakeup();
     }
@@ -211,20 +235,42 @@ Worker* ActorSystem::Impl::claimWakeup() {
 }
 
 void ActorSystem::Impl::enqueueLocal(Worker& worker, Job job, bool newJob) {
-    if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
     {
         std::lock_guard<std::mutex> lock(queueMutex);
         worker.localQueue.push_back(std::move(job));
+        if (newJob) outstandingJobs.fetch_add(1, std::memory_order_relaxed);
         worker.localCount.store(worker.localQueue.size(), std::memory_order_release);
     }
     worker.wakeCv.notify_one();
 }
 
-bool ActorSystem::Impl::postMessage(std::shared_ptr<ActorControl> actor, MessagePtr message) {
+SendStatus ActorSystem::Impl::postMessage(std::shared_ptr<ActorControl> actor, std::shared_ptr<Message> message) {
+    auto bytes = saturatedAdd(MailboxEnvelopeBytes, config.payloadSizer ?
+        config.payloadSizer(message->payload) : defaultPayloadBytes(message->payload));
+    bytes = saturatedAdd(bytes, message->senderAddress.process.size());
+    bytes = saturatedAdd(bytes, message->senderAddress.actor.size());
     auto* recipient = actor.get();
     std::lock_guard<std::mutex> lock(recipient->mailboxMutex);
-    if (!recipient->receiving || !accepting.load(std::memory_order_acquire)) return false;
+    if (!recipient->receiving || !accepting.load(std::memory_order_acquire)) return SendStatus::Stopped;
+    if (bytes == std::numeric_limits<std::size_t>::max() || bytes > config.maxMessageBytes)
+        return SendStatus::MessageTooLarge;
+    const auto queuedMessages = recipient->admittedMessages - recipient->returnedMessages.load(std::memory_order_acquire);
+    const auto queuedBytes = recipient->admittedBytes - recipient->returnedBytes.load(std::memory_order_acquire);
+    if (queuedMessages >= config.mailboxMaxMessages || bytes > config.mailboxMaxBytes ||
+        queuedBytes > config.mailboxMaxBytes - bytes) return SendStatus::Full;
+    auto total = queuedMailboxBytes.load(std::memory_order_relaxed);
+    do {
+        if (bytes > config.systemMailboxMaxBytes || total > config.systemMailboxMaxBytes - bytes)
+            return SendStatus::Full;
+    } while (!queuedMailboxBytes.compare_exchange_weak(total, total + bytes,
+        std::memory_order_relaxed, std::memory_order_relaxed));
+    ++recipient->admittedMessages;
+    recipient->admittedBytes += bytes;
+    message->estimatedMailboxBytes = bytes;
     const auto state = recipient->dispatchState.load(std::memory_order_acquire);
+    bool queued = false;
+    bool inherited = false;
+    try {
     if (state == DispatchState::Idle) {
         recipient->dispatchState.store(DispatchState::Scheduled, std::memory_order_release);
         // Admission stays locked: stop/shutdown cannot remove the registered
@@ -232,20 +278,57 @@ bool ActorSystem::Impl::postMessage(std::shared_ptr<ActorControl> actor, Message
         enqueueDispatch(std::move(actor), std::move(message));
     } else {
         recipient->mailbox.push_back(std::move(message));
+        queued = true;
         // Publish after queueing. If the consumer retired meanwhile, this
         // producer inherits the token and schedules the oldest queued message.
         // Pending can only be cleared while holding this same mailbox lock.
         // A producer observing it need not repeat the atomic exchange.
         if (state != DispatchState::Pending &&
             recipient->dispatchState.exchange(DispatchState::Pending, std::memory_order_acq_rel) == DispatchState::Idle) {
-            auto next = std::move(recipient->mailbox.front());
+            inherited = true;
+            // This was Scheduled with an empty deque: the only queued item is
+            // ours. Keep it in place until publication succeeds for rollback.
+            enqueueDispatch(std::move(actor), recipient->mailbox.front());
             recipient->mailbox.pop_front();
             recipient->dispatchState.store(recipient->mailbox.empty() ? DispatchState::Scheduled : DispatchState::Pending,
                 std::memory_order_release);
-            enqueueDispatch(std::move(actor), std::move(next));
         }
     }
-    return true;
+    } catch (...) {
+        if (queued) recipient->mailbox.pop_back();
+        if (state == DispatchState::Idle || inherited)
+            recipient->dispatchState.store(DispatchState::Idle, std::memory_order_release);
+        --recipient->admittedMessages;
+        recipient->admittedBytes -= bytes;
+        queuedMailboxBytes.fetch_sub(bytes, std::memory_order_relaxed);
+        throw;
+    }
+    return SendStatus::Accepted;
+}
+
+void ActorSystem::Impl::releaseMessage(ActorControl& actor, const Message& message) {
+    // Actor execution is already owned; no producer writes these counters.
+    actor.returnedMessages.store(actor.returnedMessages.load(std::memory_order_relaxed) + 1,
+        std::memory_order_release);
+    actor.returnedBytes.store(actor.returnedBytes.load(std::memory_order_relaxed) + message.estimatedMailboxBytes,
+        std::memory_order_release);
+    queuedMailboxBytes.fetch_sub(message.estimatedMailboxBytes, std::memory_order_relaxed);
+}
+
+void ActorSystem::Impl::discardMailbox(ActorControl& actor) {
+    std::deque<MessagePtr> discarded;
+    {
+        std::lock_guard<std::mutex> lock(actor.mailboxMutex);
+        std::size_t bytes = 0;
+        for (const auto& message : actor.mailbox) bytes += message->estimatedMailboxBytes;
+        actor.returnedMessages.store(actor.returnedMessages.load(std::memory_order_relaxed) + actor.mailbox.size(),
+            std::memory_order_release);
+        actor.returnedBytes.store(actor.returnedBytes.load(std::memory_order_relaxed) + bytes,
+            std::memory_order_release);
+        queuedMailboxBytes.fetch_sub(bytes, std::memory_order_relaxed);
+        discarded.swap(actor.mailbox);
+    }
+    // User payload destructors run without the admission mutex.
 }
 
 void ActorSystem::Impl::enqueueDispatch(std::shared_ptr<ActorControl> actor, MessagePtr message, bool newJob) {
@@ -475,6 +558,10 @@ void ActorSystem::Impl::processJob(Worker& worker, Job& job) {
     } actorLock{needsOwnership ? &job.actor->executing : nullptr};
 
     currentActor = job.actor.get();
+    // An unsuccessful Actor ownership attempt above must not return capacity.
+    // Charge ends before notification/handler; retained payloads are not queued.
+    if (job.kind == JobKind::DispatchMessage && job.message)
+        releaseMessage(*job.actor, *job.message);
     if (!job.actor->actor) {
         currentActor = nullptr;
         if (job.kind == JobKind::DispatchMessage) {
@@ -559,6 +646,7 @@ void ActorSystem::Impl::processJob(Worker& worker, Job& job) {
         job.actor->childWaiters.clear();
         job.actor->tasks.clear();
         job.actor->taskWaiters.clear();
+        discardMailbox(*job.actor);
         job.actor->stoppedPromise.set_value();
         { std::lock_guard<std::mutex> lock(registryMutex); retiring.erase(id); }
         log("actor.stopped", id);
@@ -681,24 +769,30 @@ void ActorSystem::Impl::finishFiber(const std::shared_ptr<ActorControl>& actor, 
     const auto found = actor->fibers.find(id);
     if (found == actor->fibers.end()) return;
     Fiber& fiber = *found->second;
+    if (fiber.wait) cleanupWait(fiber, *fiber.wait);
     fiber.wait.reset();
 
-    for (auto task = actor->tasks.begin(); task != actor->tasks.end();) {
-        if (task->second.parentId == id) {
-            actor->taskWaiters.erase(task->first);
-            task = actor->tasks.erase(task);
-        } else ++task;
+    for (const auto task : fiber.ownedTasks) {
+        actor->taskWaiters.erase(task);
+        actor->tasks.erase(task);
     }
 
-    Completion completion{fiber.result, fiber.error, fiber.cancelled, fiber.parentId};
-    actor->completions[id] = completion;
+    Completion completion{std::move(fiber.result), fiber.error, fiber.cancelled, fiber.parentId};
+    // Only a live parent can late-join this result. Root/ownerless results are
+    // delivered below and then released, never kept as Actor-wide history.
+    if (fiber.parentId && actor->fibers.find(fiber.parentId) != actor->fibers.end())
+        actor->completions[id] = completion;
 
     std::vector<std::pair<FiberId, ChildLifetime>> children;
     children.reserve(fiber.children.size());
     for (const auto& item : fiber.children) children.push_back(item);
     for (const auto& item : children) {
         const auto child = actor->fibers.find(item.first);
-        if (child == actor->fibers.end()) continue;
+        if (child == actor->fibers.end()) {
+            actor->completions.erase(item.first);
+            actor->childWaiters.erase(item.first);
+            continue;
+        }
         if (item.second == ChildLifetime::CancelWithParent) {
             requestCancellation(actor, *child->second);
         } else {
@@ -786,6 +880,13 @@ std::optional<WaitResult> ActorSystem::Impl::installWait(Fiber& fiber, const Wai
     };
     registration->root = build(spec);
 
+    // Covers partially installed/invalid specs and immediate Any winners. Normal
+    // suspended registrations are cleaned on their owner before await returns.
+    struct Rollback {
+        Impl& system; Fiber& fiber; std::unique_ptr<WaitRegistration>& registration;
+        ~Rollback() { if (registration) system.cleanupWait(fiber, *registration); }
+    } rollback{*this, fiber, registration};
+
     auto actor = fiber.actor->actor->impl_->control.lock();
     if (!actor) throw std::runtime_error("actor no longer exists");
     for (auto* leaf : registration->leaves) {
@@ -828,7 +929,7 @@ std::optional<WaitResult> ActorSystem::Impl::installWait(Fiber& fiber, const Wai
                 leaf->result.reason = WakeReason::Timeout;
             } else {
                 fiber.owner->timers.push(TimerEntry{leaf->deadline, fiber.owner->nextTimerSequence++, actor,
-                    fiber.id, registration->token, leaf->leafIndex});
+                    fiber.id, registration->token, leaf->leafIndex, leaf});
                 fiber.owner->wakeCv.notify_one();
             }
         }
@@ -841,6 +942,30 @@ std::optional<WaitResult> ActorSystem::Impl::installWait(Fiber& fiber, const Wai
     }
     fiber.wait = std::move(registration);
     return std::nullopt;
+}
+
+void ActorSystem::Impl::cleanupWait(Fiber& fiber, WaitRegistration& registration) noexcept {
+    // triggerWait/cancel may run on another worker holding Actor execution.
+    // Only the pinned owner resumes/finishes the fiber and mutates its timer heap.
+    const auto remove = [&](auto& index, const auto& key) {
+        const auto found = index.find(key);
+        if (found == index.end()) return;
+        auto& refs = found->second;
+        refs.erase(std::remove_if(refs.begin(), refs.end(), [&](const LeafRef& ref) {
+            return ref.fiberId == fiber.id && ref.token == registration.token;
+        }), refs.end());
+        if (refs.empty()) index.erase(found);
+    };
+    for (auto* leaf : registration.leaves) {
+        switch (leaf->kind) {
+        case WaitKind::Message: remove(fiber.actor->messageWaiters, leaf->messageKey); break;
+        case WaitKind::Child: remove(fiber.actor->childWaiters, leaf->childId); break;
+        case WaitKind::Task: remove(fiber.actor->taskWaiters, leaf->childId); break;
+        case WaitKind::Timer: fiber.owner->timers.cancel(*leaf); break;
+        default: break;
+        }
+    }
+    registration.active = false;
 }
 
 void ActorSystem::Impl::triggerWait(
@@ -892,7 +1017,7 @@ ActorSystem::ActorSystem(Config config) : impl_(std::make_unique<Impl>(*this, co
         impl_->blockingPool = std::make_unique<BlockingPool>(config.blockingThreads, config.blockingQueueCapacity);
         if (!config.processName.empty()) {
             impl_->transport = std::make_unique<IpcTransport>(config.processName,
-                [this](const std::string& name, ActorId id, MessagePtr message) {
+                [this](const std::string& name, ActorId id, std::shared_ptr<Message> message) {
                     impl_->receiveNamed(name, id, std::move(message));
                 }, [this](const char* event) { impl_->log(event); });
         }
@@ -969,6 +1094,18 @@ MessageId ActorSystem::sendOwned(
     TypeId typeId,
     std::any&& payload,
     MessageId correlationId) {
+    auto result = trySendOwned(recipient, typeId, std::move(payload), correlationId);
+    if (result.status == SendStatus::Stopped && impl_->accepting.load(std::memory_order_acquire))
+        throw std::invalid_argument("recipient actor does not exist or is stopping");
+    throwSendFailure(result.status);
+    return result.id;
+}
+
+SendResult ActorSystem::trySend(ActorId recipient, TypeId typeId, std::any payload, MessageId correlationId) {
+    return trySendOwned(recipient, typeId, std::move(payload), correlationId);
+}
+
+SendResult ActorSystem::trySendOwned(ActorId recipient, TypeId typeId, std::any&& payload, MessageId correlationId) {
     std::shared_ptr<ActorControl> control;
     {
         // The map is still the one authoritative dynamic registry. Independent
@@ -976,9 +1113,9 @@ MessageId ActorSystem::sendOwned(
         auto& stripe = impl_->registryReaders[recipient % impl_->registryReaders.size()];
         std::lock_guard<std::mutex> lock(stripe.mutex);
         if (!impl_->accepting.load(std::memory_order_acquire))
-            throw std::runtime_error("actor system is shutting down");
+            return {SendStatus::Stopped, 0};
         const auto found = impl_->registry.find(recipient);
-        if (found == impl_->registry.end()) throw std::invalid_argument("recipient actor does not exist");
+        if (found == impl_->registry.end()) return {SendStatus::Stopped, 0};
         control = found->second;
     }
     const MessageId id = impl_->nextMessageId.fetch_add(1, std::memory_order_relaxed);
@@ -995,12 +1132,8 @@ MessageId ActorSystem::sendOwned(
     // avoid a conditional-expression temporary when the sender has a name.
     if (!impl_->config.processName.empty()) message->senderAddress.process = impl_->config.processName;
     if (currentActor && !currentActor->name.empty()) message->senderAddress.actor = currentActor->name;
-    if (!impl_->postMessage(std::move(control), MessagePtr(std::move(message)))) {
-        if (!impl_->accepting.load(std::memory_order_acquire))
-            throw std::runtime_error("actor system is shutting down");
-        throw std::invalid_argument("recipient actor is stopping");
-    }
-    return id;
+    const auto status = impl_->postMessage(std::move(control), std::move(message));
+    return {status, status == SendStatus::Accepted ? id : 0};
 }
 
 RuntimeStats ActorSystem::stats() const noexcept {
@@ -1009,7 +1142,8 @@ RuntimeStats ActorSystem::stats() const noexcept {
         impl_->liveFibers.load(std::memory_order_acquire),
         impl_->liveStacks.load(std::memory_order_acquire),
         impl_->workers.size(),
-        impl_->accepting.load(std::memory_order_acquire)};
+        impl_->accepting.load(std::memory_order_acquire),
+        impl_->queuedMailboxBytes.load(std::memory_order_relaxed)};
 }
 
 void ActorSystem::shutdown() {
@@ -1057,7 +1191,7 @@ void ActorSystem::shutdown() {
     impl_->transport.reset();
 }
 
-void ActorSystem::Impl::receiveNamed(const std::string& name, ActorId incarnation, MessagePtr message) {
+void ActorSystem::Impl::receiveNamed(const std::string& name, ActorId incarnation, std::shared_ptr<Message> message) {
     std::lock_guard<std::mutex> lock(registryMutex);
     if (!accepting) return;
     auto found = names.find(name);
@@ -1066,7 +1200,8 @@ void ActorSystem::Impl::receiveNamed(const std::string& name, ActorId incarnatio
         return;
     }
     auto actor = registry.at(found->second);
-    postMessage(std::move(actor), std::move(message));
+    const auto status = postMessage(std::move(actor), std::move(message));
+    if (status != SendStatus::Accepted) log("ipc.mailbox_rejected");
 }
 
 MessageId ActorSystem::Impl::sendBytes(const ActorAddress& target, ActorId incarnation, TypeId type,
@@ -1086,14 +1221,13 @@ MessageId ActorSystem::Impl::sendBytes(const ActorAddress& target, ActorId incar
         source.actor = found->second->name;
     }
     const auto id = nextMessageId.fetch_add(1);
-    auto message = std::make_shared<const Message>(Message{type, id, correlation, sender, std::move(payload), source});
+    auto message = std::make_shared<Message>(Message{type, id, correlation, sender, std::move(payload), source});
     if (target.process.empty() || target.process == config.processName) {
         auto named = names.find(target.actor);
         if (named == names.end() || (incarnation && named->second != incarnation))
             throw std::invalid_argument("target actor does not exist or was replaced");
         auto actor = registry.at(named->second);
-        if (!postMessage(std::move(actor), std::move(message)))
-            throw std::runtime_error("actor system is shutting down");
+        throwSendFailure(postMessage(std::move(actor), std::move(message)));
     } else {
         if (!transport) throw std::logic_error("IPC requires a configured processName");
         if (sender && source.actor.empty()) throw std::logic_error("IPC sender requires a registered actor name");
@@ -1119,15 +1253,19 @@ TaskId ActorSystem::Impl::submitBlocking(Fiber& fiber, std::function<std::any()>
     std::weak_ptr<ActorControl> weakActor = actor;
     auto* owner = fiber.owner;
     try {
+        fiber.ownedTasks.insert(id);
         blockingPool->submit([this, weakActor, owner, id, work = std::move(work)]() mutable {
             std::any result;
             std::exception_ptr error;
             try { result = work(); } catch (...) { error = std::current_exception(); }
+            // Release captured input before publishing completion. The receiver
+            // may run immediately after enqueueLocal, on another worker.
+            work = {};
             if (auto target = weakActor.lock()) {
                 enqueueLocal(*owner, Job{JobKind::TaskCompleted, target, id, 0, 0, std::move(result), error});
             }
         });
-    } catch (...) { actor->tasks.erase(id); throw; }
+    } catch (...) { actor->tasks.erase(id); fiber.ownedTasks.erase(id); throw; }
     log("blocking.submitted", actor->actor->id(), id);
     return id;
 }
