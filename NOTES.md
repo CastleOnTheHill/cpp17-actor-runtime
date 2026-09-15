@@ -228,3 +228,12 @@
 - `waiters` 场景每轮是 `Any(消息登记{77,i+1}, 已过期定时器)` 的竞争，定时器立刻胜出。P0 之前被击败的消息登记留在 `messageWaiters` 里逐轮累积（故探针期望 `count+1`），P0 第三项正是「Any 胜出时撤销输家登记」。按契约改为「持有期只剩最后那个待处理等待、释放后归零」后通过：持有快照 `waiter_keys=1, waiter_refs=1`，释放快照 `waiter_keys=0, waiter_refs=0`，RSS 稳定约 3.94 MiB。**这是一万次 Any 竞争后登记不再累积的直接证据**。
 - **内存诊断全套通过**：`idle_w1/idle_w4/idle_w0`、`actors_1000/10000`、`actor_cycles`、`mailbox_10000_0/64/1024`、`mailbox_100000_0/64/1024`、`fibers_1000_s256_t0/2000_s256_t0/1000_s256_t64/1000_s64_t0`、`completed_1000_0/1000_4096/3000_4096`、`tasks_1000/3000`、`timers_10000/100000`、`waiters_10000/100000`，均 3/3。证据 dev `benchmark-results/2026-09-15-memory/candidate-r6`。
 - 覆盖度说明（保留）：timers 场景持有期实测堆条目为 0，因此它证明的是「清理与无增长」，不证明「曾同时存在一万条定时器条目」；waiters/timers 两处断言已从「累积量」改为「清理契约」。若要恢复形状级覆盖，需在探针里统计等待叶子数。
+
+### 显式 forget 覆盖补齐（P0 第一项的最后空白）
+
+- `forgetChild`/`forgetTask` 是公开 API，但在补测之前**测试目录里一次都没被引用**，也没有任何测试断言「忘记之后结果是否真的释放、晚 await 是否失败」。
+- 已补三条到 `result_lifetime_tests.cpp`，均通过（重复 5/5，全量 CTest 15/15）：
+  - `forgetChild releases the completed child result`：await 成功后 `forgetChild`，弱引用立刻失效，且再次 `await` 该 child 会抛错而不是挂起。
+  - `forgetChild rejects a child that is still running`：对未结束的 child 调用必须抛 `logic_error`，之后仍能正常 await 到结果。
+  - `forgetTask releases an explicit blocking result`：显式 `submitBlocking` 的结果在 `forgetTask` 后释放，再次 `await` 同样抛错。
+- 仍未覆盖的相邻情形：忘记**运行中**的 task 后其晚到结果的落地路径（`blocking.late_result`），需要时序控制，留待下一步；父协程退出时未完成子任务的全面矩阵也仍欠缺。
