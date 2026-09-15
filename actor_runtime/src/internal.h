@@ -146,6 +146,11 @@ struct ActorControl final {
     std::size_t admittedBytes = 0;
     std::atomic<std::size_t> returnedMessages{0};
     std::atomic<std::size_t> returnedBytes{0};
+    // Reserve mode only: system-pool bytes held by this Actor and the count of
+    // consecutive admissions that found the mailbox drained. Producers keep both
+    // under mailboxMutex.
+    std::size_t reservedSystemBytes = 0;
+    unsigned drainedAdmissions = 0;
     // Pending owns the same dispatch token, with additional messages in mailbox.
     // Producers serialize via mailboxMutex; an empty consumer retires by CAS.
     std::atomic<DispatchState> dispatchState{DispatchState::Idle};
@@ -258,6 +263,7 @@ struct ActorSystem::Impl final {
     bool takeReady(Worker& worker, std::optional<Job>& result, bool steal = false);
     SendStatus postMessage(std::shared_ptr<ActorControl> actor, std::shared_ptr<Message> message);
     void releaseMessage(ActorControl& actor, const Message& message);
+    std::size_t reserveSystemBytes(std::size_t want) noexcept;
     // Outstanding system bytes are admitted minus returned. Clamping keeps an
     // out-of-order snapshot of the two monotonic counters from wrapping.
     std::size_t outstandingMailboxBytes() const noexcept {

@@ -244,6 +244,22 @@ void ActorSystem::Impl::enqueueLocal(Worker& worker, Job job, bool newJob) {
     worker.wakeCv.notify_one();
 }
 
+std::size_t ActorSystem::Impl::reserveSystemBytes(std::size_t want) noexcept {
+    // Reserve mode only. Returns how much of `want` the shared pool could give
+    // up; the caller must treat a short grant as a bounded failure.
+    auto total = admittedMailboxBytes.load(std::memory_order_relaxed);
+    for (;;) {
+        const auto returned = returnedMailboxBytes.load(std::memory_order_relaxed);
+        const auto outstanding = total > returned ? total - returned : 0;
+        if (outstanding >= config.systemMailboxMaxBytes) return 0;
+        const auto room = config.systemMailboxMaxBytes - outstanding;
+        const auto grant = want < room ? want : room;
+        if (admittedMailboxBytes.compare_exchange_weak(total, total + grant,
+                std::memory_order_relaxed, std::memory_order_relaxed))
+            return grant;
+    }
+}
+
 SendStatus ActorSystem::Impl::postMessage(std::shared_ptr<ActorControl> actor, std::shared_ptr<Message> message) {
     auto bytes = saturatedAdd(MailboxEnvelopeBytes, config.payloadSizer ?
         config.payloadSizer(message->payload) : defaultPayloadBytes(message->payload));
@@ -258,23 +274,50 @@ SendStatus ActorSystem::Impl::postMessage(std::shared_ptr<ActorControl> actor, s
     const auto queuedBytes = recipient->admittedBytes - recipient->returnedBytes.load(std::memory_order_acquire);
     if (queuedMessages >= config.mailboxMaxMessages || bytes > config.mailboxMaxBytes ||
         queuedBytes > config.mailboxMaxBytes - bytes) return SendStatus::Full;
-    // Admitted and returned are separate monotonic counters, so the returning
-    // worker never steals the line this CAS needs. A stale returned snapshot
-    // can only overstate usage: the hard budget is never exceeded, and the
-    // retry path refreshes the snapshot before re-checking. This stays a CAS
-    // loop on purpose. fetch_add plus rollback was measured and rejected twice:
-    // its transient over-count is observable through stats().queuedMailboxBytes
-    // and makes a concurrent producer reject early.
-    auto returned = returnedMailboxBytes.load(std::memory_order_relaxed);
-    auto admitted = admittedMailboxBytes.load(std::memory_order_relaxed);
-    for (;;) {
-        const auto outstanding = admitted > returned ? admitted - returned : 0;
-        if (bytes > config.systemMailboxMaxBytes || outstanding > config.systemMailboxMaxBytes - bytes)
-            return SendStatus::Full;
-        if (admittedMailboxBytes.compare_exchange_weak(admitted, admitted + bytes,
-                std::memory_order_relaxed, std::memory_order_relaxed))
-            break;
-        returned = returnedMailboxBytes.load(std::memory_order_relaxed);
+    if (bytes > config.systemMailboxMaxBytes) return SendStatus::Full;
+    if (config.mailboxBudget == Config::MailboxBudget::Reserve) {
+        // Chunked reservation: the shared pool is touched once per chunk rather
+        // than once per message. Holding a chunk can only overstate usage, so
+        // the hard budget still holds; the price is possible early rejection.
+        const auto outstanding = recipient->admittedBytes - recipient->returnedBytes.load(std::memory_order_relaxed);
+        if (outstanding == 0) {
+            // Give a long-idle chunk back so other Actors can use the pool.
+            if (recipient->reservedSystemBytes && ++recipient->drainedAdmissions >= 64) {
+                returnedMailboxBytes.fetch_add(recipient->reservedSystemBytes, std::memory_order_relaxed);
+                recipient->reservedSystemBytes = 0;
+                recipient->drainedAdmissions = 0;
+            }
+        } else {
+            recipient->drainedAdmissions = 0;
+        }
+        if (outstanding + bytes > recipient->reservedSystemBytes) {
+            const auto need = outstanding + bytes - recipient->reservedSystemBytes;
+            const auto want = need > config.reserveChunkBytes ? need : config.reserveChunkBytes;
+            const auto granted = reserveSystemBytes(want);
+            if (granted < need) {
+                if (granted) returnedMailboxBytes.fetch_add(granted, std::memory_order_relaxed);
+                return SendStatus::Full;
+            }
+            recipient->reservedSystemBytes += granted;
+        }
+    } else {
+        // Admitted and returned are separate monotonic counters, so the returning
+        // worker never steals the line this CAS needs. A stale returned snapshot
+        // can only overstate usage: the hard budget is never exceeded, and the
+        // retry path refreshes the snapshot before re-checking. This stays a CAS
+        // loop on purpose: fetch_add plus rollback was measured and rejected
+        // twice, because its transient over-count is observable through
+        // stats().queuedMailboxBytes and makes a concurrent producer reject early.
+        auto returned = returnedMailboxBytes.load(std::memory_order_relaxed);
+        auto admitted = admittedMailboxBytes.load(std::memory_order_relaxed);
+        for (;;) {
+            const auto outstanding = admitted > returned ? admitted - returned : 0;
+            if (outstanding > config.systemMailboxMaxBytes - bytes) return SendStatus::Full;
+            if (admittedMailboxBytes.compare_exchange_weak(admitted, admitted + bytes,
+                    std::memory_order_relaxed, std::memory_order_relaxed))
+                break;
+            returned = returnedMailboxBytes.load(std::memory_order_relaxed);
+        }
     }
     ++recipient->admittedMessages;
     recipient->admittedBytes += bytes;
@@ -324,7 +367,10 @@ void ActorSystem::Impl::releaseMessage(ActorControl& actor, const Message& messa
         std::memory_order_release);
     actor.returnedBytes.store(actor.returnedBytes.load(std::memory_order_relaxed) + message.estimatedMailboxBytes,
         std::memory_order_release);
-    returnedMailboxBytes.fetch_add(message.estimatedMailboxBytes, std::memory_order_relaxed);
+    // Reserve mode returns whole chunks instead, so the shared pool is not
+    // touched per message.
+    if (config.mailboxBudget == Config::MailboxBudget::Exact)
+        returnedMailboxBytes.fetch_add(message.estimatedMailboxBytes, std::memory_order_relaxed);
 }
 
 void ActorSystem::Impl::discardMailbox(ActorControl& actor) {
@@ -337,7 +383,15 @@ void ActorSystem::Impl::discardMailbox(ActorControl& actor) {
             std::memory_order_release);
         actor.returnedBytes.store(actor.returnedBytes.load(std::memory_order_relaxed) + bytes,
             std::memory_order_release);
-        returnedMailboxBytes.fetch_add(bytes, std::memory_order_relaxed);
+        if (config.mailboxBudget == Config::MailboxBudget::Reserve) {
+            // The whole held chunk goes back once this Actor can no longer admit.
+            if (actor.reservedSystemBytes) {
+                returnedMailboxBytes.fetch_add(actor.reservedSystemBytes, std::memory_order_relaxed);
+                actor.reservedSystemBytes = 0;
+            }
+        } else {
+            returnedMailboxBytes.fetch_add(bytes, std::memory_order_relaxed);
+        }
         discarded.swap(actor.mailbox);
     }
     // User payload destructors run without the admission mutex.

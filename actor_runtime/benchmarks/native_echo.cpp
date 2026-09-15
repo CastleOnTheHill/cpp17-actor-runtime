@@ -61,6 +61,8 @@ int main(int argc,char** argv) {
 #endif
         bench::Harness h(c); std::vector<std::unique_ptr<bench::Client>> data;
         ar::ActorSystem::Config options; options.workerCount=c.workers;
+        if(const char* budget=std::getenv("ACTOR_BENCH_BUDGET"); budget && budget[0]=='r')
+            options.mailboxBudget=ar::ActorSystem::Config::MailboxBudget::Reserve;
         ar::ActorSystem system(options); // declared after data: destroys actors before data on exceptions
         std::vector<ar::ActorRef> clients;
         auto echo=system.registerActor(std::make_unique<Echo>(system,h));

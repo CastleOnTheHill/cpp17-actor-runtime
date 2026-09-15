@@ -26,6 +26,14 @@ public:
     struct Impl;
 
     struct Config {
+        // How the system-wide byte budget is enforced. Exact accounts every
+        // message separately: the pool is never over-reserved and rejection is
+        // exact, at the cost of one shared atomic per send. Reserve draws a
+        // per-Actor chunk from the pool so senders touch the shared counter once
+        // per chunk; it never exceeds the budget either, but can reject slightly
+        // early while chunks are held and makes stats().queuedMailboxBytes an
+        // upper bound instead of an exact figure.
+        enum class MailboxBudget { Exact, Reserve };
         std::size_t workerCount = 0;
         std::size_t fiberStackSize = 256U * 1024U;
         std::chrono::milliseconds shutdownTimeout{5000};
@@ -38,6 +46,8 @@ public:
         std::size_t mailboxMaxMessages = 65536;
         std::size_t mailboxMaxBytes = 64U * 1024U * 1024U;
         std::size_t systemMailboxMaxBytes = 256U * 1024U * 1024U;
+        MailboxBudget mailboxBudget = MailboxBudget::Exact;
+        std::size_t reserveChunkBytes = 64U * 1024U;
         std::size_t maxMessageBytes = 16U * 1024U * 1024U;
         // Optional pure, thread-safe estimator, called outside admission locks.
         // Default: Bytes/string capacity; opaque any: sizeof(any). Deep custom
