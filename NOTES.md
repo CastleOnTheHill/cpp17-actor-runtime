@@ -257,3 +257,10 @@
 - `wait_cleanup_tests.cpp` 的 `clean()` 原本只断言 `currentWorker->timers.empty()`；现在追加 `capacity() <= 1024`。该场景在一轮内循环 10000 次，每次都压入一个 10 分钟定时器并被即时赢家击败，因此这条断言直接覆盖「大量撤销后堆容量不随历史峰值增长」。
 - 实测重复 5/5 通过（全量 CTest 15/15）。加上此前已覆盖的单条撤销、即时 Any、登记回滚与跨 1/4 worker 运行，P0 第三项的等待与定时器清理已无已知空白，除了下面这条说明。
 - 仍未覆盖：**跨 worker 的定时器取消**（定时器落在非当前 worker 的堆上时由另一 worker 撤销）以及批量同时挂起大量定时器后一次撤销的形状级验证。现有断言只覆盖单一 worker 上的反复撤销与容量回收。
+
+### 覆盖率复测：环境已就绪，但报告生成卡在 gcov 退出码
+
+- gcovr 已装：系统 Python 受 PEP 668 保护（`pip --user` 被拒），`python3 -m venv` 也失败（缺 python3-venv），最终用 `python3 -m pip install --user --break-system-packages gcovr` 装到 `/home/arvin/.local`。gcovr 7 的 `--filter` 语义已改为相对路径匹配，正则必须用 `--filter-regex`（这一点先前踩过一次）。
+- 覆盖率构建可用：`cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_EXE_LINKER_FLAGS=--coverage` 配到 `/var/tmp/actor-p0-20260914-e4S6fw/coverage-build`，构建成功且 15/15 测试通过（用时 2.34 秒），即 .gcda 已产生。
+- 但 `python3 -m gcovr -r <src> --filter-regex "/mnt/c/.*/actor_runtime/(src|include)/"` 抛 `gcovr.exceptions.SanityCheckError: Exitcode must be 0`；加 `--gcov-ignore-errors all` 仍然失败。也就是说某个内部 `gcov` 调用返回非零，尚不知道该对象是哪一个。
+- 下一步（未做）：用 `gcovr -v` 找出失败的具体 gcov 调用，或手工 `gcov -o <build> <某个 .gcno>` 复现；怀疑与新加入的 C 测试（`ipc_c_processes`）或与测试产生的子进程 .gcda 有关。在拿到真实数字之前不引用任何覆盖率百分比。
