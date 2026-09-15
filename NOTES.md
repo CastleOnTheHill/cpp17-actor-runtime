@@ -278,3 +278,9 @@
 - 可用命令（在覆盖率构建目录内执行）：`python3 -m gcovr -r <src> <build> --filter "/mnt/c/.*/actor_runtime/(src|include)/" --gcov-ignore-parse-errors negative_hits.warn_once_per_file --txt -o <out>`；注意搜索路径是**位置参数**。
 - 结果：**TOTAL 1442 行，1391 行执行，96%**（只统计 `src/` 与 `include/`，排除测试与基准；`src/wait_internal.h` 2/2 100%）。报告里忽略 9 处负命中，全部来自 fork 子进程写同一份 .gcda（`ipc_c_processes` 一类测试），已确认不影响汇总口径之外的文件。
 - 报告落盘在 dev `benchmark-results/2026-09-15-coverage/coverage.txt`。此前的 97.4% 是更早提交的旧数字，当前实测为 96%。
+
+### 跨 worker 定时器取消：按构造不成立，已作为不变量写进代码
+
+- 查证结论：fiber 在创建时绑定 owner（`actor_system.cpp` 中 `fiber->owner = &owner`，全文再无改写点），定时器压入用 `fiber.owner->timers.push`、取消用 `fiber.owner->timers.cancel`、恢复用 `enqueueLocal(*fiber.owner, ...)`，且恢复前有 `fiber.owner != &worker` 的守卫。fiber 不迁移，因此「定时器落在别的 worker 堆上、由另一 worker 撤销」这一情形在设计上不可达，不是未覆盖缺口。
+- 已在该赋值处加注释固化这条不变量，并写明：若将来引入 fiber 迁移，必须重新审视 TimerQueue 的归属模型。
+- 仍然真实的形状级缺口：**同时挂起大量定时器再一次撤销**。现有场景是一次只压入一个长定时器（循环 10000 次），因此覆盖的是反复撤销与容量回收，而非「同一时刻堆里有很多条目」的形状。
