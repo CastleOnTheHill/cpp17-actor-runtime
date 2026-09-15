@@ -164,5 +164,20 @@ int main() {
         c.self().send(2, {});
         return {};
     });
+    test("parent exit cancels many simultaneously pending timers", [](CoroutineContext& c, State& s) -> std::any {
+        // Shape case: unlike the single-long-timer loop elsewhere, this leaves
+        // dozens of entries pending in the worker's heap at the same instant and
+        // then drops them all through parent-exit cancellation.
+        for (int i = 0; i < 64; ++i)
+            c.spawn([](CoroutineContext& inner) -> std::any {
+                inner.await(WaitSpec::timer(std::chrono::steady_clock::now() + 10min));
+                return {};
+            }, ChildLifetime::CancelWithParent);
+        // Yield once so the children actually start and register their timers
+        // before the parent returns; the harness then asserts liveStacks == 0.
+        c.await(WaitSpec::timer(std::chrono::steady_clock::now() + 50ms));
+        c.self().send(2, {});
+        return {};
+    });
     return failures ? 1 : 0;
 }
