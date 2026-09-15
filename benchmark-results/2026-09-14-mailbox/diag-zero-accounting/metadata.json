@@ -1,0 +1,116 @@
+{
+  "utc": "2026-09-15T14:48:51.538745+00:00",
+  "kernel": "5.15.167.4-microsoft-standard-WSL2",
+  "allowed_cpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "arguments": {
+    "baseline": "/var/tmp/actor-p0-20260914-e4S6fw/candidate-build",
+    "candidate": "/var/tmp/actor-p0-20260914-e4S6fw/diag-build",
+    "baseline_source": "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime",
+    "candidate_source": "/mnt/c/Users/icema/AppData/Local/Temp/actor-diag/actor_runtime",
+    "output": "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/benchmark-results/2026-09-14-mailbox/diag-zero-accounting",
+    "repeats": 12,
+    "rounds": 2000000,
+    "fiber_rounds": 100000,
+    "cpus": "0-7",
+    "case": [
+      "event-single",
+      "event-window",
+      "event-parallel"
+    ],
+    "minimum_ratio": null
+  },
+  "binary_sha256": {
+    "baseline": {
+      "event": "ea2fc989f0621bdc3c2860ccbe0613380bd026af702a0252872e655b21cf6587",
+      "fiber": "fe37bc59b9d5fbf781e7600c2e6f2b7dd49da7bf8c8bf951f87f293a2f387856"
+    },
+    "candidate": {
+      "event": "d172537ec8e4faf7fd56bb27bb4977f2f2cb190f816fa70be728757ba0161fea",
+      "fiber": "bb7bbcad1c7affec9d9b57037197e904f697ab8a0a0849ec9b357820bec8c348"
+    }
+  },
+  "scope": "preliminary event/fiber screening; no claim about all P0 scenarios",
+  "compile_commands": [
+    [
+      "g++",
+      "-O2",
+      "-g",
+      "-DNDEBUG",
+      "-fno-omit-frame-pointer",
+      "-std=c++17",
+      "-pthread",
+      "-I",
+      "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include",
+      "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/benchmarks/native_echo.cpp",
+      "/var/tmp/actor-p0-20260914-e4S6fw/candidate-build/libactor_runtime.a",
+      "-o",
+      "/var/tmp/actor-p0-20260914-e4S6fw/candidate-build/echo-event"
+    ],
+    [
+      "g++",
+      "-O2",
+      "-g",
+      "-DNDEBUG",
+      "-fno-omit-frame-pointer",
+      "-std=c++17",
+      "-pthread",
+      "-DBENCH_FIBER=1",
+      "-I",
+      "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include",
+      "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/benchmarks/native_echo.cpp",
+      "/var/tmp/actor-p0-20260914-e4S6fw/candidate-build/libactor_runtime.a",
+      "-o",
+      "/var/tmp/actor-p0-20260914-e4S6fw/candidate-build/echo-fiber"
+    ],
+    [
+      "g++",
+      "-O2",
+      "-g",
+      "-DNDEBUG",
+      "-fno-omit-frame-pointer",
+      "-std=c++17",
+      "-pthread",
+      "-I",
+      "/mnt/c/Users/icema/AppData/Local/Temp/actor-diag/actor_runtime/include",
+      "/mnt/c/Users/icema/AppData/Local/Temp/actor-diag/actor_runtime/benchmarks/native_echo.cpp",
+      "/var/tmp/actor-p0-20260914-e4S6fw/diag-build/libactor_runtime.a",
+      "-o",
+      "/var/tmp/actor-p0-20260914-e4S6fw/diag-build/echo-event"
+    ],
+    [
+      "g++",
+      "-O2",
+      "-g",
+      "-DNDEBUG",
+      "-fno-omit-frame-pointer",
+      "-std=c++17",
+      "-pthread",
+      "-DBENCH_FIBER=1",
+      "-I",
+      "/mnt/c/Users/icema/AppData/Local/Temp/actor-diag/actor_runtime/include",
+      "/mnt/c/Users/icema/AppData/Local/Temp/actor-diag/actor_runtime/benchmarks/native_echo.cpp",
+      "/var/tmp/actor-p0-20260914-e4S6fw/diag-build/libactor_runtime.a",
+      "-o",
+      "/var/tmp/actor-p0-20260914-e4S6fw/diag-build/echo-fiber"
+    ]
+  ]
+}

@@ -258,6 +258,13 @@ struct ActorSystem::Impl final {
     bool takeReady(Worker& worker, std::optional<Job>& result, bool steal = false);
     SendStatus postMessage(std::shared_ptr<ActorControl> actor, std::shared_ptr<Message> message);
     void releaseMessage(ActorControl& actor, const Message& message);
+    // Outstanding system bytes are admitted minus returned. Clamping keeps an
+    // out-of-order snapshot of the two monotonic counters from wrapping.
+    std::size_t outstandingMailboxBytes() const noexcept {
+        const auto admitted = admittedMailboxBytes.load(std::memory_order_relaxed);
+        const auto returned = returnedMailboxBytes.load(std::memory_order_relaxed);
+        return admitted > returned ? admitted - returned : 0;
+    }
     void discardMailbox(ActorControl& actor);
     void workerLoop(Worker& worker);
     void processJob(Worker& worker, Job& job);
@@ -292,8 +299,12 @@ struct ActorSystem::Impl final {
     alignas(64) std::atomic<std::size_t> outstandingJobs{0};
     std::atomic<std::size_t> liveFibers{0};
     std::atomic<std::size_t> liveStacks{0};
-    // Keep global budget writes off the scheduler/ID counter cache line.
-    alignas(64) std::atomic<std::size_t> queuedMailboxBytes{0};
+    // Only producers write admittedMailboxBytes and only the consuming worker
+    // writes returnedMailboxBytes, so the system budget does not ping-pong one
+    // cache line between a sender and its Actor worker. Each counter keeps its
+    // own line away from the scheduler/ID counters.
+    alignas(64) std::atomic<std::size_t> admittedMailboxBytes{0};
+    alignas(64) std::atomic<std::size_t> returnedMailboxBytes{0};
 
     mutable std::mutex registryMutex;
     std::array<RegistryReader, 64> registryReaders;

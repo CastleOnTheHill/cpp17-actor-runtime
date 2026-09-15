@@ -1,0 +1,41 @@
+[
+  {
+    "case": "event-single",
+    "median_rps": {
+      "baseline": 2995915.5755000003,
+      "candidate": 3020231.8045
+    },
+    "candidate_over_baseline": 1.0081164600227233,
+    "paired_ratio_median": 0.9978237879400793,
+    "paired_ratio_min": 0.9591566296492069,
+    "paired_ratio_max": 1.0420490878758533,
+    "paired_wins": 5,
+    "paired_losses": 7
+  },
+  {
+    "case": "event-window",
+    "median_rps": {
+      "baseline": 2913616.5824999996,
+      "candidate": 2973673.115
+    },
+    "candidate_over_baseline": 1.020612366383661,
+    "paired_ratio_median": 1.0169940287802284,
+    "paired_ratio_min": 0.9699081360821473,
+    "paired_ratio_max": 1.2736100988755588,
+    "paired_wins": 10,
+    "paired_losses": 2
+  },
+  {
+    "case": "event-parallel",
+    "median_rps": {
+      "baseline": 3320046.141,
+      "candidate": 4356447.350500001
+    },
+    "candidate_over_baseline": 1.312164700574865,
+    "paired_ratio_median": 1.3158970405027268,
+    "paired_ratio_min": 1.1960165754122076,
+    "paired_ratio_max": 1.592915750859899,
+    "paired_wins": 12,
+    "paired_losses": 0
+  }
+]

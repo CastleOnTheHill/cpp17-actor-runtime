@@ -1,0 +1,80 @@
+[
+  {
+    "case": "event-single",
+    "median_rps": {
+      "baseline": 3227314.174,
+      "candidate": 3040309.4234999996
+    },
+    "candidate_over_baseline": 0.9420556102016486,
+    "paired_ratio_median": 0.9324679643392476,
+    "paired_ratio_min": 0.8672923493447267,
+    "paired_ratio_max": 0.98701418816967,
+    "paired_wins": 0,
+    "paired_losses": 16
+  },
+  {
+    "case": "event-window",
+    "median_rps": {
+      "baseline": 3126555.2965,
+      "candidate": 2887126.3345
+    },
+    "candidate_over_baseline": 0.923420845213252,
+    "paired_ratio_median": 0.9263846854088853,
+    "paired_ratio_min": 0.8713813383273783,
+    "paired_ratio_max": 1.055287167613572,
+    "paired_wins": 1,
+    "paired_losses": 15
+  },
+  {
+    "case": "event-parallel",
+    "median_rps": {
+      "baseline": 3573365.5300000003,
+      "candidate": 3372895.959
+    },
+    "candidate_over_baseline": 0.9438989464366383,
+    "paired_ratio_median": 0.9562343770631514,
+    "paired_ratio_min": 0.8684075971260873,
+    "paired_ratio_max": 1.135332246280377,
+    "paired_wins": 1,
+    "paired_losses": 15
+  },
+  {
+    "case": "event-hotspot",
+    "median_rps": {
+      "baseline": 620479.2453000001,
+      "candidate": 626325.50465
+    },
+    "candidate_over_baseline": 1.009422167452472,
+    "paired_ratio_median": 1.0171471424425924,
+    "paired_ratio_min": 0.9761209742598896,
+    "paired_ratio_max": 1.0877059990062077,
+    "paired_wins": 11,
+    "paired_losses": 5
+  },
+  {
+    "case": "fiber-single",
+    "median_rps": {
+      "baseline": 893732.26395,
+      "candidate": 844250.26715
+    },
+    "candidate_over_baseline": 0.9446344293521349,
+    "paired_ratio_median": 0.9557012985613291,
+    "paired_ratio_min": 0.8516257608444542,
+    "paired_ratio_max": 1.0212606313150367,
+    "paired_wins": 1,
+    "paired_losses": 15
+  },
+  {
+    "case": "fiber-parallel",
+    "median_rps": {
+      "baseline": 937782.0512999999,
+      "candidate": 860582.0137499999
+    },
+    "candidate_over_baseline": 0.9176780602241411,
+    "paired_ratio_median": 0.9402629076625639,
+    "paired_ratio_min": 0.7427180224487395,
+    "paired_ratio_max": 1.4043722997028867,
+    "paired_wins": 4,
+    "paired_losses": 12
+  }
+]

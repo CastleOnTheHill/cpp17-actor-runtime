@@ -258,12 +258,24 @@ SendStatus ActorSystem::Impl::postMessage(std::shared_ptr<ActorControl> actor, s
     const auto queuedBytes = recipient->admittedBytes - recipient->returnedBytes.load(std::memory_order_acquire);
     if (queuedMessages >= config.mailboxMaxMessages || bytes > config.mailboxMaxBytes ||
         queuedBytes > config.mailboxMaxBytes - bytes) return SendStatus::Full;
-    auto total = queuedMailboxBytes.load(std::memory_order_relaxed);
-    do {
-        if (bytes > config.systemMailboxMaxBytes || total > config.systemMailboxMaxBytes - bytes)
+    // Admitted and returned are separate monotonic counters, so the returning
+    // worker never steals the line this CAS needs. A stale returned snapshot
+    // can only overstate usage: the hard budget is never exceeded, and the
+    // retry path refreshes the snapshot before re-checking. This stays a CAS
+    // loop on purpose. fetch_add plus rollback was measured and rejected twice:
+    // its transient over-count is observable through stats().queuedMailboxBytes
+    // and makes a concurrent producer reject early.
+    auto returned = returnedMailboxBytes.load(std::memory_order_relaxed);
+    auto admitted = admittedMailboxBytes.load(std::memory_order_relaxed);
+    for (;;) {
+        const auto outstanding = admitted > returned ? admitted - returned : 0;
+        if (bytes > config.systemMailboxMaxBytes || outstanding > config.systemMailboxMaxBytes - bytes)
             return SendStatus::Full;
-    } while (!queuedMailboxBytes.compare_exchange_weak(total, total + bytes,
-        std::memory_order_relaxed, std::memory_order_relaxed));
+        if (admittedMailboxBytes.compare_exchange_weak(admitted, admitted + bytes,
+                std::memory_order_relaxed, std::memory_order_relaxed))
+            break;
+        returned = returnedMailboxBytes.load(std::memory_order_relaxed);
+    }
     ++recipient->admittedMessages;
     recipient->admittedBytes += bytes;
     message->estimatedMailboxBytes = bytes;
@@ -300,7 +312,7 @@ SendStatus ActorSystem::Impl::postMessage(std::shared_ptr<ActorControl> actor, s
             recipient->dispatchState.store(DispatchState::Idle, std::memory_order_release);
         --recipient->admittedMessages;
         recipient->admittedBytes -= bytes;
-        queuedMailboxBytes.fetch_sub(bytes, std::memory_order_relaxed);
+        admittedMailboxBytes.fetch_sub(bytes, std::memory_order_relaxed);
         throw;
     }
     return SendStatus::Accepted;
@@ -312,7 +324,7 @@ void ActorSystem::Impl::releaseMessage(ActorControl& actor, const Message& messa
         std::memory_order_release);
     actor.returnedBytes.store(actor.returnedBytes.load(std::memory_order_relaxed) + message.estimatedMailboxBytes,
         std::memory_order_release);
-    queuedMailboxBytes.fetch_sub(message.estimatedMailboxBytes, std::memory_order_relaxed);
+    returnedMailboxBytes.fetch_add(message.estimatedMailboxBytes, std::memory_order_relaxed);
 }
 
 void ActorSystem::Impl::discardMailbox(ActorControl& actor) {
@@ -325,7 +337,7 @@ void ActorSystem::Impl::discardMailbox(ActorControl& actor) {
             std::memory_order_release);
         actor.returnedBytes.store(actor.returnedBytes.load(std::memory_order_relaxed) + bytes,
             std::memory_order_release);
-        queuedMailboxBytes.fetch_sub(bytes, std::memory_order_relaxed);
+        returnedMailboxBytes.fetch_add(bytes, std::memory_order_relaxed);
         discarded.swap(actor.mailbox);
     }
     // User payload destructors run without the admission mutex.
@@ -1143,7 +1155,7 @@ RuntimeStats ActorSystem::stats() const noexcept {
         impl_->liveStacks.load(std::memory_order_acquire),
         impl_->workers.size(),
         impl_->accepting.load(std::memory_order_acquire),
-        impl_->queuedMailboxBytes.load(std::memory_order_relaxed)};
+        impl_->outstandingMailboxBytes()};
 }
 
 void ActorSystem::shutdown() {

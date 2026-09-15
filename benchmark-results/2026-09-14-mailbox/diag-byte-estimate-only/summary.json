@@ -1,0 +1,28 @@
+[
+  {
+    "case": "event-single",
+    "median_rps": {
+      "baseline": 2824330.5094999997,
+      "candidate": 2874417.5295
+    },
+    "candidate_over_baseline": 1.017734121354256,
+    "paired_ratio_median": 1.0422734065601227,
+    "paired_ratio_min": 0.9459862717815332,
+    "paired_ratio_max": 1.1030439471088502,
+    "paired_wins": 8,
+    "paired_losses": 4
+  },
+  {
+    "case": "event-window",
+    "median_rps": {
+      "baseline": 2745199.2879999997,
+      "candidate": 2790699.2934999997
+    },
+    "candidate_over_baseline": 1.0165743906822695,
+    "paired_ratio_median": 0.9955850164052001,
+    "paired_ratio_min": 0.9617589183832883,
+    "paired_ratio_max": 1.1177982672819895,
+    "paired_wins": 5,
+    "paired_losses": 7
+  }
+]

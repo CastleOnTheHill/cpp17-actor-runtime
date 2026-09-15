@@ -4,6 +4,11 @@
 Build echo-event/echo-fiber in each supplied directory from its own headers and
 library using identical flags. Both binaries use the unmodified default runtime
 configuration; this runner never disables mailbox accounting to improve scores.
+
+Each repeat runs one baseline and one candidate measurement back to back, so the
+per-repeat ratio cancels most machine drift. The gate compares the median of
+those paired ratios; the median-of-arms ratio is still reported for continuity
+with earlier runs, but it is far noisier on a shared host.
 """
 import argparse
 import datetime
@@ -30,7 +35,7 @@ def main():
     parser.add_argument("--case", action="append", default=[], choices=(
         "event-single", "event-window", "event-parallel", "event-hotspot", "fiber-single", "fiber-parallel"))
     parser.add_argument("--minimum-ratio", type=float,
-                        help="Fail if any case median candidate/baseline throughput is below this ratio")
+                        help="Fail if any case paired-ratio median candidate/baseline throughput is below this ratio")
     args = parser.parse_args()
     if min(args.repeats, args.rounds, args.fiber_rounds) < 1:
         parser.error("repeats and round counts must be positive")
@@ -101,15 +106,25 @@ def main():
                     print(f"{name} {repeat + 1}/{args.repeats} {label}: {record['metrics']['rps']:.0f} rps", flush=True)
     summary = []
     for name, *_ in cases:
-        medians = {label: statistics.median(r["metrics"]["rps"] for r in records
-                                          if r["case"] == name and r["label"] == label)
-                   for label in ("baseline", "candidate")}
+        # Records for one case are appended per repeat, so filtering by label
+        # keeps the per-repeat pairing intact.
+        series = {label: [r["metrics"]["rps"] for r in records
+                          if r["case"] == name and r["label"] == label]
+                  for label in ("baseline", "candidate")}
+        medians = {label: statistics.median(values) for label, values in series.items()}
+        ratios = sorted(candidate / baseline
+                        for baseline, candidate in zip(series["baseline"], series["candidate"]))
+        wins = sum(1 for ratio in ratios if ratio > 1.0)
         summary.append({"case": name, "median_rps": medians,
-                        "candidate_over_baseline": medians["candidate"] / medians["baseline"]})
+                        "candidate_over_baseline": medians["candidate"] / medians["baseline"],
+                        "paired_ratio_median": statistics.median(ratios),
+                        "paired_ratio_min": ratios[0], "paired_ratio_max": ratios[-1],
+                        "paired_wins": wins, "paired_losses": len(ratios) - wins})
     (args.output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
     if args.minimum_ratio is not None:
-        failures = [item["case"] for item in summary if item["candidate_over_baseline"] < args.minimum_ratio]
+        failures = [item["case"] for item in summary
+                    if item["paired_ratio_median"] < args.minimum_ratio]
         if failures:
             print("FAIL throughput gate: " + ", ".join(failures))
             raise SystemExit(2)
