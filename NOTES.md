@@ -202,3 +202,10 @@
 - 用 `benchmarks/run_memory.py` 对当前候选重跑内存诊断（3 重复，`--revision f7ee9f4`）：`idle_w1/idle_w4/idle_w0/actors_1000/actors_10000/actor_cycles/mailbox_10000_0/mailbox_10000_64/mailbox_10000_1024` **全部 3/3 通过**，即空载与万级 Actor、万条邮箱、Actor 反复创建销毁都进入平台期。
 - `mailbox_100000_0` 直接报 `mailbox capacity exceeded`：P0 给邮箱加了默认 65536 条上限（`Config::mailboxMaxMessages`），旧的「灌 10 万条」场景已越过默认预算，抛错是预期的背压行为，不是回归。该探针需要适配（改用 `trySend` 统计拒绝，或在场景里显式放宽配置），在适配前不能引用它作为平台期结论的一部分。
 - 复现注意：`memory_probe.cpp` 需要同时加 `-I <src>/include` 与 `-I <src>/src`（它包含 `internal.h`）；`run_memory.py` 会调用 `git -C <worktree> rev-parse`，在 WSL 下因 Windows worktree 指针失败，必须显式传 `--revision`。
+
+### 内存探针适配：修好两处旧断言，剩一处待查
+
+- 已修：mailbox 模式按 `o.count` 灌消息却用默认预算，现按场景深度抬高 `mailboxMaxMessages/mailboxMaxBytes/systemMailboxMaxBytes`，保住「测每条排队消息占用」的原意；`mailbox_100000_0/64/1024` 现已通过。
+- 已修：`completed_*` 模式原先断言 `completions == round * count`，这正是 P0 第一项要消除的「每个 root 完成都永久留条」旧行为，现改为断言保留量不随轮数增长（`completions <= count`），`completed_1000_0/4096`、`completed_3000_4096` 通过。
+- **待查（未下结论）**：`timers_10000` 报 `timer count mismatch`，即 `inspect(actor).timers` 与探针期望的 10000 不符。这既可能是检查口径随 P0 的 timer/heap 改动而变化（例如按堆条目而非按等待登记计数），也可能是真的少留了定时器。在查清前不修改该断言，也不把它计入通过。
+- 已通过的场景（3 重复）：`idle_w1/idle_w4/idle_w0`、`actors_1000/10000`、`actor_cycles`、`mailbox_10000_*`、`mailbox_100000_*`、`fibers_*`、`completed_*`、`tasks_*`。证据目录 dev `benchmark-results/2026-09-15-memory/candidate-r4`（前两次失败运行 r2/r3 亦保留）。
