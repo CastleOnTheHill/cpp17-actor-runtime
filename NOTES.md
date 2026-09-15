@@ -264,3 +264,10 @@
 - 覆盖率构建可用：`cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_EXE_LINKER_FLAGS=--coverage` 配到 `/var/tmp/actor-p0-20260914-e4S6fw/coverage-build`，构建成功且 15/15 测试通过（用时 2.34 秒），即 .gcda 已产生。
 - 但 `python3 -m gcovr -r <src> --filter-regex "/mnt/c/.*/actor_runtime/(src|include)/"` 抛 `gcovr.exceptions.SanityCheckError: Exitcode must be 0`；加 `--gcov-ignore-errors all` 仍然失败。也就是说某个内部 `gcov` 调用返回非零，尚不知道该对象是哪一个。
 - 下一步（未做）：用 `gcovr -v` 找出失败的具体 gcov 调用，或手工 `gcov -o <build> <某个 .gcno>` 复现；怀疑与新加入的 C 测试（`ipc_c_processes`）或与测试产生的子进程 .gcda 有关。在拿到真实数字之前不引用任何覆盖率百分比。
+
+### 覆盖率诊断进展：找到真正的三道坎
+
+- gcovr 版本是 **8.6**。此前 `SanityCheckError: Exitcode must be 0` 是误导：gcovr 把它自己的 argparse 报错也包成这个异常，所以真正的错因是**参数不被识别**，不是 gcov 失败。
+- 参数语义（8.x）：`--search-path` 不存在，搜索路径要作为**位置参数**传入；`--filter` 是正则（`--filter-regex` 不存在）。改正后 gcovr 能扫到构建目录里的数据。
+- 现在的真实错误：`Error occurred while reading reports: Worker thread raised exception, workers canceled`，并提示 `negative_hits.warn_once_per_file`，即某个 .gcda 里出现**负命中数**——典型成因是 fork 出的子进程写同一份 .gcda（本项目正是 `ipc_c_processes` 这类测试）。
+- 在 gcovr 包内 grep 不到该配置键的 CLI 定义，故未继续试参数。下一步二选一：用 gcovr 配置文件写 `negative_hits.warn_once_per_file`，或把该 C 测试排除后单独生成覆盖率（并在记录里标注覆盖率不含该测试覆盖的代码）。**仍未取得任何覆盖率百分比。**
