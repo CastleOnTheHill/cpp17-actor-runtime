@@ -271,3 +271,10 @@
 - 参数语义（8.x）：`--search-path` 不存在，搜索路径要作为**位置参数**传入；`--filter` 是正则（`--filter-regex` 不存在）。改正后 gcovr 能扫到构建目录里的数据。
 - 现在的真实错误：`Error occurred while reading reports: Worker thread raised exception, workers canceled`，并提示 `negative_hits.warn_once_per_file`，即某个 .gcda 里出现**负命中数**——典型成因是 fork 出的子进程写同一份 .gcda（本项目正是 `ipc_c_processes` 这类测试）。
 - 在 gcovr 包内 grep 不到该配置键的 CLI 定义，故未继续试参数。下一步二选一：用 gcovr 配置文件写 `negative_hits.warn_once_per_file`，或把该 C 测试排除后单独生成覆盖率（并在记录里标注覆盖率不含该测试覆盖的代码）。**仍未取得任何覆盖率百分比。**
+
+### 覆盖率复测完成：96%（1391/1442 行）
+
+- 正确选项是 `--gcov-ignore-parse-errors negative_hits.warn_once_per_file`（8.6 的 choices 还包括 `negative_hits.warn`、`suspicious_hits.*`；另一个 `--gcov-ignore-errors` 只用于 gcov 调用失败，两者不同）。
+- 可用命令（在覆盖率构建目录内执行）：`python3 -m gcovr -r <src> <build> --filter "/mnt/c/.*/actor_runtime/(src|include)/" --gcov-ignore-parse-errors negative_hits.warn_once_per_file --txt -o <out>`；注意搜索路径是**位置参数**。
+- 结果：**TOTAL 1442 行，1391 行执行，96%**（只统计 `src/` 与 `include/`，排除测试与基准；`src/wait_internal.h` 2/2 100%）。报告里忽略 9 处负命中，全部来自 fork 子进程写同一份 .gcda（`ipc_c_processes` 一类测试），已确认不影响汇总口径之外的文件。
+- 报告落盘在 dev `benchmark-results/2026-09-15-coverage/coverage.txt`。此前的 97.4% 是更早提交的旧数字，当前实测为 96%。
