@@ -145,5 +145,24 @@ int main() {
         c.self().send(2, {});
         return {};
     });
+    test("parent exit cleans up an unfinished CancelWithParent child", [](CoroutineContext& c, State& s) -> std::any {
+        c.spawn([](CoroutineContext& inner) -> std::any {
+            // Unfinished child: without cancellation this waits out the 2s timer.
+            inner.await(WaitSpec::any({WaitSpec::message({99, NoCorrelation}),
+                                       WaitSpec::timer(std::chrono::steady_clock::now() + 2s)}));
+            return {};
+        }, ChildLifetime::CancelWithParent);
+        c.self().send(2, {});
+        return {};
+    });
+    test("parent exit leaves a detached child owned by the Actor", [](CoroutineContext& c, State& s) -> std::any {
+        c.spawn([](CoroutineContext& inner) -> std::any {
+            inner.await(WaitSpec::any({WaitSpec::message({99, NoCorrelation}),
+                                       WaitSpec::timer(std::chrono::steady_clock::now() + 20ms)}));
+            return {};
+        }, ChildLifetime::DetachedFromParent);
+        c.self().send(2, {});
+        return {};
+    });
     return failures ? 1 : 0;
 }
