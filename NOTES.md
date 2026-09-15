@@ -196,3 +196,9 @@
 - 第一次运行时基准在 event-parallel 直接抛错：缓存未刷新却参与预留尺寸计算，导致占用被高估、每条消息都去扩块，最终抽干系统池并返回 Full。修正为「只在需要扩块时刷新」后不再抛错。
 - 修正后实测（12 轮 × 200 万，预留模式，对比冻结基线）：event-single **0.9188**（改动前 0.9642）、event-parallel **1.2013**（改动前 1.2440）、fiber-single 0.9975（此前 0.9781）。单 worker 明显退化，判定为负收益并已回滚；证据留在 dev 的 `benchmark-results/2026-09-14-mailbox/reserve-cache2-gate`（含一次失败运行的 `reserve-cache-gate`）。
 - 结论：省下的两次原子加载抵不过新增的分支与扩块路径成本。准入路径的原子读不是单 worker 那 3% 的有效切入点；此后不再在同一处反复尝试，需要换切入点（例如发送路径的锁本身，或重新评估逐消息字节口径的必要性）。回滚后回归 15/15，工作区回到 dev `2c3ed38`。
+
+### 内存平台期复测（当前候选）：9/9 场景通过，深队列场景需适配
+
+- 用 `benchmarks/run_memory.py` 对当前候选重跑内存诊断（3 重复，`--revision f7ee9f4`）：`idle_w1/idle_w4/idle_w0/actors_1000/actors_10000/actor_cycles/mailbox_10000_0/mailbox_10000_64/mailbox_10000_1024` **全部 3/3 通过**，即空载与万级 Actor、万条邮箱、Actor 反复创建销毁都进入平台期。
+- `mailbox_100000_0` 直接报 `mailbox capacity exceeded`：P0 给邮箱加了默认 65536 条上限（`Config::mailboxMaxMessages`），旧的「灌 10 万条」场景已越过默认预算，抛错是预期的背压行为，不是回归。该探针需要适配（改用 `trySend` 统计拒绝，或在场景里显式放宽配置），在适配前不能引用它作为平台期结论的一部分。
+- 复现注意：`memory_probe.cpp` 需要同时加 `-I <src>/include` 与 `-I <src>/src`（它包含 `internal.h`）；`run_memory.py` 会调用 `git -C <worktree> rev-parse`，在 WSL 下因 Windows worktree 指针失败，必须显式传 `--revision`。
