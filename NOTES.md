@@ -209,3 +209,10 @@
 - 已修：`completed_*` 模式原先断言 `completions == round * count`，这正是 P0 第一项要消除的「每个 root 完成都永久留条」旧行为，现改为断言保留量不随轮数增长（`completions <= count`），`completed_1000_0/4096`、`completed_3000_4096` 通过。
 - **待查（未下结论）**：`timers_10000` 报 `timer count mismatch`，即 `inspect(actor).timers` 与探针期望的 10000 不符。这既可能是检查口径随 P0 的 timer/heap 改动而变化（例如按堆条目而非按等待登记计数），也可能是真的少留了定时器。在查清前不修改该断言，也不把它计入通过。
 - 已通过的场景（3 重复）：`idle_w1/idle_w4/idle_w0`、`actors_1000/10000`、`actor_cycles`、`mailbox_10000_*`、`mailbox_100000_*`、`fibers_*`、`completed_*`、`tasks_*`。证据目录 dev `benchmark-results/2026-09-15-memory/candidate-r4`（前两次失败运行 r2/r3 亦保留）。
+
+### timers_10000 计数差异：实测为 0，三种解释待判定
+
+- 证据（dev `benchmark-results/2026-09-15-memory/candidate-r4/raw.jsonl`，`timers_10000` 重复 1 的 stdout）：`held` 快照为 `live_fibers=1, live_stacks=1, waiter_keys=1, waiter_refs=1, timers=0`，而探针期望 10000。命令行 `/tmp/memory_probe timers 10000 0 256 0 1 1`，其中 workers=1。
+- `c.timers` 的定义是 `currentWorker->timers.size()`，即执行检查的那个 worker 的定时器堆条目数；workers=1 时它就是 owner，所以「堆为空」不是多 worker 分摊造成的。
+- 三种可能，尚未区分：(1) 定时器在检查前已到期并出堆（新实现按登记/世代及时移除，旧实现留得更久）；(2) P0 统一等待后改为按等待登记而非按叶子持有堆条目，`waiter_keys=1` 配 `timers=0` 符合这一解释；(3) 若两者都不是，则 10000 个待触发定时器没有落到堆里，等待可能永不触发，属真实缺陷，必须修。
+- 判定方法：探针同时打印等待登记的叶子数与堆条目数，并断言「到期后所有等待都被唤醒」；仅看堆条目数无法区分上述三种。因此该断言保持未修改，`timers_*` 不计入通过。
