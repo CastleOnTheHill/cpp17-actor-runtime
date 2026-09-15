@@ -1,0 +1,8750 @@
+{
+  "idle_w1": {
+    "sizes": {
+      "ActorControl": {
+        "median": 616,
+        "min": 616,
+        "max": 616
+      },
+      "EmptyActor": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "ActorRef": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "Message": {
+        "median": 120,
+        "min": 120,
+        "max": 120
+      },
+      "Fiber": {
+        "median": 1296,
+        "min": 1296,
+        "max": 1296
+      },
+      "Worker": {
+        "median": 1344,
+        "min": 1344,
+        "max": 1344
+      },
+      "Job": {
+        "median": 88,
+        "min": 88,
+        "max": 88
+      },
+      "ReadyDispatch": {
+        "median": 32,
+        "min": 32,
+        "max": 32
+      },
+      "RuntimeWaitNode": {
+        "median": 152,
+        "min": 152,
+        "max": 152
+      },
+      "Completion": {
+        "median": 48,
+        "min": 48,
+        "max": 48
+      },
+      "TimerEntry": {
+        "median": 64,
+        "min": 64,
+        "max": 64
+      },
+      "system_impl": {
+        "median": 4992,
+        "min": 4992,
+        "max": 4992
+      },
+      "pthread_default_stack": {
+        "median": 8388608,
+        "min": 8388608,
+        "max": 8388608
+      },
+      "page_size": {
+        "median": 4096,
+        "min": 4096,
+        "max": 4096
+      }
+    },
+    "process_baseline": {
+      "rss_kib": {
+        "median": 3680,
+        "min": 3656,
+        "max": 3700
+      },
+      "pss_kib": {
+        "median": 1344,
+        "min": 1299,
+        "max": 1362
+      },
+      "private_dirty_kib": {
+        "median": 320,
+        "min": 320,
+        "max": 340
+      },
+      "vms_kib": {
+        "median": 6560,
+        "min": 6560,
+        "max": 6560
+      },
+      "hwm_kib": {
+        "median": 2084,
+        "min": 2080,
+        "max": 2088
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 38,
+        "min": 38,
+        "max": 38
+      },
+      "malloc_used_bytes": {
+        "median": 80064,
+        "min": 80064,
+        "max": 80064
+      },
+      "malloc_free_bytes": {
+        "median": 55104,
+        "min": 55104,
+        "max": 55104
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "system_idle": {
+      "rss_kib": {
+        "median": 3940,
+        "min": 3936,
+        "max": 3976
+      },
+      "pss_kib": {
+        "median": 1482,
+        "min": 1441,
+        "max": 1484
+      },
+      "private_dirty_kib": {
+        "median": 456,
+        "min": 456,
+        "max": 460
+      },
+      "vms_kib": {
+        "median": 96684,
+        "min": 96684,
+        "max": 96684
+      },
+      "hwm_kib": {
+        "median": 2084,
+        "min": 2080,
+        "max": 2088
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 93280,
+        "min": 93280,
+        "max": 93280
+      },
+      "malloc_free_bytes": {
+        "median": 177056,
+        "min": 177056,
+        "max": 177056
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "shutdown": {
+      "rss_kib": {
+        "median": 4136,
+        "min": 4072,
+        "max": 4172
+      },
+      "pss_kib": {
+        "median": 1511,
+        "min": 1460,
+        "max": 1511
+      },
+      "private_dirty_kib": {
+        "median": 464,
+        "min": 464,
+        "max": 468
+      },
+      "vms_kib": {
+        "median": 227756,
+        "min": 227756,
+        "max": 227756
+      },
+      "hwm_kib": {
+        "median": 2292,
+        "min": 2236,
+        "max": 2300
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 49,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 97008,
+        "min": 97008,
+        "max": 97008
+      },
+      "malloc_free_bytes": {
+        "median": 443664,
+        "min": 443664,
+        "max": 443664
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 196,
+        "min": 136,
+        "max": 196
+      },
+      "delta_pss_kib": {
+        "median": 27,
+        "min": 19,
+        "max": 29
+      },
+      "delta_vms_kib": {
+        "median": 131072,
+        "min": 131072,
+        "max": 131072
+      },
+      "delta_malloc_used_bytes": {
+        "median": 3728,
+        "min": 3728,
+        "max": 3728
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    },
+    "destroyed": {
+      "rss_kib": {
+        "median": 4136,
+        "min": 4072,
+        "max": 4172
+      },
+      "pss_kib": {
+        "median": 1511,
+        "min": 1460,
+        "max": 1511
+      },
+      "private_dirty_kib": {
+        "median": 464,
+        "min": 464,
+        "max": 468
+      },
+      "vms_kib": {
+        "median": 227756,
+        "min": 227756,
+        "max": 227756
+      },
+      "hwm_kib": {
+        "median": 2292,
+        "min": 2236,
+        "max": 2300
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 49,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 90640,
+        "min": 90640,
+        "max": 90640
+      },
+      "malloc_free_bytes": {
+        "median": 450032,
+        "min": 450032,
+        "max": 450032
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 196,
+        "min": 136,
+        "max": 196
+      },
+      "delta_pss_kib": {
+        "median": 27,
+        "min": 19,
+        "max": 29
+      },
+      "delta_vms_kib": {
+        "median": 131072,
+        "min": 131072,
+        "max": 131072
+      },
+      "delta_malloc_used_bytes": {
+        "median": -2640,
+        "min": -2640,
+        "max": -2640
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    },
+    "trimmed_diagnostic": {
+      "rss_kib": {
+        "median": 4136,
+        "min": 4072,
+        "max": 4172
+      },
+      "pss_kib": {
+        "median": 1511,
+        "min": 1460,
+        "max": 1511
+      },
+      "private_dirty_kib": {
+        "median": 464,
+        "min": 464,
+        "max": 468
+      },
+      "vms_kib": {
+        "median": 227716,
+        "min": 227716,
+        "max": 227716
+      },
+      "hwm_kib": {
+        "median": 4136,
+        "min": 4072,
+        "max": 4172
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 49,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 90640,
+        "min": 90640,
+        "max": 90640
+      },
+      "malloc_free_bytes": {
+        "median": 409072,
+        "min": 409072,
+        "max": 409072
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 196,
+        "min": 136,
+        "max": 196
+      },
+      "delta_pss_kib": {
+        "median": 27,
+        "min": 19,
+        "max": 29
+      },
+      "delta_vms_kib": {
+        "median": 131032,
+        "min": 131032,
+        "max": 131032
+      },
+      "delta_malloc_used_bytes": {
+        "median": -2640,
+        "min": -2640,
+        "max": -2640
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    }
+  },
+  "idle_w4": {
+    "sizes": {
+      "ActorControl": {
+        "median": 616,
+        "min": 616,
+        "max": 616
+      },
+      "EmptyActor": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "ActorRef": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "Message": {
+        "median": 120,
+        "min": 120,
+        "max": 120
+      },
+      "Fiber": {
+        "median": 1296,
+        "min": 1296,
+        "max": 1296
+      },
+      "Worker": {
+        "median": 1344,
+        "min": 1344,
+        "max": 1344
+      },
+      "Job": {
+        "median": 88,
+        "min": 88,
+        "max": 88
+      },
+      "ReadyDispatch": {
+        "median": 32,
+        "min": 32,
+        "max": 32
+      },
+      "RuntimeWaitNode": {
+        "median": 152,
+        "min": 152,
+        "max": 152
+      },
+      "Completion": {
+        "median": 48,
+        "min": 48,
+        "max": 48
+      },
+      "TimerEntry": {
+        "median": 64,
+        "min": 64,
+        "max": 64
+      },
+      "system_impl": {
+        "median": 4992,
+        "min": 4992,
+        "max": 4992
+      },
+      "pthread_default_stack": {
+        "median": 8388608,
+        "min": 8388608,
+        "max": 8388608
+      },
+      "page_size": {
+        "median": 4096,
+        "min": 4096,
+        "max": 4096
+      }
+    },
+    "process_baseline": {
+      "rss_kib": {
+        "median": 3672,
+        "min": 3656,
+        "max": 3696
+      },
+      "pss_kib": {
+        "median": 1336,
+        "min": 1304,
+        "max": 1379
+      },
+      "private_dirty_kib": {
+        "median": 324,
+        "min": 320,
+        "max": 352
+      },
+      "vms_kib": {
+        "median": 6560,
+        "min": 6560,
+        "max": 6560
+      },
+      "hwm_kib": {
+        "median": 2068,
+        "min": 2032,
+        "max": 2084
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 38,
+        "min": 38,
+        "max": 38
+      },
+      "malloc_used_bytes": {
+        "median": 80064,
+        "min": 80064,
+        "max": 80064
+      },
+      "malloc_free_bytes": {
+        "median": 55104,
+        "min": 55104,
+        "max": 55104
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "system_idle": {
+      "rss_kib": {
+        "median": 4020,
+        "min": 3972,
+        "max": 6132
+      },
+      "pss_kib": {
+        "median": 1516,
+        "min": 1488,
+        "max": 3575
+      },
+      "private_dirty_kib": {
+        "median": 504,
+        "min": 500,
+        "max": 2540
+      },
+      "vms_kib": {
+        "median": 317880,
+        "min": 317880,
+        "max": 317880
+      },
+      "hwm_kib": {
+        "median": 2084,
+        "min": 2068,
+        "max": 4080
+      },
+      "threads": {
+        "median": 7,
+        "min": 7,
+        "max": 7
+      },
+      "vmas": {
+        "median": 57,
+        "min": 56,
+        "max": 57
+      },
+      "malloc_used_bytes": {
+        "median": 110784,
+        "min": 110784,
+        "max": 110784
+      },
+      "malloc_free_bytes": {
+        "median": 565056,
+        "min": 565056,
+        "max": 565056
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "shutdown": {
+      "rss_kib": {
+        "median": 4152,
+        "min": 4136,
+        "max": 4228
+      },
+      "pss_kib": {
+        "median": 1529,
+        "min": 1489,
+        "max": 1557
+      },
+      "private_dirty_kib": {
+        "median": 496,
+        "min": 488,
+        "max": 508
+      },
+      "vms_kib": {
+        "median": 432560,
+        "min": 367024,
+        "max": 432560
+      },
+      "hwm_kib": {
+        "median": 4160,
+        "min": 4144,
+        "max": 4316
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 56,
+        "min": 55,
+        "max": 57
+      },
+      "malloc_used_bytes": {
+        "median": 112288,
+        "min": 110032,
+        "max": 112288
+      },
+      "malloc_free_bytes": {
+        "median": 833888,
+        "min": 700976,
+        "max": 833888
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 116,
+        "min": -1904,
+        "max": 180
+      },
+      "delta_pss_kib": {
+        "median": 1,
+        "min": -2018,
+        "max": 13
+      },
+      "delta_vms_kib": {
+        "median": 114680,
+        "min": 49144,
+        "max": 114680
+      },
+      "delta_malloc_used_bytes": {
+        "median": 1504,
+        "min": -752,
+        "max": 1504
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": -2,
+        "max": 0
+      }
+    },
+    "destroyed": {
+      "rss_kib": {
+        "median": 4152,
+        "min": 4136,
+        "max": 4232
+      },
+      "pss_kib": {
+        "median": 1529,
+        "min": 1489,
+        "max": 1561
+      },
+      "private_dirty_kib": {
+        "median": 496,
+        "min": 488,
+        "max": 512
+      },
+      "vms_kib": {
+        "median": 432560,
+        "min": 367024,
+        "max": 432560
+      },
+      "hwm_kib": {
+        "median": 4160,
+        "min": 4144,
+        "max": 4316
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 56,
+        "min": 55,
+        "max": 57
+      },
+      "malloc_used_bytes": {
+        "median": 101600,
+        "min": 99344,
+        "max": 101600
+      },
+      "malloc_free_bytes": {
+        "median": 844576,
+        "min": 711664,
+        "max": 844576
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 116,
+        "min": -1900,
+        "max": 180
+      },
+      "delta_pss_kib": {
+        "median": 1,
+        "min": -2014,
+        "max": 13
+      },
+      "delta_vms_kib": {
+        "median": 114680,
+        "min": 49144,
+        "max": 114680
+      },
+      "delta_malloc_used_bytes": {
+        "median": -9184,
+        "min": -11440,
+        "max": -9184
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": -2,
+        "max": 0
+      }
+    },
+    "trimmed_diagnostic": {
+      "rss_kib": {
+        "median": 4152,
+        "min": 4136,
+        "max": 4232
+      },
+      "pss_kib": {
+        "median": 1529,
+        "min": 1489,
+        "max": 1561
+      },
+      "private_dirty_kib": {
+        "median": 496,
+        "min": 488,
+        "max": 512
+      },
+      "vms_kib": {
+        "median": 432528,
+        "min": 366992,
+        "max": 432528
+      },
+      "hwm_kib": {
+        "median": 4160,
+        "min": 4144,
+        "max": 4316
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 56,
+        "min": 55,
+        "max": 57
+      },
+      "malloc_used_bytes": {
+        "median": 101600,
+        "min": 99344,
+        "max": 101600
+      },
+      "malloc_free_bytes": {
+        "median": 811808,
+        "min": 678896,
+        "max": 811808
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 116,
+        "min": -1900,
+        "max": 180
+      },
+      "delta_pss_kib": {
+        "median": 1,
+        "min": -2014,
+        "max": 13
+      },
+      "delta_vms_kib": {
+        "median": 114648,
+        "min": 49112,
+        "max": 114648
+      },
+      "delta_malloc_used_bytes": {
+        "median": -9184,
+        "min": -11440,
+        "max": -9184
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": -2,
+        "max": 0
+      }
+    }
+  },
+  "idle_w0": {
+    "sizes": {
+      "ActorControl": {
+        "median": 616,
+        "min": 616,
+        "max": 616
+      },
+      "EmptyActor": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "ActorRef": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "Message": {
+        "median": 120,
+        "min": 120,
+        "max": 120
+      },
+      "Fiber": {
+        "median": 1296,
+        "min": 1296,
+        "max": 1296
+      },
+      "Worker": {
+        "median": 1344,
+        "min": 1344,
+        "max": 1344
+      },
+      "Job": {
+        "median": 88,
+        "min": 88,
+        "max": 88
+      },
+      "ReadyDispatch": {
+        "median": 32,
+        "min": 32,
+        "max": 32
+      },
+      "RuntimeWaitNode": {
+        "median": 152,
+        "min": 152,
+        "max": 152
+      },
+      "Completion": {
+        "median": 48,
+        "min": 48,
+        "max": 48
+      },
+      "TimerEntry": {
+        "median": 64,
+        "min": 64,
+        "max": 64
+      },
+      "system_impl": {
+        "median": 4992,
+        "min": 4992,
+        "max": 4992
+      },
+      "pthread_default_stack": {
+        "median": 8388608,
+        "min": 8388608,
+        "max": 8388608
+      },
+      "page_size": {
+        "median": 4096,
+        "min": 4096,
+        "max": 4096
+      }
+    },
+    "process_baseline": {
+      "rss_kib": {
+        "median": 3680,
+        "min": 3668,
+        "max": 3680
+      },
+      "pss_kib": {
+        "median": 1342,
+        "min": 1316,
+        "max": 1342
+      },
+      "private_dirty_kib": {
+        "median": 320,
+        "min": 320,
+        "max": 332
+      },
+      "vms_kib": {
+        "median": 6560,
+        "min": 6560,
+        "max": 6560
+      },
+      "hwm_kib": {
+        "median": 2076,
+        "min": 2072,
+        "max": 2076
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 38,
+        "min": 38,
+        "max": 38
+      },
+      "malloc_used_bytes": {
+        "median": 80064,
+        "min": 80064,
+        "max": 80064
+      },
+      "malloc_free_bytes": {
+        "median": 55104,
+        "min": 55104,
+        "max": 55104
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "system_idle": {
+      "rss_kib": {
+        "median": 8264,
+        "min": 8264,
+        "max": 8308
+      },
+      "pss_kib": {
+        "median": 5806,
+        "min": 5776,
+        "max": 5806
+      },
+      "private_dirty_kib": {
+        "median": 4784,
+        "min": 4784,
+        "max": 4788
+      },
+      "vms_kib": {
+        "median": 1350260,
+        "min": 1350260,
+        "max": 1350260
+      },
+      "hwm_kib": {
+        "median": 8088,
+        "min": 8088,
+        "max": 8112
+      },
+      "threads": {
+        "median": 21,
+        "min": 21,
+        "max": 21
+      },
+      "vmas": {
+        "median": 111,
+        "min": 111,
+        "max": 111
+      },
+      "malloc_used_bytes": {
+        "median": 194448,
+        "min": 194448,
+        "max": 194448
+      },
+      "malloc_free_bytes": {
+        "median": 2508912,
+        "min": 2508912,
+        "max": 2508912
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "shutdown": {
+      "rss_kib": {
+        "median": 4252,
+        "min": 4252,
+        "max": 4268
+      },
+      "pss_kib": {
+        "median": 1627,
+        "min": 1605,
+        "max": 1643
+      },
+      "private_dirty_kib": {
+        "median": 600,
+        "min": 584,
+        "max": 604
+      },
+      "vms_kib": {
+        "median": 1350196,
+        "min": 1350196,
+        "max": 1350196
+      },
+      "hwm_kib": {
+        "median": 8340,
+        "min": 8320,
+        "max": 8344
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 85,
+        "min": 85,
+        "max": 86
+      },
+      "malloc_used_bytes": {
+        "median": 180608,
+        "min": 180608,
+        "max": 180608
+      },
+      "malloc_free_bytes": {
+        "median": 2793088,
+        "min": 2793088,
+        "max": 2793088
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": -4012,
+        "min": -4056,
+        "max": -3996
+      },
+      "delta_pss_kib": {
+        "median": -4171,
+        "min": -4179,
+        "max": -4163
+      },
+      "delta_vms_kib": {
+        "median": -64,
+        "min": -64,
+        "max": -64
+      },
+      "delta_malloc_used_bytes": {
+        "median": -13840,
+        "min": -13840,
+        "max": -13840
+      },
+      "delta_vmas": {
+        "median": -26,
+        "min": -26,
+        "max": -25
+      }
+    },
+    "destroyed": {
+      "rss_kib": {
+        "median": 4252,
+        "min": 4252,
+        "max": 4268
+      },
+      "pss_kib": {
+        "median": 1627,
+        "min": 1605,
+        "max": 1643
+      },
+      "private_dirty_kib": {
+        "median": 600,
+        "min": 584,
+        "max": 604
+      },
+      "vms_kib": {
+        "median": 1350196,
+        "min": 1350196,
+        "max": 1350196
+      },
+      "hwm_kib": {
+        "median": 8340,
+        "min": 8320,
+        "max": 8344
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 85,
+        "min": 85,
+        "max": 86
+      },
+      "malloc_used_bytes": {
+        "median": 136928,
+        "min": 136928,
+        "max": 136928
+      },
+      "malloc_free_bytes": {
+        "median": 2836768,
+        "min": 2836768,
+        "max": 2836768
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": -4012,
+        "min": -4056,
+        "max": -3996
+      },
+      "delta_pss_kib": {
+        "median": -4171,
+        "min": -4179,
+        "max": -4163
+      },
+      "delta_vms_kib": {
+        "median": -64,
+        "min": -64,
+        "max": -64
+      },
+      "delta_malloc_used_bytes": {
+        "median": -57520,
+        "min": -57520,
+        "max": -57520
+      },
+      "delta_vmas": {
+        "median": -26,
+        "min": -26,
+        "max": -25
+      }
+    },
+    "trimmed_diagnostic": {
+      "rss_kib": {
+        "median": 4232,
+        "min": 4232,
+        "max": 4248
+      },
+      "pss_kib": {
+        "median": 1607,
+        "min": 1585,
+        "max": 1623
+      },
+      "private_dirty_kib": {
+        "median": 580,
+        "min": 564,
+        "max": 584
+      },
+      "vms_kib": {
+        "median": 1350068,
+        "min": 1350068,
+        "max": 1350068
+      },
+      "hwm_kib": {
+        "median": 8340,
+        "min": 8320,
+        "max": 8344
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 85,
+        "min": 85,
+        "max": 86
+      },
+      "malloc_used_bytes": {
+        "median": 136928,
+        "min": 136928,
+        "max": 136928
+      },
+      "malloc_free_bytes": {
+        "median": 2705696,
+        "min": 2705696,
+        "max": 2705696
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": -4032,
+        "min": -4076,
+        "max": -4016
+      },
+      "delta_pss_kib": {
+        "median": -4191,
+        "min": -4199,
+        "max": -4183
+      },
+      "delta_vms_kib": {
+        "median": -192,
+        "min": -192,
+        "max": -192
+      },
+      "delta_malloc_used_bytes": {
+        "median": -57520,
+        "min": -57520,
+        "max": -57520
+      },
+      "delta_vmas": {
+        "median": -26,
+        "min": -26,
+        "max": -25
+      }
+    }
+  },
+  "actors_1000": {
+    "sizes": {
+      "ActorControl": {
+        "median": 616,
+        "min": 616,
+        "max": 616
+      },
+      "EmptyActor": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "ActorRef": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "Message": {
+        "median": 120,
+        "min": 120,
+        "max": 120
+      },
+      "Fiber": {
+        "median": 1296,
+        "min": 1296,
+        "max": 1296
+      },
+      "Worker": {
+        "median": 1344,
+        "min": 1344,
+        "max": 1344
+      },
+      "Job": {
+        "median": 88,
+        "min": 88,
+        "max": 88
+      },
+      "ReadyDispatch": {
+        "median": 32,
+        "min": 32,
+        "max": 32
+      },
+      "RuntimeWaitNode": {
+        "median": 152,
+        "min": 152,
+        "max": 152
+      },
+      "Completion": {
+        "median": 48,
+        "min": 48,
+        "max": 48
+      },
+      "TimerEntry": {
+        "median": 64,
+        "min": 64,
+        "max": 64
+      },
+      "system_impl": {
+        "median": 4992,
+        "min": 4992,
+        "max": 4992
+      },
+      "pthread_default_stack": {
+        "median": 8388608,
+        "min": 8388608,
+        "max": 8388608
+      },
+      "page_size": {
+        "median": 4096,
+        "min": 4096,
+        "max": 4096
+      }
+    },
+    "process_baseline": {
+      "rss_kib": {
+        "median": 3728,
+        "min": 3672,
+        "max": 3824
+      },
+      "pss_kib": {
+        "median": 1340,
+        "min": 1336,
+        "max": 1368
+      },
+      "private_dirty_kib": {
+        "median": 324,
+        "min": 320,
+        "max": 324
+      },
+      "vms_kib": {
+        "median": 6560,
+        "min": 6560,
+        "max": 6560
+      },
+      "hwm_kib": {
+        "median": 2028,
+        "min": 2008,
+        "max": 2084
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 38,
+        "min": 38,
+        "max": 38
+      },
+      "malloc_used_bytes": {
+        "median": 80064,
+        "min": 80064,
+        "max": 80064
+      },
+      "malloc_free_bytes": {
+        "median": 55104,
+        "min": 55104,
+        "max": 55104
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "system_idle": {
+      "rss_kib": {
+        "median": 4044,
+        "min": 3928,
+        "max": 4048
+      },
+      "pss_kib": {
+        "median": 1476,
+        "min": 1472,
+        "max": 1508
+      },
+      "private_dirty_kib": {
+        "median": 460,
+        "min": 456,
+        "max": 460
+      },
+      "vms_kib": {
+        "median": 96684,
+        "min": 96684,
+        "max": 96684
+      },
+      "hwm_kib": {
+        "median": 2028,
+        "min": 2008,
+        "max": 2084
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 93280,
+        "min": 93280,
+        "max": 93280
+      },
+      "malloc_free_bytes": {
+        "median": 177056,
+        "min": 177056,
+        "max": 177056
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_loaded_1": {
+      "rss_kib": {
+        "median": 5504,
+        "min": 5388,
+        "max": 5508
+      },
+      "pss_kib": {
+        "median": 2936,
+        "min": 2932,
+        "max": 2968
+      },
+      "private_dirty_kib": {
+        "median": 1920,
+        "min": 1916,
+        "max": 1920
+      },
+      "vms_kib": {
+        "median": 98136,
+        "min": 98136,
+        "max": 98136
+      },
+      "hwm_kib": {
+        "median": 5416,
+        "min": 5308,
+        "max": 5420
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 1591520,
+        "min": 1591520,
+        "max": 1591520
+      },
+      "malloc_free_bytes": {
+        "median": 165664,
+        "min": 165664,
+        "max": 165664
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 1460,
+        "min": 1460,
+        "max": 1460
+      },
+      "delta_pss_kib": {
+        "median": 1460,
+        "min": 1460,
+        "max": 1460
+      },
+      "delta_vms_kib": {
+        "median": 1452,
+        "min": 1452,
+        "max": 1452
+      },
+      "delta_malloc_used_bytes": {
+        "median": 1498240,
+        "min": 1498240,
+        "max": 1498240
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_stopped_1": {
+      "rss_kib": {
+        "median": 5504,
+        "min": 5388,
+        "max": 5508
+      },
+      "pss_kib": {
+        "median": 2936,
+        "min": 2932,
+        "max": 2968
+      },
+      "private_dirty_kib": {
+        "median": 1920,
+        "min": 1916,
+        "max": 1920
+      },
+      "vms_kib": {
+        "median": 98136,
+        "min": 98136,
+        "max": 98136
+      },
+      "hwm_kib": {
+        "median": 5416,
+        "min": 5308,
+        "max": 5420
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 117104,
+        "min": 117104,
+        "max": 117104
+      },
+      "malloc_free_bytes": {
+        "median": 1640080,
+        "min": 1640080,
+        "max": 1640080
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 1460,
+        "min": 1460,
+        "max": 1460
+      },
+      "delta_pss_kib": {
+        "median": 1460,
+        "min": 1460,
+        "max": 1460
+      },
+      "delta_vms_kib": {
+        "median": 1452,
+        "min": 1452,
+        "max": 1452
+      },
+      "delta_malloc_used_bytes": {
+        "median": 23824,
+        "min": 23824,
+        "max": 23824
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "shutdown": {
+      "rss_kib": {
+        "median": 5584,
+        "min": 5576,
+        "max": 5644
+      },
+      "pss_kib": {
+        "median": 2961,
+        "min": 2951,
+        "max": 2989
+      },
+      "private_dirty_kib": {
+        "median": 1928,
+        "min": 1924,
+        "max": 1928
+      },
+      "vms_kib": {
+        "median": 229208,
+        "min": 229208,
+        "max": 229208
+      },
+      "hwm_kib": {
+        "median": 5520,
+        "min": 5504,
+        "max": 5572
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 49,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 107952,
+        "min": 107952,
+        "max": 107952
+      },
+      "malloc_free_bytes": {
+        "median": 1919568,
+        "min": 1919568,
+        "max": 1919568
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 1596,
+        "min": 1532,
+        "max": 1656
+      },
+      "delta_pss_kib": {
+        "median": 1481,
+        "min": 1475,
+        "max": 1489
+      },
+      "delta_vms_kib": {
+        "median": 132524,
+        "min": 132524,
+        "max": 132524
+      },
+      "delta_malloc_used_bytes": {
+        "median": 14672,
+        "min": 14672,
+        "max": 14672
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    },
+    "destroyed": {
+      "rss_kib": {
+        "median": 5584,
+        "min": 5576,
+        "max": 5644
+      },
+      "pss_kib": {
+        "median": 2961,
+        "min": 2951,
+        "max": 2989
+      },
+      "private_dirty_kib": {
+        "median": 1928,
+        "min": 1924,
+        "max": 1928
+      },
+      "vms_kib": {
+        "median": 229208,
+        "min": 229208,
+        "max": 229208
+      },
+      "hwm_kib": {
+        "median": 5520,
+        "min": 5504,
+        "max": 5572
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 49,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 92608,
+        "min": 92608,
+        "max": 92608
+      },
+      "malloc_free_bytes": {
+        "median": 1934912,
+        "min": 1934912,
+        "max": 1934912
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 1596,
+        "min": 1532,
+        "max": 1656
+      },
+      "delta_pss_kib": {
+        "median": 1481,
+        "min": 1475,
+        "max": 1489
+      },
+      "delta_vms_kib": {
+        "median": 132524,
+        "min": 132524,
+        "max": 132524
+      },
+      "delta_malloc_used_bytes": {
+        "median": -672,
+        "min": -672,
+        "max": -672
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    },
+    "trimmed_diagnostic": {
+      "rss_kib": {
+        "median": 4152,
+        "min": 4144,
+        "max": 4216
+      },
+      "pss_kib": {
+        "median": 1529,
+        "min": 1519,
+        "max": 1561
+      },
+      "private_dirty_kib": {
+        "median": 496,
+        "min": 492,
+        "max": 500
+      },
+      "vms_kib": {
+        "median": 229176,
+        "min": 229176,
+        "max": 229176
+      },
+      "hwm_kib": {
+        "median": 5572,
+        "min": 5564,
+        "max": 5632
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 49,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 92608,
+        "min": 92608,
+        "max": 92608
+      },
+      "malloc_free_bytes": {
+        "median": 1902144,
+        "min": 1902144,
+        "max": 1902144
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 168,
+        "min": 100,
+        "max": 224
+      },
+      "delta_pss_kib": {
+        "median": 53,
+        "min": 43,
+        "max": 57
+      },
+      "delta_vms_kib": {
+        "median": 132492,
+        "min": 132492,
+        "max": 132492
+      },
+      "delta_malloc_used_bytes": {
+        "median": -672,
+        "min": -672,
+        "max": -672
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    }
+  },
+  "actors_10000": {
+    "sizes": {
+      "ActorControl": {
+        "median": 616,
+        "min": 616,
+        "max": 616
+      },
+      "EmptyActor": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "ActorRef": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "Message": {
+        "median": 120,
+        "min": 120,
+        "max": 120
+      },
+      "Fiber": {
+        "median": 1296,
+        "min": 1296,
+        "max": 1296
+      },
+      "Worker": {
+        "median": 1344,
+        "min": 1344,
+        "max": 1344
+      },
+      "Job": {
+        "median": 88,
+        "min": 88,
+        "max": 88
+      },
+      "ReadyDispatch": {
+        "median": 32,
+        "min": 32,
+        "max": 32
+      },
+      "RuntimeWaitNode": {
+        "median": 152,
+        "min": 152,
+        "max": 152
+      },
+      "Completion": {
+        "median": 48,
+        "min": 48,
+        "max": 48
+      },
+      "TimerEntry": {
+        "median": 64,
+        "min": 64,
+        "max": 64
+      },
+      "system_impl": {
+        "median": 4992,
+        "min": 4992,
+        "max": 4992
+      },
+      "pthread_default_stack": {
+        "median": 8388608,
+        "min": 8388608,
+        "max": 8388608
+      },
+      "page_size": {
+        "median": 4096,
+        "min": 4096,
+        "max": 4096
+      }
+    },
+    "process_baseline": {
+      "rss_kib": {
+        "median": 3680,
+        "min": 3676,
+        "max": 3692
+      },
+      "pss_kib": {
+        "median": 1311,
+        "min": 1302,
+        "max": 1342
+      },
+      "private_dirty_kib": {
+        "median": 324,
+        "min": 320,
+        "max": 332
+      },
+      "vms_kib": {
+        "median": 6560,
+        "min": 6560,
+        "max": 6560
+      },
+      "hwm_kib": {
+        "median": 2084,
+        "min": 2076,
+        "max": 2088
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 38,
+        "min": 38,
+        "max": 38
+      },
+      "malloc_used_bytes": {
+        "median": 80064,
+        "min": 80064,
+        "max": 80064
+      },
+      "malloc_free_bytes": {
+        "median": 55104,
+        "min": 55104,
+        "max": 55104
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "system_idle": {
+      "rss_kib": {
+        "median": 3940,
+        "min": 3936,
+        "max": 5972
+      },
+      "pss_kib": {
+        "median": 1478,
+        "min": 1445,
+        "max": 3483
+      },
+      "private_dirty_kib": {
+        "median": 460,
+        "min": 456,
+        "max": 2500
+      },
+      "vms_kib": {
+        "median": 96684,
+        "min": 96684,
+        "max": 96684
+      },
+      "hwm_kib": {
+        "median": 2088,
+        "min": 2076,
+        "max": 4132
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 44,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 93280,
+        "min": 93280,
+        "max": 93280
+      },
+      "malloc_free_bytes": {
+        "median": 177056,
+        "min": 177056,
+        "max": 177056
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_loaded_1": {
+      "rss_kib": {
+        "median": 18556,
+        "min": 18552,
+        "max": 20588
+      },
+      "pss_kib": {
+        "median": 16094,
+        "min": 16061,
+        "max": 18099
+      },
+      "private_dirty_kib": {
+        "median": 15076,
+        "min": 15072,
+        "max": 17116
+      },
+      "vms_kib": {
+        "median": 111364,
+        "min": 111364,
+        "max": 111364
+      },
+      "hwm_kib": {
+        "median": 18524,
+        "min": 18516,
+        "max": 20564
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 46,
+        "min": 45,
+        "max": 46
+      },
+      "malloc_used_bytes": {
+        "median": 14896848,
+        "min": 14896848,
+        "max": 14896848
+      },
+      "malloc_free_bytes": {
+        "median": 241968,
+        "min": 241968,
+        "max": 241968
+      },
+      "malloc_mmap_bytes": {
+        "median": 163840,
+        "min": 163840,
+        "max": 163840
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14616,
+        "min": 14616,
+        "max": 14616
+      },
+      "delta_pss_kib": {
+        "median": 14616,
+        "min": 14616,
+        "max": 14616
+      },
+      "delta_vms_kib": {
+        "median": 14680,
+        "min": 14680,
+        "max": 14680
+      },
+      "delta_malloc_used_bytes": {
+        "median": 14803568,
+        "min": 14803568,
+        "max": 14803568
+      },
+      "delta_vmas": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      }
+    },
+    "actors_stopped_1": {
+      "rss_kib": {
+        "median": 18396,
+        "min": 18392,
+        "max": 20428
+      },
+      "pss_kib": {
+        "median": 15934,
+        "min": 15901,
+        "max": 17939
+      },
+      "private_dirty_kib": {
+        "median": 14916,
+        "min": 14912,
+        "max": 16956
+      },
+      "vms_kib": {
+        "median": 111204,
+        "min": 111204,
+        "max": 111204
+      },
+      "hwm_kib": {
+        "median": 18524,
+        "min": 18516,
+        "max": 20564
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 44,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 190704,
+        "min": 190704,
+        "max": 190704
+      },
+      "malloc_free_bytes": {
+        "median": 14948112,
+        "min": 14948112,
+        "max": 14948112
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14456,
+        "min": 14456,
+        "max": 14456
+      },
+      "delta_pss_kib": {
+        "median": 14456,
+        "min": 14456,
+        "max": 14456
+      },
+      "delta_vms_kib": {
+        "median": 14520,
+        "min": 14520,
+        "max": 14520
+      },
+      "delta_malloc_used_bytes": {
+        "median": 97424,
+        "min": 97424,
+        "max": 97424
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "shutdown": {
+      "rss_kib": {
+        "median": 18540,
+        "min": 18532,
+        "max": 18588
+      },
+      "pss_kib": {
+        "median": 15935,
+        "min": 15920,
+        "max": 15963
+      },
+      "private_dirty_kib": {
+        "median": 14924,
+        "min": 14920,
+        "max": 14940
+      },
+      "vms_kib": {
+        "median": 242276,
+        "min": 242276,
+        "max": 242276
+      },
+      "hwm_kib": {
+        "median": 18588,
+        "min": 18532,
+        "max": 20564
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 48,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 181552,
+        "min": 181552,
+        "max": 181552
+      },
+      "malloc_free_bytes": {
+        "median": 15227600,
+        "min": 15227600,
+        "max": 15227600
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14592,
+        "min": 12568,
+        "max": 14652
+      },
+      "delta_pss_kib": {
+        "median": 14475,
+        "min": 12452,
+        "max": 14485
+      },
+      "delta_vms_kib": {
+        "median": 145592,
+        "min": 145592,
+        "max": 145592
+      },
+      "delta_malloc_used_bytes": {
+        "median": 88272,
+        "min": 88272,
+        "max": 88272
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    },
+    "destroyed": {
+      "rss_kib": {
+        "median": 18540,
+        "min": 18532,
+        "max": 18588
+      },
+      "pss_kib": {
+        "median": 15935,
+        "min": 15920,
+        "max": 15963
+      },
+      "private_dirty_kib": {
+        "median": 14924,
+        "min": 14920,
+        "max": 14940
+      },
+      "vms_kib": {
+        "median": 242276,
+        "min": 242276,
+        "max": 242276
+      },
+      "hwm_kib": {
+        "median": 18588,
+        "min": 18532,
+        "max": 20564
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 48,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 92896,
+        "min": 92896,
+        "max": 92896
+      },
+      "malloc_free_bytes": {
+        "median": 15316256,
+        "min": 15316256,
+        "max": 15316256
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14592,
+        "min": 12568,
+        "max": 14652
+      },
+      "delta_pss_kib": {
+        "median": 14475,
+        "min": 12452,
+        "max": 14485
+      },
+      "delta_vms_kib": {
+        "median": 145592,
+        "min": 145592,
+        "max": 145592
+      },
+      "delta_malloc_used_bytes": {
+        "median": -384,
+        "min": -384,
+        "max": -384
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    },
+    "trimmed_diagnostic": {
+      "rss_kib": {
+        "median": 4116,
+        "min": 4108,
+        "max": 4164
+      },
+      "pss_kib": {
+        "median": 1511,
+        "min": 1496,
+        "max": 1539
+      },
+      "private_dirty_kib": {
+        "median": 500,
+        "min": 496,
+        "max": 516
+      },
+      "vms_kib": {
+        "median": 242172,
+        "min": 242172,
+        "max": 242172
+      },
+      "hwm_kib": {
+        "median": 18588,
+        "min": 18532,
+        "max": 20564
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 48,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 92896,
+        "min": 92896,
+        "max": 92896
+      },
+      "malloc_free_bytes": {
+        "median": 15209760,
+        "min": 15209760,
+        "max": 15209760
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 168,
+        "min": -1856,
+        "max": 228
+      },
+      "delta_pss_kib": {
+        "median": 51,
+        "min": -1972,
+        "max": 61
+      },
+      "delta_vms_kib": {
+        "median": 145488,
+        "min": 145488,
+        "max": 145488
+      },
+      "delta_malloc_used_bytes": {
+        "median": -384,
+        "min": -384,
+        "max": -384
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    }
+  },
+  "actor_cycles": {
+    "sizes": {
+      "ActorControl": {
+        "median": 616,
+        "min": 616,
+        "max": 616
+      },
+      "EmptyActor": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "ActorRef": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "Message": {
+        "median": 120,
+        "min": 120,
+        "max": 120
+      },
+      "Fiber": {
+        "median": 1296,
+        "min": 1296,
+        "max": 1296
+      },
+      "Worker": {
+        "median": 1344,
+        "min": 1344,
+        "max": 1344
+      },
+      "Job": {
+        "median": 88,
+        "min": 88,
+        "max": 88
+      },
+      "ReadyDispatch": {
+        "median": 32,
+        "min": 32,
+        "max": 32
+      },
+      "RuntimeWaitNode": {
+        "median": 152,
+        "min": 152,
+        "max": 152
+      },
+      "Completion": {
+        "median": 48,
+        "min": 48,
+        "max": 48
+      },
+      "TimerEntry": {
+        "median": 64,
+        "min": 64,
+        "max": 64
+      },
+      "system_impl": {
+        "median": 4992,
+        "min": 4992,
+        "max": 4992
+      },
+      "pthread_default_stack": {
+        "median": 8388608,
+        "min": 8388608,
+        "max": 8388608
+      },
+      "page_size": {
+        "median": 4096,
+        "min": 4096,
+        "max": 4096
+      }
+    },
+    "process_baseline": {
+      "rss_kib": {
+        "median": 3704,
+        "min": 3676,
+        "max": 3732
+      },
+      "pss_kib": {
+        "median": 1340,
+        "min": 1337,
+        "max": 1372
+      },
+      "private_dirty_kib": {
+        "median": 340,
+        "min": 328,
+        "max": 340
+      },
+      "vms_kib": {
+        "median": 6560,
+        "min": 6560,
+        "max": 6560
+      },
+      "hwm_kib": {
+        "median": 2076,
+        "min": 2008,
+        "max": 2084
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 38,
+        "min": 38,
+        "max": 38
+      },
+      "malloc_used_bytes": {
+        "median": 80064,
+        "min": 80064,
+        "max": 80064
+      },
+      "malloc_free_bytes": {
+        "median": 55104,
+        "min": 55104,
+        "max": 55104
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "system_idle": {
+      "rss_kib": {
+        "median": 3940,
+        "min": 3928,
+        "max": 4036
+      },
+      "pss_kib": {
+        "median": 1472,
+        "min": 1458,
+        "max": 1496
+      },
+      "private_dirty_kib": {
+        "median": 460,
+        "min": 456,
+        "max": 460
+      },
+      "vms_kib": {
+        "median": 96684,
+        "min": 96684,
+        "max": 96684
+      },
+      "hwm_kib": {
+        "median": 2076,
+        "min": 2008,
+        "max": 2084
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 93280,
+        "min": 93280,
+        "max": 93280
+      },
+      "malloc_free_bytes": {
+        "median": 177056,
+        "min": 177056,
+        "max": 177056
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_loaded_1": {
+      "rss_kib": {
+        "median": 18556,
+        "min": 18544,
+        "max": 18652
+      },
+      "pss_kib": {
+        "median": 16088,
+        "min": 16074,
+        "max": 16112
+      },
+      "private_dirty_kib": {
+        "median": 15076,
+        "min": 15072,
+        "max": 15076
+      },
+      "vms_kib": {
+        "median": 111364,
+        "min": 111364,
+        "max": 111364
+      },
+      "hwm_kib": {
+        "median": 18520,
+        "min": 18504,
+        "max": 18608
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 46,
+        "min": 46,
+        "max": 46
+      },
+      "malloc_used_bytes": {
+        "median": 14896848,
+        "min": 14896848,
+        "max": 14896848
+      },
+      "malloc_free_bytes": {
+        "median": 241968,
+        "min": 241968,
+        "max": 241968
+      },
+      "malloc_mmap_bytes": {
+        "median": 163840,
+        "min": 163840,
+        "max": 163840
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14616,
+        "min": 14616,
+        "max": 14616
+      },
+      "delta_pss_kib": {
+        "median": 14616,
+        "min": 14616,
+        "max": 14616
+      },
+      "delta_vms_kib": {
+        "median": 14680,
+        "min": 14680,
+        "max": 14680
+      },
+      "delta_malloc_used_bytes": {
+        "median": 14803568,
+        "min": 14803568,
+        "max": 14803568
+      },
+      "delta_vmas": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      }
+    },
+    "actors_stopped_1": {
+      "rss_kib": {
+        "median": 18396,
+        "min": 18384,
+        "max": 18492
+      },
+      "pss_kib": {
+        "median": 15928,
+        "min": 15914,
+        "max": 15952
+      },
+      "private_dirty_kib": {
+        "median": 14916,
+        "min": 14912,
+        "max": 14916
+      },
+      "vms_kib": {
+        "median": 111204,
+        "min": 111204,
+        "max": 111204
+      },
+      "hwm_kib": {
+        "median": 18520,
+        "min": 18504,
+        "max": 18608
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 190704,
+        "min": 190704,
+        "max": 190704
+      },
+      "malloc_free_bytes": {
+        "median": 14948112,
+        "min": 14948112,
+        "max": 14948112
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14456,
+        "min": 14456,
+        "max": 14456
+      },
+      "delta_pss_kib": {
+        "median": 14456,
+        "min": 14456,
+        "max": 14456
+      },
+      "delta_vms_kib": {
+        "median": 14520,
+        "min": 14520,
+        "max": 14520
+      },
+      "delta_malloc_used_bytes": {
+        "median": 97424,
+        "min": 97424,
+        "max": 97424
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_loaded_2": {
+      "rss_kib": {
+        "median": 18564,
+        "min": 18552,
+        "max": 18660
+      },
+      "pss_kib": {
+        "median": 16096,
+        "min": 16082,
+        "max": 16120
+      },
+      "private_dirty_kib": {
+        "median": 15084,
+        "min": 15080,
+        "max": 15084
+      },
+      "vms_kib": {
+        "median": 111336,
+        "min": 111336,
+        "max": 111336
+      },
+      "hwm_kib": {
+        "median": 18520,
+        "min": 18504,
+        "max": 18608
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 15069824,
+        "min": 15069792,
+        "max": 15069856
+      },
+      "malloc_free_bytes": {
+        "median": 204160,
+        "min": 204128,
+        "max": 204192
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14624,
+        "min": 14624,
+        "max": 14624
+      },
+      "delta_pss_kib": {
+        "median": 14624,
+        "min": 14624,
+        "max": 14624
+      },
+      "delta_vms_kib": {
+        "median": 14652,
+        "min": 14652,
+        "max": 14652
+      },
+      "delta_malloc_used_bytes": {
+        "median": 14976544,
+        "min": 14976512,
+        "max": 14976576
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_stopped_2": {
+      "rss_kib": {
+        "median": 18564,
+        "min": 18552,
+        "max": 18660
+      },
+      "pss_kib": {
+        "median": 16096,
+        "min": 16082,
+        "max": 16120
+      },
+      "private_dirty_kib": {
+        "median": 15084,
+        "min": 15080,
+        "max": 15084
+      },
+      "vms_kib": {
+        "median": 111336,
+        "min": 111336,
+        "max": 111336
+      },
+      "hwm_kib": {
+        "median": 18520,
+        "min": 18504,
+        "max": 18608
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 190880,
+        "min": 190864,
+        "max": 190976
+      },
+      "malloc_free_bytes": {
+        "median": 15083104,
+        "min": 15083008,
+        "max": 15083120
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14624,
+        "min": 14624,
+        "max": 14624
+      },
+      "delta_pss_kib": {
+        "median": 14624,
+        "min": 14624,
+        "max": 14624
+      },
+      "delta_vms_kib": {
+        "median": 14652,
+        "min": 14652,
+        "max": 14652
+      },
+      "delta_malloc_used_bytes": {
+        "median": 97600,
+        "min": 97584,
+        "max": 97696
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_loaded_3": {
+      "rss_kib": {
+        "median": 18564,
+        "min": 18552,
+        "max": 18664
+      },
+      "pss_kib": {
+        "median": 16096,
+        "min": 16082,
+        "max": 16124
+      },
+      "private_dirty_kib": {
+        "median": 15084,
+        "min": 15080,
+        "max": 15088
+      },
+      "vms_kib": {
+        "median": 111336,
+        "min": 111336,
+        "max": 111336
+      },
+      "hwm_kib": {
+        "median": 18520,
+        "min": 18504,
+        "max": 18608
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 15069856,
+        "min": 15069776,
+        "max": 15069984
+      },
+      "malloc_free_bytes": {
+        "median": 204128,
+        "min": 204000,
+        "max": 204208
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14624,
+        "min": 14624,
+        "max": 14628
+      },
+      "delta_pss_kib": {
+        "median": 14624,
+        "min": 14624,
+        "max": 14628
+      },
+      "delta_vms_kib": {
+        "median": 14652,
+        "min": 14652,
+        "max": 14652
+      },
+      "delta_malloc_used_bytes": {
+        "median": 14976576,
+        "min": 14976496,
+        "max": 14976704
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_stopped_3": {
+      "rss_kib": {
+        "median": 18564,
+        "min": 18552,
+        "max": 18664
+      },
+      "pss_kib": {
+        "median": 16096,
+        "min": 16082,
+        "max": 16124
+      },
+      "private_dirty_kib": {
+        "median": 15084,
+        "min": 15080,
+        "max": 15088
+      },
+      "vms_kib": {
+        "median": 111336,
+        "min": 111336,
+        "max": 111336
+      },
+      "hwm_kib": {
+        "median": 18520,
+        "min": 18504,
+        "max": 18608
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 190656,
+        "min": 190592,
+        "max": 190848
+      },
+      "malloc_free_bytes": {
+        "median": 15083328,
+        "min": 15083136,
+        "max": 15083392
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14624,
+        "min": 14624,
+        "max": 14628
+      },
+      "delta_pss_kib": {
+        "median": 14624,
+        "min": 14624,
+        "max": 14628
+      },
+      "delta_vms_kib": {
+        "median": 14652,
+        "min": 14652,
+        "max": 14652
+      },
+      "delta_malloc_used_bytes": {
+        "median": 97376,
+        "min": 97312,
+        "max": 97568
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_loaded_4": {
+      "rss_kib": {
+        "median": 18568,
+        "min": 18556,
+        "max": 18664
+      },
+      "pss_kib": {
+        "median": 16100,
+        "min": 16086,
+        "max": 16124
+      },
+      "private_dirty_kib": {
+        "median": 15088,
+        "min": 15084,
+        "max": 15088
+      },
+      "vms_kib": {
+        "median": 111336,
+        "min": 111336,
+        "max": 111336
+      },
+      "hwm_kib": {
+        "median": 18520,
+        "min": 18504,
+        "max": 18608
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 15069984,
+        "min": 15069808,
+        "max": 15070064
+      },
+      "malloc_free_bytes": {
+        "median": 204000,
+        "min": 203920,
+        "max": 204176
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14628,
+        "min": 14628,
+        "max": 14628
+      },
+      "delta_pss_kib": {
+        "median": 14628,
+        "min": 14628,
+        "max": 14628
+      },
+      "delta_vms_kib": {
+        "median": 14652,
+        "min": 14652,
+        "max": 14652
+      },
+      "delta_malloc_used_bytes": {
+        "median": 14976704,
+        "min": 14976528,
+        "max": 14976784
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_stopped_4": {
+      "rss_kib": {
+        "median": 18568,
+        "min": 18556,
+        "max": 18664
+      },
+      "pss_kib": {
+        "median": 16100,
+        "min": 16086,
+        "max": 16124
+      },
+      "private_dirty_kib": {
+        "median": 15088,
+        "min": 15084,
+        "max": 15088
+      },
+      "vms_kib": {
+        "median": 111336,
+        "min": 111336,
+        "max": 111336
+      },
+      "hwm_kib": {
+        "median": 18520,
+        "min": 18504,
+        "max": 18608
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 190976,
+        "min": 190928,
+        "max": 191392
+      },
+      "malloc_free_bytes": {
+        "median": 15083008,
+        "min": 15082592,
+        "max": 15083056
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14628,
+        "min": 14628,
+        "max": 14628
+      },
+      "delta_pss_kib": {
+        "median": 14628,
+        "min": 14628,
+        "max": 14628
+      },
+      "delta_vms_kib": {
+        "median": 14652,
+        "min": 14652,
+        "max": 14652
+      },
+      "delta_malloc_used_bytes": {
+        "median": 97696,
+        "min": 97648,
+        "max": 98112
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_loaded_5": {
+      "rss_kib": {
+        "median": 18568,
+        "min": 18556,
+        "max": 18664
+      },
+      "pss_kib": {
+        "median": 16100,
+        "min": 16086,
+        "max": 16124
+      },
+      "private_dirty_kib": {
+        "median": 15088,
+        "min": 15084,
+        "max": 15088
+      },
+      "vms_kib": {
+        "median": 111336,
+        "min": 111336,
+        "max": 111336
+      },
+      "hwm_kib": {
+        "median": 18520,
+        "min": 18504,
+        "max": 18608
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 15070320,
+        "min": 15070160,
+        "max": 15070656
+      },
+      "malloc_free_bytes": {
+        "median": 203664,
+        "min": 203328,
+        "max": 203824
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14628,
+        "min": 14628,
+        "max": 14628
+      },
+      "delta_pss_kib": {
+        "median": 14628,
+        "min": 14628,
+        "max": 14628
+      },
+      "delta_vms_kib": {
+        "median": 14652,
+        "min": 14652,
+        "max": 14652
+      },
+      "delta_malloc_used_bytes": {
+        "median": 14977040,
+        "min": 14976880,
+        "max": 14977376
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actors_stopped_5": {
+      "rss_kib": {
+        "median": 18568,
+        "min": 18556,
+        "max": 18664
+      },
+      "pss_kib": {
+        "median": 16100,
+        "min": 16086,
+        "max": 16124
+      },
+      "private_dirty_kib": {
+        "median": 15088,
+        "min": 15084,
+        "max": 15088
+      },
+      "vms_kib": {
+        "median": 111336,
+        "min": 111336,
+        "max": 111336
+      },
+      "hwm_kib": {
+        "median": 18520,
+        "min": 18504,
+        "max": 18608
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 192160,
+        "min": 191904,
+        "max": 192240
+      },
+      "malloc_free_bytes": {
+        "median": 15081824,
+        "min": 15081744,
+        "max": 15082080
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14628,
+        "min": 14628,
+        "max": 14628
+      },
+      "delta_pss_kib": {
+        "median": 14628,
+        "min": 14628,
+        "max": 14628
+      },
+      "delta_vms_kib": {
+        "median": 14652,
+        "min": 14652,
+        "max": 14652
+      },
+      "delta_malloc_used_bytes": {
+        "median": 98880,
+        "min": 98624,
+        "max": 98960
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "shutdown": {
+      "rss_kib": {
+        "median": 18704,
+        "min": 11728,
+        "max": 18752
+      },
+      "pss_kib": {
+        "median": 16106,
+        "min": 9073,
+        "max": 16129
+      },
+      "private_dirty_kib": {
+        "median": 15092,
+        "min": 8024,
+        "max": 15096
+      },
+      "vms_kib": {
+        "median": 242408,
+        "min": 169740,
+        "max": 242408
+      },
+      "hwm_kib": {
+        "median": 18580,
+        "min": 18532,
+        "max": 18616
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 47,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 181312,
+        "min": 179056,
+        "max": 181360
+      },
+      "malloc_free_bytes": {
+        "median": 15362960,
+        "min": 7926928,
+        "max": 15363008
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14764,
+        "min": 7692,
+        "max": 14824
+      },
+      "delta_pss_kib": {
+        "median": 14648,
+        "min": 7577,
+        "max": 14657
+      },
+      "delta_vms_kib": {
+        "median": 145724,
+        "min": 73056,
+        "max": 145724
+      },
+      "delta_malloc_used_bytes": {
+        "median": 88032,
+        "min": 85776,
+        "max": 88080
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 2,
+        "max": 4
+      }
+    },
+    "destroyed": {
+      "rss_kib": {
+        "median": 18704,
+        "min": 5612,
+        "max": 18752
+      },
+      "pss_kib": {
+        "median": 16106,
+        "min": 2957,
+        "max": 16129
+      },
+      "private_dirty_kib": {
+        "median": 15092,
+        "min": 1908,
+        "max": 15096
+      },
+      "vms_kib": {
+        "median": 242408,
+        "min": 163624,
+        "max": 242408
+      },
+      "hwm_kib": {
+        "median": 18580,
+        "min": 18532,
+        "max": 18616
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 47,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 92656,
+        "min": 90400,
+        "max": 92704
+      },
+      "malloc_free_bytes": {
+        "median": 15451616,
+        "min": 1752800,
+        "max": 15451664
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 14764,
+        "min": 1576,
+        "max": 14824
+      },
+      "delta_pss_kib": {
+        "median": 14648,
+        "min": 1461,
+        "max": 14657
+      },
+      "delta_vms_kib": {
+        "median": 145724,
+        "min": 66940,
+        "max": 145724
+      },
+      "delta_malloc_used_bytes": {
+        "median": -624,
+        "min": -2880,
+        "max": -576
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 2,
+        "max": 4
+      }
+    },
+    "trimmed_diagnostic": {
+      "rss_kib": {
+        "median": 4160,
+        "min": 4116,
+        "max": 4200
+      },
+      "pss_kib": {
+        "median": 1537,
+        "min": 1518,
+        "max": 1545
+      },
+      "private_dirty_kib": {
+        "median": 504,
+        "min": 496,
+        "max": 504
+      },
+      "vms_kib": {
+        "median": 242172,
+        "min": 163496,
+        "max": 242340
+      },
+      "hwm_kib": {
+        "median": 18660,
+        "min": 18616,
+        "max": 18692
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 47,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 92656,
+        "min": 90400,
+        "max": 92704
+      },
+      "malloc_free_bytes": {
+        "median": 15210000,
+        "min": 1621728,
+        "max": 15381984
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 176,
+        "min": 164,
+        "max": 232
+      },
+      "delta_pss_kib": {
+        "median": 60,
+        "min": 49,
+        "max": 65
+      },
+      "delta_vms_kib": {
+        "median": 145488,
+        "min": 66812,
+        "max": 145656
+      },
+      "delta_malloc_used_bytes": {
+        "median": -624,
+        "min": -2880,
+        "max": -576
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 2,
+        "max": 4
+      }
+    }
+  },
+  "mailbox_10000_0": {
+    "sizes": {
+      "ActorControl": {
+        "median": 616,
+        "min": 616,
+        "max": 616
+      },
+      "EmptyActor": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "ActorRef": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "Message": {
+        "median": 120,
+        "min": 120,
+        "max": 120
+      },
+      "Fiber": {
+        "median": 1296,
+        "min": 1296,
+        "max": 1296
+      },
+      "Worker": {
+        "median": 1344,
+        "min": 1344,
+        "max": 1344
+      },
+      "Job": {
+        "median": 88,
+        "min": 88,
+        "max": 88
+      },
+      "ReadyDispatch": {
+        "median": 32,
+        "min": 32,
+        "max": 32
+      },
+      "RuntimeWaitNode": {
+        "median": 152,
+        "min": 152,
+        "max": 152
+      },
+      "Completion": {
+        "median": 48,
+        "min": 48,
+        "max": 48
+      },
+      "TimerEntry": {
+        "median": 64,
+        "min": 64,
+        "max": 64
+      },
+      "system_impl": {
+        "median": 4992,
+        "min": 4992,
+        "max": 4992
+      },
+      "pthread_default_stack": {
+        "median": 8388608,
+        "min": 8388608,
+        "max": 8388608
+      },
+      "page_size": {
+        "median": 4096,
+        "min": 4096,
+        "max": 4096
+      }
+    },
+    "process_baseline": {
+      "rss_kib": {
+        "median": 3664,
+        "min": 3660,
+        "max": 3668
+      },
+      "pss_kib": {
+        "median": 1331,
+        "min": 1308,
+        "max": 1347
+      },
+      "private_dirty_kib": {
+        "median": 320,
+        "min": 320,
+        "max": 324
+      },
+      "vms_kib": {
+        "median": 6560,
+        "min": 6560,
+        "max": 6560
+      },
+      "hwm_kib": {
+        "median": 2028,
+        "min": 2024,
+        "max": 2072
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 38,
+        "min": 38,
+        "max": 38
+      },
+      "malloc_used_bytes": {
+        "median": 80064,
+        "min": 80064,
+        "max": 80064
+      },
+      "malloc_free_bytes": {
+        "median": 55104,
+        "min": 55104,
+        "max": 55104
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "system_idle": {
+      "rss_kib": {
+        "median": 3980,
+        "min": 3924,
+        "max": 3984
+      },
+      "pss_kib": {
+        "median": 1467,
+        "min": 1448,
+        "max": 1487
+      },
+      "private_dirty_kib": {
+        "median": 456,
+        "min": 456,
+        "max": 460
+      },
+      "vms_kib": {
+        "median": 96684,
+        "min": 96684,
+        "max": 96684
+      },
+      "hwm_kib": {
+        "median": 2028,
+        "min": 2024,
+        "max": 2072
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 93280,
+        "min": 93280,
+        "max": 93280
+      },
+      "malloc_free_bytes": {
+        "median": 177056,
+        "min": 177056,
+        "max": 177056
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": -2016,
+        "min": -2016,
+        "max": -2016
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actor_ready": {
+      "rss_kib": {
+        "median": 3980,
+        "min": 3924,
+        "max": 3984
+      },
+      "pss_kib": {
+        "median": 1467,
+        "min": 1448,
+        "max": 1487
+      },
+      "private_dirty_kib": {
+        "median": 456,
+        "min": 456,
+        "max": 460
+      },
+      "vms_kib": {
+        "median": 96684,
+        "min": 96684,
+        "max": 96684
+      },
+      "hwm_kib": {
+        "median": 2028,
+        "min": 2024,
+        "max": 2072
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 95296,
+        "min": 95296,
+        "max": 95296
+      },
+      "malloc_free_bytes": {
+        "median": 175040,
+        "min": 175040,
+        "max": 175040
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "mailbox_full": {
+      "rss_kib": {
+        "median": 5552,
+        "min": 5496,
+        "max": 5556
+      },
+      "pss_kib": {
+        "median": 3039,
+        "min": 3020,
+        "max": 3059
+      },
+      "private_dirty_kib": {
+        "median": 2028,
+        "min": 2028,
+        "max": 2032
+      },
+      "vms_kib": {
+        "median": 98268,
+        "min": 98268,
+        "max": 98268
+      },
+      "hwm_kib": {
+        "median": 5360,
+        "min": 5304,
+        "max": 5360
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 1706432,
+        "min": 1706432,
+        "max": 1706432
+      },
+      "malloc_free_bytes": {
+        "median": 185920,
+        "min": 185920,
+        "max": 185920
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 1572,
+        "min": 1572,
+        "max": 1572
+      },
+      "delta_pss_kib": {
+        "median": 1572,
+        "min": 1572,
+        "max": 1572
+      },
+      "delta_vms_kib": {
+        "median": 1584,
+        "min": 1584,
+        "max": 1584
+      },
+      "delta_malloc_used_bytes": {
+        "median": 1611136,
+        "min": 1611136,
+        "max": 1611136
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "drained": {
+      "rss_kib": {
+        "median": 5552,
+        "min": 5496,
+        "max": 5556
+      },
+      "pss_kib": {
+        "median": 3039,
+        "min": 3020,
+        "max": 3059
+      },
+      "private_dirty_kib": {
+        "median": 2028,
+        "min": 2028,
+        "max": 2032
+      },
+      "vms_kib": {
+        "median": 98268,
+        "min": 98268,
+        "max": 98268
+      },
+      "hwm_kib": {
+        "median": 5360,
+        "min": 5304,
+        "max": 5360
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 106288,
+        "min": 106288,
+        "max": 106288
+      },
+      "malloc_free_bytes": {
+        "median": 1786064,
+        "min": 1786064,
+        "max": 1786064
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "delta_rss_kib": {
+        "median": 1572,
+        "min": 1572,
+        "max": 1572
+      },
+      "delta_pss_kib": {
+        "median": 1572,
+        "min": 1572,
+        "max": 1572
+      },
+      "delta_vms_kib": {
+        "median": 1584,
+        "min": 1584,
+        "max": 1584
+      },
+      "delta_malloc_used_bytes": {
+        "median": 10992,
+        "min": 10992,
+        "max": 10992
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actor_stopped": {
+      "rss_kib": {
+        "median": 5552,
+        "min": 5496,
+        "max": 5556
+      },
+      "pss_kib": {
+        "median": 3039,
+        "min": 3020,
+        "max": 3059
+      },
+      "private_dirty_kib": {
+        "median": 2028,
+        "min": 2028,
+        "max": 2032
+      },
+      "vms_kib": {
+        "median": 98268,
+        "min": 98268,
+        "max": 98268
+      },
+      "hwm_kib": {
+        "median": 5360,
+        "min": 5304,
+        "max": 5360
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 100832,
+        "min": 100832,
+        "max": 100832
+      },
+      "malloc_free_bytes": {
+        "median": 1791520,
+        "min": 1791520,
+        "max": 1791520
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 1572,
+        "min": 1572,
+        "max": 1572
+      },
+      "delta_pss_kib": {
+        "median": 1572,
+        "min": 1572,
+        "max": 1572
+      },
+      "delta_vms_kib": {
+        "median": 1584,
+        "min": 1584,
+        "max": 1584
+      },
+      "delta_malloc_used_bytes": {
+        "median": 5536,
+        "min": 5536,
+        "max": 5536
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "shutdown": {
+      "rss_kib": {
+        "median": 4380,
+        "min": 4376,
+        "max": 4380
+      },
+      "pss_kib": {
+        "median": 1756,
+        "min": 1729,
+        "max": 1768
+      },
+      "private_dirty_kib": {
+        "median": 724,
+        "min": 724,
+        "max": 728
+      },
+      "vms_kib": {
+        "median": 227976,
+        "min": 227976,
+        "max": 227976
+      },
+      "hwm_kib": {
+        "median": 5504,
+        "min": 5504,
+        "max": 5508
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 49,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 98688,
+        "min": 98688,
+        "max": 98688
+      },
+      "malloc_free_bytes": {
+        "median": 667264,
+        "min": 667264,
+        "max": 667264
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 396,
+        "min": 396,
+        "max": 456
+      },
+      "delta_pss_kib": {
+        "median": 281,
+        "min": 281,
+        "max": 289
+      },
+      "delta_vms_kib": {
+        "median": 131292,
+        "min": 131292,
+        "max": 131292
+      },
+      "delta_malloc_used_bytes": {
+        "median": 3392,
+        "min": 3392,
+        "max": 3392
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    },
+    "destroyed": {
+      "rss_kib": {
+        "median": 4380,
+        "min": 4376,
+        "max": 4380
+      },
+      "pss_kib": {
+        "median": 1756,
+        "min": 1729,
+        "max": 1768
+      },
+      "private_dirty_kib": {
+        "median": 724,
+        "min": 724,
+        "max": 728
+      },
+      "vms_kib": {
+        "median": 227976,
+        "min": 227976,
+        "max": 227976
+      },
+      "hwm_kib": {
+        "median": 5504,
+        "min": 5504,
+        "max": 5508
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 49,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 92320,
+        "min": 92320,
+        "max": 92320
+      },
+      "malloc_free_bytes": {
+        "median": 673632,
+        "min": 673632,
+        "max": 673632
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 396,
+        "min": 396,
+        "max": 456
+      },
+      "delta_pss_kib": {
+        "median": 281,
+        "min": 281,
+        "max": 289
+      },
+      "delta_vms_kib": {
+        "median": 131292,
+        "min": 131292,
+        "max": 131292
+      },
+      "delta_malloc_used_bytes": {
+        "median": -2976,
+        "min": -2976,
+        "max": -2976
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    },
+    "trimmed_diagnostic": {
+      "rss_kib": {
+        "median": 4132,
+        "min": 4128,
+        "max": 4132
+      },
+      "pss_kib": {
+        "median": 1508,
+        "min": 1481,
+        "max": 1520
+      },
+      "private_dirty_kib": {
+        "median": 476,
+        "min": 476,
+        "max": 480
+      },
+      "vms_kib": {
+        "median": 227848,
+        "min": 227848,
+        "max": 227848
+      },
+      "hwm_kib": {
+        "median": 5504,
+        "min": 5504,
+        "max": 5508
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 49,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 92320,
+        "min": 92320,
+        "max": 92320
+      },
+      "malloc_free_bytes": {
+        "median": 542560,
+        "min": 542560,
+        "max": 542560
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 148,
+        "min": 148,
+        "max": 208
+      },
+      "delta_pss_kib": {
+        "median": 33,
+        "min": 33,
+        "max": 41
+      },
+      "delta_vms_kib": {
+        "median": 131164,
+        "min": 131164,
+        "max": 131164
+      },
+      "delta_malloc_used_bytes": {
+        "median": -2976,
+        "min": -2976,
+        "max": -2976
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      }
+    }
+  },
+  "mailbox_10000_64": {
+    "sizes": {
+      "ActorControl": {
+        "median": 616,
+        "min": 616,
+        "max": 616
+      },
+      "EmptyActor": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "ActorRef": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "Message": {
+        "median": 120,
+        "min": 120,
+        "max": 120
+      },
+      "Fiber": {
+        "median": 1296,
+        "min": 1296,
+        "max": 1296
+      },
+      "Worker": {
+        "median": 1344,
+        "min": 1344,
+        "max": 1344
+      },
+      "Job": {
+        "median": 88,
+        "min": 88,
+        "max": 88
+      },
+      "ReadyDispatch": {
+        "median": 32,
+        "min": 32,
+        "max": 32
+      },
+      "RuntimeWaitNode": {
+        "median": 152,
+        "min": 152,
+        "max": 152
+      },
+      "Completion": {
+        "median": 48,
+        "min": 48,
+        "max": 48
+      },
+      "TimerEntry": {
+        "median": 64,
+        "min": 64,
+        "max": 64
+      },
+      "system_impl": {
+        "median": 4992,
+        "min": 4992,
+        "max": 4992
+      },
+      "pthread_default_stack": {
+        "median": 8388608,
+        "min": 8388608,
+        "max": 8388608
+      },
+      "page_size": {
+        "median": 4096,
+        "min": 4096,
+        "max": 4096
+      }
+    },
+    "process_baseline": {
+      "rss_kib": {
+        "median": 3680,
+        "min": 3660,
+        "max": 3748
+      },
+      "pss_kib": {
+        "median": 1308,
+        "min": 1299,
+        "max": 1353
+      },
+      "private_dirty_kib": {
+        "median": 324,
+        "min": 320,
+        "max": 332
+      },
+      "vms_kib": {
+        "median": 6560,
+        "min": 6560,
+        "max": 6560
+      },
+      "hwm_kib": {
+        "median": 2068,
+        "min": 2028,
+        "max": 2084
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 38,
+        "min": 38,
+        "max": 38
+      },
+      "malloc_used_bytes": {
+        "median": 80064,
+        "min": 80064,
+        "max": 80064
+      },
+      "malloc_free_bytes": {
+        "median": 55104,
+        "min": 55104,
+        "max": 55104
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "system_idle": {
+      "rss_kib": {
+        "median": 3976,
+        "min": 3936,
+        "max": 4000
+      },
+      "pss_kib": {
+        "median": 1444,
+        "min": 1441,
+        "max": 1481
+      },
+      "private_dirty_kib": {
+        "median": 456,
+        "min": 456,
+        "max": 460
+      },
+      "vms_kib": {
+        "median": 96684,
+        "min": 96684,
+        "max": 96684
+      },
+      "hwm_kib": {
+        "median": 2068,
+        "min": 2028,
+        "max": 2084
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 93280,
+        "min": 93280,
+        "max": 93280
+      },
+      "malloc_free_bytes": {
+        "median": 177056,
+        "min": 177056,
+        "max": 177056
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": -2016,
+        "min": -2016,
+        "max": -2016
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actor_ready": {
+      "rss_kib": {
+        "median": 3976,
+        "min": 3936,
+        "max": 4000
+      },
+      "pss_kib": {
+        "median": 1444,
+        "min": 1441,
+        "max": 1481
+      },
+      "private_dirty_kib": {
+        "median": 456,
+        "min": 456,
+        "max": 460
+      },
+      "vms_kib": {
+        "median": 96684,
+        "min": 96684,
+        "max": 96684
+      },
+      "hwm_kib": {
+        "median": 2068,
+        "min": 2028,
+        "max": 2084
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 95296,
+        "min": 95296,
+        "max": 95296
+      },
+      "malloc_free_bytes": {
+        "median": 175040,
+        "min": 175040,
+        "max": 175040
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "mailbox_full": {
+      "rss_kib": {
+        "median": 6644,
+        "min": 6604,
+        "max": 6668
+      },
+      "pss_kib": {
+        "median": 4112,
+        "min": 4109,
+        "max": 4149
+      },
+      "private_dirty_kib": {
+        "median": 3124,
+        "min": 3124,
+        "max": 3128
+      },
+      "vms_kib": {
+        "median": 99324,
+        "min": 99324,
+        "max": 99324
+      },
+      "hwm_kib": {
+        "median": 6408,
+        "min": 6376,
+        "max": 6428
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 2826288,
+        "min": 2826288,
+        "max": 2826288
+      },
+      "malloc_free_bytes": {
+        "median": 147408,
+        "min": 147408,
+        "max": 147408
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 2668,
+        "min": 2668,
+        "max": 2668
+      },
+      "delta_pss_kib": {
+        "median": 2668,
+        "min": 2668,
+        "max": 2668
+      },
+      "delta_vms_kib": {
+        "median": 2640,
+        "min": 2640,
+        "max": 2640
+      },
+      "delta_malloc_used_bytes": {
+        "median": 2730992,
+        "min": 2730992,
+        "max": 2730992
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "drained": {
+      "rss_kib": {
+        "median": 6644,
+        "min": 6604,
+        "max": 6668
+      },
+      "pss_kib": {
+        "median": 4112,
+        "min": 4109,
+        "max": 4149
+      },
+      "private_dirty_kib": {
+        "median": 3124,
+        "min": 3124,
+        "max": 3128
+      },
+      "vms_kib": {
+        "median": 99324,
+        "min": 99324,
+        "max": 99324
+      },
+      "hwm_kib": {
+        "median": 6408,
+        "min": 6376,
+        "max": 6428
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 108576,
+        "min": 108576,
+        "max": 108576
+      },
+      "malloc_free_bytes": {
+        "median": 2865120,
+        "min": 2865120,
+        "max": 2865120
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "delta_rss_kib": {
+        "median": 2668,
+        "min": 2668,
+        "max": 2668
+      },
+      "delta_pss_kib": {
+        "median": 2668,
+        "min": 2668,
+        "max": 2668
+      },
+      "delta_vms_kib": {
+        "median": 2640,
+        "min": 2640,
+        "max": 2640
+      },
+      "delta_malloc_used_bytes": {
+        "median": 13280,
+        "min": 13280,
+        "max": 13280
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actor_stopped": {
+      "rss_kib": {
+        "median": 6644,
+        "min": 6604,
+        "max": 6668
+      },
+      "pss_kib": {
+        "median": 4112,
+        "min": 4109,
+        "max": 4149
+      },
+      "private_dirty_kib": {
+        "median": 3124,
+        "min": 3124,
+        "max": 3128
+      },
+      "vms_kib": {
+        "median": 99324,
+        "min": 99324,
+        "max": 99324
+      },
+      "hwm_kib": {
+        "median": 6408,
+        "min": 6376,
+        "max": 6428
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 103008,
+        "min": 103008,
+        "max": 103008
+      },
+      "malloc_free_bytes": {
+        "median": 2870688,
+        "min": 2870688,
+        "max": 2870688
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 2668,
+        "min": 2668,
+        "max": 2668
+      },
+      "delta_pss_kib": {
+        "median": 2668,
+        "min": 2668,
+        "max": 2668
+      },
+      "delta_vms_kib": {
+        "median": 2640,
+        "min": 2640,
+        "max": 2640
+      },
+      "delta_malloc_used_bytes": {
+        "median": 7712,
+        "min": 7712,
+        "max": 7712
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "shutdown": {
+      "rss_kib": {
+        "median": 6780,
+        "min": 6740,
+        "max": 6860
+      },
+      "pss_kib": {
+        "median": 4133,
+        "min": 4128,
+        "max": 4173
+      },
+      "private_dirty_kib": {
+        "median": 3132,
+        "min": 3132,
+        "max": 3132
+      },
+      "vms_kib": {
+        "median": 230396,
+        "min": 164860,
+        "max": 230396
+      },
+      "hwm_kib": {
+        "median": 6560,
+        "min": 6528,
+        "max": 6636
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 47,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 100288,
+        "min": 98032,
+        "max": 100288
+      },
+      "malloc_free_bytes": {
+        "median": 3143744,
+        "min": 3010832,
+        "max": 3143744
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 2804,
+        "min": 2804,
+        "max": 2860
+      },
+      "delta_pss_kib": {
+        "median": 2689,
+        "min": 2687,
+        "max": 2692
+      },
+      "delta_vms_kib": {
+        "median": 133712,
+        "min": 68176,
+        "max": 133712
+      },
+      "delta_malloc_used_bytes": {
+        "median": 4992,
+        "min": 2736,
+        "max": 4992
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 2,
+        "max": 4
+      }
+    },
+    "destroyed": {
+      "rss_kib": {
+        "median": 6780,
+        "min": 6740,
+        "max": 6860
+      },
+      "pss_kib": {
+        "median": 4133,
+        "min": 4128,
+        "max": 4173
+      },
+      "private_dirty_kib": {
+        "median": 3132,
+        "min": 3132,
+        "max": 3132
+      },
+      "vms_kib": {
+        "median": 230396,
+        "min": 164860,
+        "max": 230396
+      },
+      "hwm_kib": {
+        "median": 6560,
+        "min": 6528,
+        "max": 6636
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 47,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 93504,
+        "min": 91248,
+        "max": 93504
+      },
+      "malloc_free_bytes": {
+        "median": 3150528,
+        "min": 3017616,
+        "max": 3150528
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 2804,
+        "min": 2804,
+        "max": 2860
+      },
+      "delta_pss_kib": {
+        "median": 2689,
+        "min": 2687,
+        "max": 2692
+      },
+      "delta_vms_kib": {
+        "median": 133712,
+        "min": 68176,
+        "max": 133712
+      },
+      "delta_malloc_used_bytes": {
+        "median": -1792,
+        "min": -4048,
+        "max": -1792
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 2,
+        "max": 4
+      }
+    },
+    "trimmed_diagnostic": {
+      "rss_kib": {
+        "median": 4140,
+        "min": 4100,
+        "max": 4220
+      },
+      "pss_kib": {
+        "median": 1493,
+        "min": 1488,
+        "max": 1533
+      },
+      "private_dirty_kib": {
+        "median": 492,
+        "min": 492,
+        "max": 492
+      },
+      "vms_kib": {
+        "median": 230384,
+        "min": 164848,
+        "max": 230384
+      },
+      "hwm_kib": {
+        "median": 6560,
+        "min": 6528,
+        "max": 6636
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 49,
+        "min": 47,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 93504,
+        "min": 91248,
+        "max": 93504
+      },
+      "malloc_free_bytes": {
+        "median": 3138240,
+        "min": 3005328,
+        "max": 3138240
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 164,
+        "min": 164,
+        "max": 220
+      },
+      "delta_pss_kib": {
+        "median": 49,
+        "min": 47,
+        "max": 52
+      },
+      "delta_vms_kib": {
+        "median": 133700,
+        "min": 68164,
+        "max": 133700
+      },
+      "delta_malloc_used_bytes": {
+        "median": -1792,
+        "min": -4048,
+        "max": -1792
+      },
+      "delta_vmas": {
+        "median": 4,
+        "min": 2,
+        "max": 4
+      }
+    }
+  },
+  "mailbox_10000_1024": {
+    "sizes": {
+      "ActorControl": {
+        "median": 616,
+        "min": 616,
+        "max": 616
+      },
+      "EmptyActor": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "ActorRef": {
+        "median": 16,
+        "min": 16,
+        "max": 16
+      },
+      "Message": {
+        "median": 120,
+        "min": 120,
+        "max": 120
+      },
+      "Fiber": {
+        "median": 1296,
+        "min": 1296,
+        "max": 1296
+      },
+      "Worker": {
+        "median": 1344,
+        "min": 1344,
+        "max": 1344
+      },
+      "Job": {
+        "median": 88,
+        "min": 88,
+        "max": 88
+      },
+      "ReadyDispatch": {
+        "median": 32,
+        "min": 32,
+        "max": 32
+      },
+      "RuntimeWaitNode": {
+        "median": 152,
+        "min": 152,
+        "max": 152
+      },
+      "Completion": {
+        "median": 48,
+        "min": 48,
+        "max": 48
+      },
+      "TimerEntry": {
+        "median": 64,
+        "min": 64,
+        "max": 64
+      },
+      "system_impl": {
+        "median": 4992,
+        "min": 4992,
+        "max": 4992
+      },
+      "pthread_default_stack": {
+        "median": 8388608,
+        "min": 8388608,
+        "max": 8388608
+      },
+      "page_size": {
+        "median": 4096,
+        "min": 4096,
+        "max": 4096
+      }
+    },
+    "process_baseline": {
+      "rss_kib": {
+        "median": 3684,
+        "min": 3660,
+        "max": 3716
+      },
+      "pss_kib": {
+        "median": 1352,
+        "min": 1308,
+        "max": 1353
+      },
+      "private_dirty_kib": {
+        "median": 324,
+        "min": 324,
+        "max": 332
+      },
+      "vms_kib": {
+        "median": 6560,
+        "min": 6560,
+        "max": 6560
+      },
+      "hwm_kib": {
+        "median": 2072,
+        "min": 2028,
+        "max": 2076
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 38,
+        "min": 38,
+        "max": 38
+      },
+      "malloc_used_bytes": {
+        "median": 80064,
+        "min": 80064,
+        "max": 80064
+      },
+      "malloc_free_bytes": {
+        "median": 55104,
+        "min": 55104,
+        "max": 55104
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "system_idle": {
+      "rss_kib": {
+        "median": 3980,
+        "min": 3936,
+        "max": 3988
+      },
+      "pss_kib": {
+        "median": 1477,
+        "min": 1448,
+        "max": 1484
+      },
+      "private_dirty_kib": {
+        "median": 456,
+        "min": 456,
+        "max": 460
+      },
+      "vms_kib": {
+        "median": 96684,
+        "min": 96684,
+        "max": 96684
+      },
+      "hwm_kib": {
+        "median": 2072,
+        "min": 2028,
+        "max": 2076
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 93280,
+        "min": 93280,
+        "max": 93280
+      },
+      "malloc_free_bytes": {
+        "median": 177056,
+        "min": 177056,
+        "max": 177056
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": -2016,
+        "min": -2016,
+        "max": -2016
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actor_ready": {
+      "rss_kib": {
+        "median": 3980,
+        "min": 3936,
+        "max": 3988
+      },
+      "pss_kib": {
+        "median": 1477,
+        "min": 1448,
+        "max": 1484
+      },
+      "private_dirty_kib": {
+        "median": 456,
+        "min": 456,
+        "max": 460
+      },
+      "vms_kib": {
+        "median": 96684,
+        "min": 96684,
+        "max": 96684
+      },
+      "hwm_kib": {
+        "median": 2072,
+        "min": 2028,
+        "max": 2076
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 95296,
+        "min": 95296,
+        "max": 95296
+      },
+      "malloc_free_bytes": {
+        "median": 175040,
+        "min": 175040,
+        "max": 175040
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "delta_rss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_pss_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vms_kib": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_malloc_used_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "mailbox_full": {
+      "rss_kib": {
+        "median": 16024,
+        "min": 15980,
+        "max": 16032
+      },
+      "pss_kib": {
+        "median": 13527,
+        "min": 13492,
+        "max": 13528
+      },
+      "private_dirty_kib": {
+        "median": 12500,
+        "min": 12500,
+        "max": 12504
+      },
+      "vms_kib": {
+        "median": 108696,
+        "min": 108696,
+        "max": 108696
+      },
+      "hwm_kib": {
+        "median": 15916,
+        "min": 15868,
+        "max": 15920
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 12426448,
+        "min": 12426448,
+        "max": 12426448
+      },
+      "malloc_free_bytes": {
+        "median": 144176,
+        "min": 144176,
+        "max": 144176
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 12044,
+        "min": 12044,
+        "max": 12044
+      },
+      "delta_pss_kib": {
+        "median": 12044,
+        "min": 12044,
+        "max": 12050
+      },
+      "delta_vms_kib": {
+        "median": 12012,
+        "min": 12012,
+        "max": 12012
+      },
+      "delta_malloc_used_bytes": {
+        "median": 12331152,
+        "min": 12331152,
+        "max": 12331152
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "drained": {
+      "rss_kib": {
+        "median": 16024,
+        "min": 15980,
+        "max": 16032
+      },
+      "pss_kib": {
+        "median": 13527,
+        "min": 13492,
+        "max": 13528
+      },
+      "private_dirty_kib": {
+        "median": 12500,
+        "min": 12500,
+        "max": 12504
+      },
+      "vms_kib": {
+        "median": 108696,
+        "min": 108696,
+        "max": 108696
+      },
+      "hwm_kib": {
+        "median": 15916,
+        "min": 15868,
+        "max": 15920
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 114896,
+        "min": 114896,
+        "max": 114896
+      },
+      "malloc_free_bytes": {
+        "median": 12455728,
+        "min": 12455728,
+        "max": 12455728
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "delta_rss_kib": {
+        "median": 12044,
+        "min": 12044,
+        "max": 12044
+      },
+      "delta_pss_kib": {
+        "median": 12044,
+        "min": 12044,
+        "max": 12050
+      },
+      "delta_vms_kib": {
+        "median": 12012,
+        "min": 12012,
+        "max": 12012
+      },
+      "delta_malloc_used_bytes": {
+        "median": 19600,
+        "min": 19600,
+        "max": 19600
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "actor_stopped": {
+      "rss_kib": {
+        "median": 16024,
+        "min": 15980,
+        "max": 16032
+      },
+      "pss_kib": {
+        "median": 13527,
+        "min": 13492,
+        "max": 13528
+      },
+      "private_dirty_kib": {
+        "median": 12500,
+        "min": 12500,
+        "max": 12504
+      },
+      "vms_kib": {
+        "median": 108696,
+        "min": 108696,
+        "max": 108696
+      },
+      "hwm_kib": {
+        "median": 15916,
+        "min": 15868,
+        "max": 15920
+      },
+      "threads": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "vmas": {
+        "median": 45,
+        "min": 45,
+        "max": 45
+      },
+      "malloc_used_bytes": {
+        "median": 109408,
+        "min": 109408,
+        "max": 109408
+      },
+      "malloc_free_bytes": {
+        "median": 12461216,
+        "min": 12461216,
+        "max": 12461216
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 12044,
+        "min": 12044,
+        "max": 12044
+      },
+      "delta_pss_kib": {
+        "median": 12044,
+        "min": 12044,
+        "max": 12050
+      },
+      "delta_vms_kib": {
+        "median": 12012,
+        "min": 12012,
+        "max": 12012
+      },
+      "delta_malloc_used_bytes": {
+        "median": 14112,
+        "min": 14112,
+        "max": 14112
+      },
+      "delta_vmas": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "shutdown": {
+      "rss_kib": {
+        "median": 16176,
+        "min": 16156,
+        "max": 16224
+      },
+      "pss_kib": {
+        "median": 13551,
+        "min": 13509,
+        "max": 13557
+      },
+      "private_dirty_kib": {
+        "median": 12508,
+        "min": 12504,
+        "max": 12508
+      },
+      "vms_kib": {
+        "median": 174232,
+        "min": 174232,
+        "max": 239768
+      },
+      "hwm_kib": {
+        "median": 16080,
+        "min": 16068,
+        "max": 16124
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 47,
+        "min": 47,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 97632,
+        "min": 97632,
+        "max": 99888
+      },
+      "malloc_free_bytes": {
+        "median": 12608160,
+        "min": 12608160,
+        "max": 12741072
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 12236,
+        "min": 12176,
+        "max": 12240
+      },
+      "delta_pss_kib": {
+        "median": 12073,
+        "min": 12061,
+        "max": 12074
+      },
+      "delta_vms_kib": {
+        "median": 77548,
+        "min": 77548,
+        "max": 143084
+      },
+      "delta_malloc_used_bytes": {
+        "median": 2336,
+        "min": 2336,
+        "max": 4592
+      },
+      "delta_vmas": {
+        "median": 2,
+        "min": 2,
+        "max": 4
+      }
+    },
+    "destroyed": {
+      "rss_kib": {
+        "median": 16176,
+        "min": 16156,
+        "max": 16224
+      },
+      "pss_kib": {
+        "median": 13551,
+        "min": 13509,
+        "max": 13557
+      },
+      "private_dirty_kib": {
+        "median": 12508,
+        "min": 12504,
+        "max": 12508
+      },
+      "vms_kib": {
+        "median": 174232,
+        "min": 174232,
+        "max": 239768
+      },
+      "hwm_kib": {
+        "median": 16080,
+        "min": 16068,
+        "max": 16124
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 47,
+        "min": 47,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 91168,
+        "min": 91168,
+        "max": 93424
+      },
+      "malloc_free_bytes": {
+        "median": 12614624,
+        "min": 12614624,
+        "max": 12747536
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 12236,
+        "min": 12176,
+        "max": 12240
+      },
+      "delta_pss_kib": {
+        "median": 12073,
+        "min": 12061,
+        "max": 12074
+      },
+      "delta_vms_kib": {
+        "median": 77548,
+        "min": 77548,
+        "max": 143084
+      },
+      "delta_malloc_used_bytes": {
+        "median": -4128,
+        "min": -4128,
+        "max": -1872
+      },
+      "delta_vmas": {
+        "median": 2,
+        "min": 2,
+        "max": 4
+      }
+    },
+    "trimmed_diagnostic": {
+      "rss_kib": {
+        "median": 4184,
+        "min": 4164,
+        "max": 4232
+      },
+      "pss_kib": {
+        "median": 1559,
+        "min": 1517,
+        "max": 1565
+      },
+      "private_dirty_kib": {
+        "median": 516,
+        "min": 512,
+        "max": 516
+      },
+      "vms_kib": {
+        "median": 174224,
+        "min": 174224,
+        "max": 239760
+      },
+      "hwm_kib": {
+        "median": 16172,
+        "min": 16152,
+        "max": 16220
+      },
+      "threads": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "vmas": {
+        "median": 47,
+        "min": 47,
+        "max": 49
+      },
+      "malloc_used_bytes": {
+        "median": 91168,
+        "min": 91168,
+        "max": 93424
+      },
+      "malloc_free_bytes": {
+        "median": 12606432,
+        "min": 12606432,
+        "max": 12739344
+      },
+      "malloc_mmap_bytes": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_fibers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "live_stacks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "completions": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "tasks": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_keys": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "waiter_refs": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "timers": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "counts_observed": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "delta_rss_kib": {
+        "median": 244,
+        "min": 184,
+        "max": 248
+      },
+      "delta_pss_kib": {
+        "median": 81,
+        "min": 69,
+        "max": 82
+      },
+      "delta_vms_kib": {
+        "median": 77540,
+        "min": 77540,
+        "max": 143076
+      },
+      "delta_malloc_used_bytes": {
+        "median": -4128,
+        "min": -4128,
+        "max": -1872
+      },
+      "delta_vmas": {
+        "median": 2,
+        "min": 2,
+        "max": 4
+      }
+    }
+  }
+}

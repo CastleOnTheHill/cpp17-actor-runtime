@@ -1,0 +1,278 @@
+{
+  "revision": "f7ee9f4",
+  "status": "Windows-managed worktree; host git verified separately",
+  "uname": {
+    "system": "Linux",
+    "node": "arvins",
+    "release": "5.15.167.4-microsoft-standard-WSL2",
+    "version": "#1 SMP Tue Nov 5 00:21:55 UTC 2024",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "cpu": "Architecture:                         x86_64\nCPU op-mode(s):                       32-bit, 64-bit\nAddress sizes:                        46 bits physical, 48 bits virtual\nByte Order:                           Little Endian\nCPU(s):                               18\nOn-line CPU(s) list:                  0-17\nVendor ID:                            GenuineIntel\nModel name:                           Intel(R) Core(TM) Ultra 5 125H\nCPU family:                           6\nModel:                                170\nThread(s) per core:                   2\nCore(s) per socket:                   9\nSocket(s):                            1\nStepping:                             4\nBogoMIPS:                             5990.40\nFlags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology tsc_reliable nonstop_tsc cpuid pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves avx_vnni umip waitpkg gfni vaes vpclmulqdq rdpid movdiri movdir64b fsrm md_clear serialize flush_l1d arch_capabilities\nVirtualization:                       VT-x\nHypervisor vendor:                    Microsoft\nVirtualization type:                  full\nL1d cache:                            432 KiB (9 instances)\nL1i cache:                            576 KiB (9 instances)\nL2 cache:                             18 MiB (9 instances)\nL3 cache:                             18 MiB (1 instance)\nVulnerability Gather data sampling:   Not affected\nVulnerability Itlb multihit:          Not affected\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Not affected\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Mitigation; Enhanced IBRS\nVulnerability Spec rstack overflow:   Not affected\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl and seccomp\nVulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; Enhanced / Automatic IBRS; IBPB conditional; RSB filling; PBRSB-eIBRS SW sequence; BHI BHI_DIS_S\nVulnerability Srbds:                  Not affected\nVulnerability Tsx async abort:        Not affected",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+  "libc": "ldd (Ubuntu GLIBC 2.39-0ubuntu8.9) 2.39\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\nWritten by Roland McGrath and Ulrich Drepper.",
+  "stack_limit_kib": "8192",
+  "max_map_count": "1048576",
+  "memory": "total        used        free      shared  buff/cache   available\nMem:        16122652     1183660    14756400        3372      452616    14938992\nSwap:        4194304           0     4194304",
+  "repeats": 3,
+  "method": "fresh process per case/repeat, serial; quiescent smaps_rollup snapshots; no sanitizers",
+  "source_hashes": {
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/actor.cpp": "e076649ab7cdc8a8f938ee7af1f2b1d983c274411e22cb5acf32ab7d30f57155",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/actor_ref.cpp": "730d64fa06a4359ef0b3d4d7de7d84a9ea5830797d96bb2168a2bed46b3d740e",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/actor_system.cpp": "5d4f76e96a373b9ec1f3a68f537a11aea220c0cf5cd9a02f1f5e91006456fae2",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/blocking_pool.cpp": "8e84b383d1114449cac66b1501c3ddfeab7eb53f3019262c6ffe3cc2b17f8622",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/c_api.cpp": "436624528da36a04114e3e1edad163df09f1b6392e6943c74e431f1c6d3eb37f",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/coroutine_context.cpp": "e4e5633d8e61eddd2445d04e3ead0e79ba34087259241b4eac1088f69a6633cc",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/ipc_transport.cpp": "74fcd5bae7efeb28bca2b6eaec7a9847d0c8cb59fb6ab722a63cee999111ccbc",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/timer_queue.cpp": "7b6893ed2d39dfe7457b82d750bb43354b4d15cac3835d439308d784e8200ac7",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/wait.cpp": "5595fb9e8ebaf21ab45f03af82edf1774c096cbc97c11aab963e58dce025e3ca",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/blocking_pool.h": "c952f69476bb730d0330c408bc78ccd59178067838293e9d12ee54e1de14093f",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/internal.h": "353733e6c9c49f64a287dbd842a1b5e4d7a7c2c5deb4d6802cf3d97fd69dd194",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/ipc_transport.h": "dacffb49be15490d0fdd200725e24b6835e4c8b310b596acc562c93d83ab0ef6",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/sanitizer.h": "04df8c592288ec12e558268c6bc25dedac2e2384faa7edfe603064b70eccdce5",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/src/wait_internal.h": "9c7ec0fbaf5f3c4c29fd37820fabe0af4c06407fd7b3dff902717faeb0c849f1",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include/actor_runtime/actor.h": "ca6ff526496cca787b922b3f6a0d7a9ebec64f71117f76e791126caaddc23979",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include/actor_runtime/actor_ref.h": "6a3a36e1edd328ec144260bffce099800874781816168694a6f434fcee3c742c",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include/actor_runtime/actor_system.h": "d113f42e4ed2a50d87cf9a7666118247c3c6c43e96a6114fbc93626f2bb66310",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include/actor_runtime/c_api.h": "4045385ea2e50c240797bf3ba63ba8d169758c9f1d2b0cc9a5d0c8232f61a4db",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include/actor_runtime/coroutine_context.h": "28786a39d4074572a8082ea8e6e7313cfe28f022b8091ab5f0412a2967eda6dd",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include/actor_runtime/message.h": "e859b81e501be2811837518080898619d3463885deb022ce4e9ae7d2ae895700",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include/actor_runtime/wait.h": "da61c5dc242213a8f1bda7f63b3519db58b07d447cefc0d89fabaa558d083597"
+  },
+  "artifact_hashes": {
+    "/tmp/memory_probe": "d609f1ae5cdbcae7bc8e90a88bc2197b8cc68d0ff6524e6f0fe581f8e9f220dd",
+    "/var/tmp/actor-p0-20260914-e4S6fw/candidate-build/libactor_runtime.a": "42534171e122ed69c2033edb6d22fb166668075844c555e0b829361ca9aa9169",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/benchmarks/run_memory.py": "328e169e0f4a7abbfd967519cc252156a1574b7905e3b15c9a019670bb9c399b",
+    "/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/benchmarks/memory_probe.cpp": "c501203524ce17d9b249cc26830221688851b6a340c0a696566cbb9fbca1a335"
+  },
+  "library_flags": "# CMAKE generated file: DO NOT EDIT!\n# Generated by \"Unix Makefiles\" Generator, CMake Version 3.28\n\n# compile CXX with /usr/bin/c++\nCXX_DEFINES = \n\nCXX_INCLUDES = -I/mnt/c/Users/icema/Documents/ChatGPT/\u4e0b\u4e00\u4ee3ipc\u6846\u67b6-dev/actor_runtime/include\n\nCXX_FLAGS = -fno-omit-frame-pointer -O2 -g -DNDEBUG -std=c++17 -Wall -Wextra -Wpedantic -Wconversion -Wshadow\n\n",
+  "probe_flags": "-std=c++17 -O2 -g -fno-omit-frame-pointer -pthread",
+  "cases": {
+    "idle_w1": [
+      "idle",
+      0,
+      0,
+      256,
+      0,
+      1,
+      1
+    ],
+    "idle_w4": [
+      "idle",
+      0,
+      0,
+      256,
+      0,
+      4,
+      1
+    ],
+    "idle_w0": [
+      "idle",
+      0,
+      0,
+      256,
+      0,
+      0,
+      1
+    ],
+    "actors_1000": [
+      "actors",
+      1000,
+      0,
+      256,
+      0,
+      1,
+      1
+    ],
+    "actors_10000": [
+      "actors",
+      10000,
+      0,
+      256,
+      0,
+      1,
+      1
+    ],
+    "actor_cycles": [
+      "actors",
+      10000,
+      0,
+      256,
+      0,
+      1,
+      5
+    ],
+    "mailbox_10000_0": [
+      "mailbox",
+      10000,
+      0,
+      256,
+      0,
+      1,
+      1
+    ],
+    "mailbox_10000_64": [
+      "mailbox",
+      10000,
+      64,
+      256,
+      0,
+      1,
+      1
+    ],
+    "mailbox_10000_1024": [
+      "mailbox",
+      10000,
+      1024,
+      256,
+      0,
+      1,
+      1
+    ],
+    "mailbox_100000_0": [
+      "mailbox",
+      100000,
+      0,
+      256,
+      0,
+      1,
+      1
+    ],
+    "mailbox_100000_64": [
+      "mailbox",
+      100000,
+      64,
+      256,
+      0,
+      1,
+      1
+    ],
+    "mailbox_100000_1024": [
+      "mailbox",
+      100000,
+      1024,
+      256,
+      0,
+      1,
+      1
+    ],
+    "fibers_1000_s256_t0": [
+      "fibers",
+      1000,
+      0,
+      256,
+      0,
+      1,
+      1
+    ],
+    "fibers_2000_s256_t0": [
+      "fibers",
+      2000,
+      0,
+      256,
+      0,
+      1,
+      1
+    ],
+    "fibers_1000_s256_t64": [
+      "fibers",
+      1000,
+      0,
+      256,
+      64,
+      1,
+      1
+    ],
+    "fibers_1000_s64_t0": [
+      "fibers",
+      1000,
+      0,
+      64,
+      0,
+      1,
+      1
+    ],
+    "completed_1000_0": [
+      "completed",
+      1000,
+      0,
+      256,
+      0,
+      1,
+      3
+    ],
+    "completed_1000_4096": [
+      "completed",
+      1000,
+      4096,
+      256,
+      0,
+      1,
+      3
+    ],
+    "completed_3000_4096": [
+      "completed",
+      3000,
+      4096,
+      256,
+      0,
+      1,
+      3
+    ],
+    "tasks_1000": [
+      "tasks",
+      1000,
+      4096,
+      256,
+      0,
+      1,
+      1
+    ],
+    "tasks_3000": [
+      "tasks",
+      3000,
+      4096,
+      256,
+      0,
+      1,
+      1
+    ],
+    "timers_10000": [
+      "timers",
+      10000,
+      0,
+      256,
+      0,
+      1,
+      1
+    ],
+    "timers_100000": [
+      "timers",
+      100000,
+      0,
+      256,
+      0,
+      1,
+      1
+    ],
+    "waiters_10000": [
+      "waiters",
+      10000,
+      0,
+      256,
+      0,
+      1,
+      1
+    ],
+    "waiters_100000": [
+      "waiters",
+      100000,
+      0,
+      256,
+      0,
+      1,
+      1
+    ]
+  }
+}

@@ -149,6 +149,15 @@ int main(int argc,char** argv) {
         snapshot("process_baseline");
         auto state=std::make_shared<State>();
         ActorSystem::Config config; config.workerCount=o.workers; config.fiberStackSize=o.stackKiB*1024;
+        if(o.mode=="mailbox") {
+            // This scenario measures per-queued-message memory, so it must lift
+            // the bounded-mailbox defaults above the requested depth instead of
+            // tripping the admission budget that the P0 work introduced.
+            const std::size_t perMessage = o.payload + 512;
+            config.mailboxMaxMessages = o.count + 8;
+            config.mailboxMaxBytes = perMessage * (o.count + 8);
+            config.systemMailboxMaxBytes = config.mailboxMaxBytes * 2;
+        }
         auto system=std::make_unique<ActorSystem>(config);
         struct Release {std::shared_ptr<State> s; ~Release(){s->open();}} release{state};
         snapshot("system_idle",system.get());
@@ -176,7 +185,11 @@ int main(int argc,char** argv) {
             } else if(o.mode=="completed") {
                 for(std::size_t round=1;round<=o.rounds;++round) {
                     actor.send(1,{}); waitFor([&]{return state->done==round*o.count && system->stats().liveStacks==0;},state);
-                    auto c=inspect(actor); if(c.completions!=round*o.count) throw std::runtime_error("completion count mismatch");
+                    // P0 releases root results instead of caching every finished
+                    // coroutine, so the retained table must plateau rather than
+                    // grow with the number of completed rounds. The old check
+                    // asserted the pre-P0 leak (completions == round * count).
+                    auto c=inspect(actor); if(c.completions>o.count) throw std::runtime_error("retained completions grew with rounds");
                     snapshot("completed_"+std::to_string(round),system.get(),c);
                 }
             } else {
