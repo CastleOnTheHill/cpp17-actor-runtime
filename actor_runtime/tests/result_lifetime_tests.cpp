@@ -81,5 +81,42 @@ int main() {
         c.self().send(2, {});
         return {};
     });
+    test("forgetChild releases the completed child result", [](CoroutineContext& c, State& s) -> std::any {
+        const auto child = c.spawn([&s](CoroutineContext&) -> std::any {
+            auto result = std::make_shared<int>(7); s.result = result; return result;
+        }, ChildLifetime::CancelWithParent);
+        { auto joined = c.await(WaitSpec::child(child)); check(*joined.as<std::shared_ptr<int>>() == 7, "lost child result"); }
+        c.forgetChild(child);
+        check(s.result.expired(), "forgotten child result retained");
+        bool rejected = false;
+        try { c.await(WaitSpec::child(child)); } catch (const std::exception&) { rejected = true; }
+        check(rejected, "await after forgetChild did not fail");
+        c.self().send(2, {});
+        return {};
+    });
+    test("forgetChild rejects a child that is still running", [](CoroutineContext& c, State& s) -> std::any {
+        const auto child = c.spawn([&s](CoroutineContext&) -> std::any {
+            auto result = std::make_shared<int>(7); s.result = result; return result;
+        }, ChildLifetime::CancelWithParent);
+        bool rejected = false;
+        try { c.forgetChild(child); } catch (const std::logic_error&) { rejected = true; }
+        check(rejected, "forgetChild accepted a running child");
+        { auto joined = c.await(WaitSpec::child(child)); check(*joined.as<std::shared_ptr<int>>() == 7, "lost child result"); }
+        c.self().send(2, {});
+        return {};
+    });
+    test("forgetTask releases an explicit blocking result", [](CoroutineContext& c, State& s) -> std::any {
+        const auto id = c.submitBlocking([&s]() -> std::any {
+            auto result = std::make_shared<int>(9); s.result = result; return result;
+        });
+        { auto waited = c.await(WaitSpec::task(id)); check(*waited.as<std::shared_ptr<int>>() == 9, "lost task result"); }
+        c.forgetTask(id);
+        check(s.result.expired(), "forgotten task result retained");
+        bool rejected = false;
+        try { c.await(WaitSpec::task(id)); } catch (const std::exception&) { rejected = true; }
+        check(rejected, "await after forgetTask did not fail");
+        c.self().send(2, {});
+        return {};
+    });
     return failures ? 1 : 0;
 }
