@@ -140,3 +140,32 @@
 - 六场景长测 `hot-groups-confirm` 已完成（5 轮，event 每轮 500 万、fiber 每轮 50 万 round trips，CPU 0–7，`--minimum-ratio 1.0`，默认 mailbox 预算未放宽）。比值 candidate/baseline：event-single **0.9291**、event-window **0.9447**、event-parallel **0.9923**、event-hotspot **0.9981**、fiber-single **0.9723**、fiber-parallel **0.9425**。六项全部低于 1.0，H1/H2/H4/H4b 的缓存行隔离与计数改造没有消除回退；性能门槛仍未通过，不能宣布“性能不劣化”。
 - 用户本轮解除此前“禁止提交”约束，要求提交本轮修改。dev 分支提交 `2c21aa6`，含四项 P0 实现、三个新测试文件、`compare_p0.py`/内存探针、全部性能与 CTest 证据，以及 09-11/09-13 三份评估文档；teaching 分支提交 `10318d9`，含第 4–8 章课文、可运行实验源码、实验工单、调度速查与 LR-0002/0003/0004。两笔均为本地提交，**未推送**；未改写历史。
 - 下一轮从性能根因继续。已知候选与基线的差异集中在 `postMessage` 准入路径与 `releaseMessage` 的全局预算原子更新；perf 采样有 skid，只能作为方向。不得为通过门槛而关闭或放宽预算、缩小计费口径或切换 timerfd。仍未验收：显式 forget/晚完成/父退出全面测试、timer 大量乱序撤销与容量、mailbox 停止竞态与分配失败、回绕计数反例、覆盖率复测、内存平台期、完整同机性能矩阵。
+
+## 2026-09-15 修正：测量方法先于结论，计费代价完成归因
+
+**此前基于 3-repeats 中位数的比值不可作为验收依据。** 用同一对二进制自比（噪声底实验，`benchmark-results/2026-09-14-mailbox/noise-floor*`）测得：单轮配对比值在 0.79–1.18 之间，5 轮中位数仍有 ±2–4% 漂移，且偶数轮次存在轻微顺序效应。`compare_p0.py` 已改为同轮内配对求比值并对配对中位数设门槛，胜负计数一并报告。用 16 轮 × 200 万 round trips 复测时噪声底收敛到约 ±1%（配对中位数 1.010 / 1.015）。
+
+冻结基线复测（`split-counter-gate`，16 轮 × 200 万，配对中位数）：event-single **0.9325**（0 胜 16 负）、event-window **0.9264**、event-parallel **0.9562**、event-hotspot **1.0171**、fiber-single **0.9557**、fiber-parallel **0.9403**。即候选确实比基线慢约 4–7%，且单 worker 全败，属于真实回退而非噪声。
+
+**归因实验**（诊断源码在 `%TEMP%\actor-diag`，仅用于测量，不进入仓库）：
+
+| 依次去掉的部分 | 单 worker | 多 worker |
+|---|---:|---:|
+| 系统级 `admittedMailboxBytes/returnedMailboxBytes` 共享计数器 | 0.998 | **1.316** |
+| 再加每 Actor `returned*` 原子读 | 0.995 | 1.341 |
+| 再加字节估算、`estimatedMailboxBytes` 写回、release 侧发布写 | **1.080** | 1.390 |
+| 只恢复字节估算（release 写仍关闭） | 1.042 | 1.068（window 0.996） |
+
+结论：多 worker 的回退几乎全部来自系统级共享计数器——12 条线程每消息在同一 cache line 上做 CAS，该行成为串行点；单 worker 与它无关，而是字节估算加 release 侧发布写（约 7%）。每 Actor 原子读的贡献接近 0。
+
+**已否决的方案**：用 `fetch_add` 加回滚替代 CAS 循环。瞬时超计会让并发生产者提前拒绝，`concurrent_system_budget` 的 `accepted == 64 && full == 64` 精确断言在 8 次重复中失败 7 次。已撤回，源码回到精确 CAS 版本并复验 15/15。
+
+**待用户决策的设计取舍**：每消息精确的系统级字节预算要求全部生产者写同一个计数器，这在多 worker 下实测约 30% 代价（去掉后 event-parallel 为候选的 1.39 倍）。若要同时守住「不得劣化」，只能把系统预算改为按 Actor 分块预留：保证永不超支（只会提前拒绝），但放弃「并发下恰好填满到限额」的可观察语义，需要改写 `concurrent_system_budget` 的断言；`stats().queuedMailboxBytes` 可继续按每 Actor 精确值求和保持精确。在补齐这一取舍前不宣布性能达标。
+
+### 第三种尝试：两级预留（fetch_add 快路径 + 精确回退）——同样被否决
+
+- 设计意图：稳态只做一次 `fetch_add`，一旦按自己的线性化点判断疑似超限就回滚并落到精确 CAS 判定，从而既消除重试风暴又不误拒。
+- 实测失败：`mailbox_capacity_tests` 连续失败 18/20，失败断言是 `concurrent drain failed or exceeded budget`，不是计数少收。原因是 `fetch_add` 在回滚前的那段窗口里，`admitted` 会被并发读走——`stats().queuedMailboxBytes` 是公开可观察量，因此**从未被承认的消息也会短暂体现为占用**，`concurrent_drain` 的「不得超过预算」轮询会捕捉到它。
+- 结论（三次实验一致）：在保持「每条消息都不出现瞬态超计」这一可观察精确语义的前提下，无法去掉每消息一次的原子读改写。要么接受精确计费带来的多 worker 串行化代价，要么把预算改成预留式（永不超支、可能提前拒绝）并相应改写断言。二者不可兼得，属于产品语义取舍而非实现技巧。
+- 单 worker 的约 7% 独立于系统预算，来自两部分各自约 3.6%：字节估算加 `estimatedMailboxBytes` 写回、以及 release 侧两次发布写。前者是字节预算的必然成本；后者理论上可用打包计数或把发布并入既有 mailbox 锁临界区来削减，但需要另行验证。
+- 当前状态：源码已恢复精确 CAS 版本，mailbox 专项重复 10/10、全量 CTest 15/15 通过；未提交、未推送，未切换 timerfd。
