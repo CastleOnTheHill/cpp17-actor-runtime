@@ -1,6 +1,6 @@
 # 从执行现场到 Actor Runtime：构建者的 24 章路线
 
-入口：[可阅读课程首页](course.html)。已完成材料：第 1–3 章；第 4–24 章是规划，不是已实现的课文。
+入口：[可阅读课程首页](course.html)。已完成材料：第 1–8 章；第 9–24 章是规划，不是已实现的课文。
 
 ## 如何学习
 
@@ -17,11 +17,11 @@
 | 01 已实现 | 普通函数 return 后丢掉了什么？ | 嵌套调用与 RAII 事件探针 | 不运行，推导正常路径生命周期 |
 | 02 已实现 | 不保留调用栈，怎样跨多次调用继续任务？ | 显式 phase + 数据的两段任务 | 从空白实现并正确处理第 3 次调用 |
 | 03 已实现 | 怎样暂停整条调用链而不结束局部对象？ | 一个独立栈、两个 context 的切换器 | 逐次解释两次 swap 的保存与恢复 |
-| 04 | 有多个可运行任务时，下一步由谁选择？ | 单线程 FIFO ready 队列 | 预测 A/B/C 轮转，并解释不 yield 的反例 |
-| 05 | 尚未满足条件的任务放在哪里？ | ready/waiting 分离的定时等待 | 区分忙轮询、线程阻塞和协程挂起 |
-| 06 | 协程完成后谁销毁其栈与对象？ | 完成队列与安全回收点 | 证明不会在当前栈上释放当前栈 |
-| 07 | 多 worker 为什么仍能串行访问一个 Actor？ | Actor 执行令牌模型 | 用反例说明队列不等于串行保证 |
-| 08 | 一个消息怎样抵达 Actor 的处理点？ | 最小 mailbox 与类型约定 | 区分入队成功、消费和业务完成 |
+| 04 已实现 | 有多个可运行任务时，下一步由谁选择？ | 单线程 FIFO ready 队列 | 预测 A/B/C 轮转，并解释不 yield 的反例 |
+| 05 已实现 | 尚未满足条件的任务放在哪里？ | ready/waiting 分离的定时等待 | 区分忙轮询、线程阻塞和协程挂起 |
+| 06 已实现 | 协程完成后谁销毁其栈与对象？ | 完成队列与安全回收点 | 证明不会在当前栈上释放当前栈 |
+| 07 已实现 | 多 worker 为什么仍能串行访问一个 Actor？ | Actor 执行令牌模型 | 用反例说明队列不等于串行保证 |
+| 08 已实现 | 一个消息怎样抵达 Actor 的处理点？ | 最小 mailbox 与类型约定 | 区分入队成功、消费和业务完成 |
 | 09 | 一条消息应唤醒哪些等待者？ | 广播匹配快照实验 | 预测多匹配者及新增等待者行为 |
 | 10 | 先发请求还是先登记等待，哪里会丢响应？ | correlationId 请求响应 | 用立即回复构造并消除丢唤醒 |
 | 11 | 父任务怎样观察子任务的终态？ | child + join 记录 | 解释先完成后等待也能得到结果 |
@@ -64,10 +64,24 @@
 - 产物：一个可运行有栈协程、五步切换说明、深调用变式。
 - 补救：若方向弄反，只画当前在哪条栈、此次保存到谁、加载谁三列。mmap/异常桥接是可选安全附录，后续章节再彻底构建它们。
 
+## 第 4–8 章实施方式（2026-09-06 已编写）
+
+| 章 | 三个原子单元 | 实验 / 过关产物 |
+|---|---|---|
+| [04 调度队列](lessons/0004-ready-queue.html) | Ready 的真实含义 → FIFO 一轮 → 不交回控制的反例 | A/B/C 真协程轨迹；自己实现队列策略 |
+| [05 等待](lessons/0005-waiting.html) | 等待者的存储 → 截止条件 → Ready 与 Running 的区分 | 可控 tick；到期前/到期/重复扫描断言 |
+| [06 回收](lessons/0006-reclamation.html) | 局部对象/栈/记录 → 切离后释放 → 异常统一收尾 | 三阶段计数；完成记录独立于栈 |
+| [07 执行令牌](lessons/0007-actor-token.html) | 队列安全的缺口 → Actor 级临界区 → 1/4 worker | 锁边界；异常退出后继续处理；无数据竞争的反例模型 |
+| [08 邮箱](lessons/0008-mailbox.html) | 消息值与类型 → 两把锁 → 接受/消费/应用 | 有限邮箱；类型错误、容量、关闭拒绝与排空 |
+
+[构建工单](labs/exercises/CH04-08.md)给出具体挖空位置、变式和验收；[速查](reference/scheduling.html)压缩五章机制。第 4–6 章共享单线程 ucontext 外壳，第 7–8 章刻意隔离为普通多线程 handler；不把 fiber owner 问题提前混入。模拟时间、有限邮箱与 close/drain 都有明确教学边界。
+
+每章仍只留一道综合闭卷题。材料编写进度不代表用户学习进度；用户第二章的在途练习保持不动。
+
 ## 真实框架的阅读落点（完成前三章后再看）
 
 - `actor_runtime/src/internal.h`：Fiber 保存 context、栈和等待状态；Worker 保存 schedulerContext。
-- `actor_runtime/src/actor_system.cpp`：initFiber / resumeFiber 与 trampoline，负责创建、进入与完成；当前实现传递入口指针的方式与第三章教学版不同。
+- `actor_runtime/src/actor_system.cpp`：createFiber / resumeFiber 与 fiberTrampoline，负责创建、进入与完成；当前实现把 FiberId 拆为两个 32 位入口参数，再从 currentFiber 取得对象，与第三章零参数入口不同。
 - `actor_runtime/src/coroutine_context.cpp`：await 登记等待后切回 scheduler；它不只是第三章的裸 yield。
 - `actor_runtime/include/actor_runtime/wait.h`：等待组合公开语义。
 - `actor_runtime/examples/order_fulfillment.cpp`：第 23 章对照，不建议现在从业务代码倒着背 API。

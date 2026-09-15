@@ -14,12 +14,21 @@ class Page(HTMLParser):
         self.refs = []
         self.duplicates = []
         self.title = False
+        self.downloads = []
+        self.labels = []
+        self.gates = 0
         self.feed(path.read_text(encoding="utf-8"))
 
     def handle_starttag(self, tag, attrs):
         data = dict(attrs)
         if tag == "title":
             self.title = True
+        if "data-download" in data:
+            self.downloads.append(data["data-download"])
+        if tag == "label" and "for" in data:
+            self.labels.append(data["for"])
+        if "gate" in data.get("class", "").split():
+            self.gates += 1
         if "id" in data:
             key = data["id"]
             if key in self.ids:
@@ -40,6 +49,11 @@ for path, page in pages.items():
         errors.append(f"{path.name}: missing title")
     if page.duplicates:
         errors.append(f"{path.name}: duplicate ids {page.duplicates}")
+    for key in page.downloads + page.labels:
+        if key not in page.ids:
+            errors.append(f"{path.name}: missing answer/label target {key}")
+    if path.parent.name == "lessons" and (page.gates != 1 or len(page.downloads) != 1):
+        errors.append(f"{path.name}: expected one closed-book gate and one answer export")
     for raw in page.refs:
         ref = urlsplit(raw)
         if ref.scheme or ref.netloc:

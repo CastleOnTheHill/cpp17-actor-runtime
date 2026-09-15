@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>P0 原子单元 · 等待结束后留下了什么</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body><header><nav><a href="../course.html">课程首页</a><a href="0005-waiting.html">等待基础</a><a href="../reference/scheduling.html#waiting">等待速查</a></nav><p class="eyebrow">工程补充 · 2026-09-14 · 不代表章节过关</p><h1>等待结束，登记也消失了吗？</h1><p class="lead">只回答一个问题：Any 已有胜者，其他等待记录的生命周期何时结束？</p></header>
+<main><section><h2>先辨认真实对象</h2><p>本单元观察 dev 开发 worktree，不把新增机制当成 teaching 分支原有行为。一次组合等待有一个登记对象；Actor 的消息索引保存匹配引用；worker 的 timer 堆保存截止时间和登记关联。把登记标成 inactive 只改一个状态，不会自动删除另外两个容器中的项。</p><p>先预测：等待包含“消息、10 分钟后的 timer、已经过期的 timer”，反复执行 10000 次。即时返回后，消息索引和 timer 堆应分别留下多少旧项？</p></section>
+<section class="unit"><h2>最小实验</h2><pre><code>Any(message(unique_id), timer(now + 10min), timer(now - 1s))
+→ 检查返回原因与胜出分支
+→ 检查 Actor 消息索引
+→ 检查 owner worker timer 堆</code></pre><p>还要覆盖登记到一半抛错，以及真正暂停后由消息或 timer 唤醒；只测即时返回会漏掉恢复路径。</p><details><summary>预测后再看代理实测</summary><p>同一测试用旧版本头文件/库构建：失败，提示 message registration retained。当前实现：1/4 worker 各执行 10000 次即时胜出、1000 次登记失败回滚，以及真实消息和 timer 唤醒，相关登记均清空。完整测试 14/14、专项重复 20/20；不是性能不劣化证据。</p></details></section>
+<section class="unit"><h2>按源码核对更新时间</h2><p>第一手资料是<a href="../../下一代ipc框架-dev/actor_runtime/tests/wait_cleanup_tests.cpp">本轮测试</a>、<a href="../../下一代ipc框架-dev/actor_runtime/src/actor_system.cpp">installWait / cleanupWait</a>和<a href="../../下一代ipc框架-dev/actor_runtime/src/coroutine_context.cpp">await 恢复路径</a>。即时完成和安装失败由回滚守卫清理；真正挂起的等待，在固定 owner 恢复时、返回业务调用前清理。计时仍使用现有条件变量，不切换 timerfd。</p><p>本轮没有修改 timer 调度策略；补齐的是中断时缺失的测试和可重跑证据。撤销等待不等于取消其关联的业务工作。</p></section>
+<section class="gate"><h2>一道闭卷题</h2><p>如果只设置 active=false，不从消息索引和 timer 堆删除登记：旧事件能否错误唤醒协程？内存是否还可能随请求次数增长？请分别给出因果链，并说明两者为什么不是同一个问题。</p><p class="muted">请把预测、解释和最不确定的一步发回对话。代理会只纠正第一个因果断裂点；看过本页不计为掌握。任何不清楚的地方都可以继续追问。</p></section></main><footer>复用课程共享样式；这是工程补充单元，不改动第 2 章在途练习，不将第 9 章规划标记为完成。</footer></body></html>
