@@ -10,6 +10,11 @@ static void check(bool ok, const char* message) {
 }
 struct State {
     std::weak_ptr<int> result;
+    // Late-completion probe: the blocking worker publishes `late` and then
+    // releases `lateSet`, so the Actor side cannot read a half-written weak_ptr.
+    std::weak_ptr<int> late;
+    std::atomic<bool> gate{false};
+    std::atomic<bool> lateSet{false};
     std::promise<void> finished;
 };
 class Scenario final : public Actor {
@@ -115,6 +120,28 @@ int main() {
         bool rejected = false;
         try { c.await(WaitSpec::task(id)); } catch (const std::exception&) { rejected = true; }
         check(rejected, "await after forgetTask did not fail");
+        c.self().send(2, {});
+        return {};
+    });
+    test("late result of a forgotten running task is dropped and released", [](CoroutineContext& c, State& s) -> std::any {
+        const auto id = c.submitBlocking([&s]() -> std::any {
+            while (!s.gate.load(std::memory_order_acquire)) std::this_thread::yield();
+            auto result = std::make_shared<int>(11);
+            s.late = result;
+            s.lateSet.store(true, std::memory_order_release);
+            return result;
+        });
+        c.forgetTask(id);
+        s.gate.store(true, std::memory_order_release);
+        const auto deadline = std::chrono::steady_clock::now() + 5s;
+        while (!s.lateSet.load(std::memory_order_acquire) && std::chrono::steady_clock::now() < deadline)
+            c.await(WaitSpec::timer(std::chrono::steady_clock::now() + 5ms));
+        bool released = false;
+        while (!released && std::chrono::steady_clock::now() < deadline) {
+            released = s.late.expired();
+            if (!released) c.await(WaitSpec::timer(std::chrono::steady_clock::now() + 5ms));
+        }
+        check(released, "forgotten running task retained its late result");
         c.self().send(2, {});
         return {};
     });
