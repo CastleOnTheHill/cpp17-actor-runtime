@@ -251,3 +251,9 @@
   - `parent exit leaves a detached child owned by the Actor`：同一形状但归属为 `DetachedFromParent`，子任务不再随父结束，其生命周期归 Actor；同样以 `liveStacks == 0` 收尾。
 - 两例的子任务都写成「最多等到一个有界定时器」，因此即使实现出错也只会失败而不是永久挂起；枚举实际名称是 `ChildLifetime::DetachedFromParent`（不是 `Detach`）。
 - 至此 P0 结果生命周期的验收矩阵（root 释放、child 释放、父退出取消/脱离、blocking 便捷释放、显式 forget、晚到结果丢弃）已完整；剩余空白只剩 timer 大量乱序撤销与容量收缩、以及需要先装 gcovr 的覆盖率复测。
+
+### timer 容量回收已断言
+
+- `wait_cleanup_tests.cpp` 的 `clean()` 原本只断言 `currentWorker->timers.empty()`；现在追加 `capacity() <= 1024`。该场景在一轮内循环 10000 次，每次都压入一个 10 分钟定时器并被即时赢家击败，因此这条断言直接覆盖「大量撤销后堆容量不随历史峰值增长」。
+- 实测重复 5/5 通过（全量 CTest 15/15）。加上此前已覆盖的单条撤销、即时 Any、登记回滚与跨 1/4 worker 运行，P0 第三项的等待与定时器清理已无已知空白，除了下面这条说明。
+- 仍未覆盖：**跨 worker 的定时器取消**（定时器落在非当前 worker 的堆上时由另一 worker 撤销）以及批量同时挂起大量定时器后一次撤销的形状级验证。现有断言只覆盖单一 worker 上的反复撤销与容量回收。
