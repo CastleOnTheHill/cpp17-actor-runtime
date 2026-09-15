@@ -255,11 +255,53 @@ void concurrent_drain(std::size_t workers) {
       require(!state->duplicate && state->ids == acceptedIds, "concurrent drain lost or duplicated messages"); }
     require(s.stats().queuedMailboxBytes == 0, "concurrent drain retained credit");
 }
+
+// Opt-in Reserve mode must never exceed the system budget, must still deliver
+// every accepted message, must keep early rejection bounded by one chunk, and
+// must hand the held chunk back once the Actor stops.
+void reserve_mode(std::size_t workers) {
+    ActorSystem::Config c; c.workerCount = workers;
+    c.mailboxMaxMessages = 4096;
+    c.systemMailboxMaxBytes = 16 * MailboxEnvelopeBytes;
+    c.mailboxBudget = ActorSystem::Config::MailboxBudget::Reserve;
+    c.reserveChunkBytes = 4 * MailboxEnvelopeBytes;
+    ActorSystem s(c);
+    auto blocked = std::make_shared<State>();
+    auto target = s.registerActor(std::make_unique<Sink>(s, blocked));
+    GateGuard gate{blocked}; enter(target, *blocked);
+    const std::size_t budgetMessages = c.systemMailboxMaxBytes / MailboxEnvelopeBytes;
+    std::size_t accepted = 0, full = 0;
+    for (std::size_t i = 0; i < budgetMessages * 4; ++i) {
+        const auto result = target.trySend(2, {});
+        if (result.status == SendStatus::Accepted) {
+            ++accepted;
+            require(s.stats().queuedMailboxBytes <= c.systemMailboxMaxBytes,
+                "reserve mode exceeded the system budget");
+        } else if (result.status == SendStatus::Full) {
+            ++full;
+        } else {
+            require(false, "reserve mode returned an unexpected send status");
+        }
+    }
+    require(full > 0, "reserve mode never applied backpressure");
+    require(accepted + c.reserveChunkBytes / MailboxEnvelopeBytes >= budgetMessages,
+        "reserve mode rejected far below the system budget");
+    gate.open();
+    eventually([&] { return blocked->received.load() == static_cast<int>(accepted); });
+    auto done = s.stopActor(target.id());
+    require(done.wait_for(5s) == std::future_status::ready, "reserve mode stop timed out");
+    eventually([&] { return s.stats().queuedMailboxBytes == 0; });
+    auto otherState = std::make_shared<State>();
+    auto other = s.registerActor(std::make_unique<Sink>(s, otherState));
+    require(other.trySend(2, {}).status == SendStatus::Accepted, "stopped Actor kept the system budget");
+    eventually([&] { return otherState->received.load() == 1; });
+    s.shutdown();
+}
 }
 int main() {
     try {
         ready_token(); bytes(); estimator(); retained_capacity(); zero_limits(); concurrent_system_budget();
-        for (std::size_t workers : {1U, 4U}) { concurrent(workers); stop(workers); concurrent_drain(workers); }
+        for (std::size_t workers : {1U, 4U}) { concurrent(workers); stop(workers); concurrent_drain(workers); reserve_mode(workers); }
         std::cout << "mailbox capacity scenarios passed\n";
     } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
