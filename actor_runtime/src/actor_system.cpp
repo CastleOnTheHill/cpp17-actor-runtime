@@ -772,6 +772,10 @@ FiberId ActorSystem::Impl::createFiber(
     fiber->id = nextFiberId.fetch_add(1, std::memory_order_relaxed);
     fiber->actor = actor.get();
     fiber->owner = &owner;
+    // Invariant: a fiber never migrates, so its timers always live on this
+    // worker's heap and are pushed, cancelled and fired through fiber.owner.
+    // Cross-worker timer cancellation therefore cannot arise; if fiber
+    // migration is ever added, TimerQueue ownership has to be revisited here.
     fiber->stack = std::make_unique<StackMapping>(config.fiberStackSize);
     fiber->body = std::move(body);
     fiber->contextImpl.fiber = fiber.get();
