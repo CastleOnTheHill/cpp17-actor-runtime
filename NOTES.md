@@ -237,3 +237,9 @@
   - `forgetChild rejects a child that is still running`：对未结束的 child 调用必须抛 `logic_error`，之后仍能正常 await 到结果。
   - `forgetTask releases an explicit blocking result`：显式 `submitBlocking` 的结果在 `forgetTask` 后释放，再次 `await` 同样抛错。
 - 仍未覆盖的相邻情形：忘记**运行中**的 task 后其晚到结果的落地路径（`blocking.late_result`），需要时序控制，留待下一步；父协程退出时未完成子任务的全面矩阵也仍欠缺。
+
+### 晚到结果路径已覆盖
+
+- 新增 `late result of a forgotten running task is dropped and released`（重复 5/5，全量 CTest 15/15）：对**运行中**的 task 调用 `forgetTask`（这是允许的，只有 child 有「运行中不可忘」限制），随后让它在后台完成；Actor 收到携带结果的 TaskCompleted 时已找不到登记项，走丢弃路径，结果对象被释放。
+- 测试用原子栅栏而不是 sleep 来制造时序：阻塞线程发布弱观测后以 release 置位，Actor 侧以 acquire 等待，避免读写半写入的 `weak_ptr`；再用有上限的定时器轮询等待释放，超时才失败。
+- 仍未覆盖：父协程退出时未完成子任务的完整矩阵（CancelWithParent 与 Detach 两种归属下的取消/脱离与结果归属），以及 timer 大量乱序撤销与容量收缩。
