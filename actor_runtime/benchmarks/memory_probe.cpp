@@ -202,14 +202,18 @@ int main(int argc,char** argv) {
                 // heap entries than were requested; the earlier exact ==count
                 // check encoded the pre-P0 retention instead.
                 if(o.mode=="timers" && c.timers>o.count) throw std::runtime_error("timer count mismatch");
-                if(o.mode=="waiters" && (c.waiterKeys!=o.count+1 || c.waiterRefs!=o.count+1)) throw std::runtime_error("waiter count mismatch");
+                // Each Any() race between a message registration and an already
+                // expired timer leaves the losing message registration behind in
+                // the pre-P0 runtime. P0 unregisters losers, so only the single
+                // final pending wait survives; count+1 asserted the accumulation.
+                if(o.mode=="waiters" && (c.waiterKeys!=1 || c.waiterRefs!=1)) throw std::runtime_error("waiter count mismatch");
                 actor.send(2,{}); waitFor([&]{return state->done==expected && system->stats().liveStacks==0;},state);
                 auto after=inspect(actor);
                 // The contract that matters is cleanup: once the wait ends, no
                 // timer entry may stay behind. Expecting count here asserted the
                 // pre-P0 leak of 10000 lingering entries.
                 if(after.tasks || (o.mode=="timers" && after.timers!=0) ||
-                   (o.mode=="waiters" && after.waiterRefs!=o.count)) throw std::runtime_error("release counts mismatch");
+                   (o.mode=="waiters" && (after.waiterRefs!=0 || after.waiterKeys!=0))) throw std::runtime_error("release counts mismatch");
                 snapshot("released",system.get(),after);
             }
             system->stopActor(actor.id()).get(); snapshot("actor_stopped",system.get());
