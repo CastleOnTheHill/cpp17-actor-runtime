@@ -284,3 +284,9 @@
 - 查证结论：fiber 在创建时绑定 owner（`actor_system.cpp` 中 `fiber->owner = &owner`，全文再无改写点），定时器压入用 `fiber.owner->timers.push`、取消用 `fiber.owner->timers.cancel`、恢复用 `enqueueLocal(*fiber.owner, ...)`，且恢复前有 `fiber.owner != &worker` 的守卫。fiber 不迁移，因此「定时器落在别的 worker 堆上、由另一 worker 撤销」这一情形在设计上不可达，不是未覆盖缺口。
 - 已在该赋值处加注释固化这条不变量，并写明：若将来引入 fiber 迁移，必须重新审视 TimerQueue 的归属模型。
 - 仍然真实的形状级缺口：**同时挂起大量定时器再一次撤销**。现有场景是一次只压入一个长定时器（循环 10000 次），因此覆盖的是反复撤销与容量回收，而非「同一时刻堆里有很多条目」的形状。
+
+### 多定时器同时挂起的形状测试已补
+
+- `result_lifetime_tests.cpp` 新增 `parent exit cancels many simultaneously pending timers`：一次挂起 64 个 10 分钟定时器（先让出一个 50ms 定时器确保子任务真的启动并登记），随后父协程退出，走 `CancelWithParent` 路径一次性丢弃全部待触发条目。
+- 结果：普通构建重复 5/5 通过；ASan/UBSan 下（`detect_leaks=1:halt_on_error=1`）也通过；全量 CTest 15/15。这批条目在父退出后若残留在堆里且叶子已析构，正是 sanitizer 会抓的悬垂引用，因此这条同时给了内存安全证据。
+- 覆盖度说明：该用例断言的是「场景正常收尾且 `liveStacks` 归零」，堆内条目数由行为间接保证，未直接读取 `timers.size()`；若要直接断言堆为空，需要把用例放进 `wait_cleanup_tests`（那里能读 `currentWorker->timers`）。至此先前记录的形状级缺口已关闭。
