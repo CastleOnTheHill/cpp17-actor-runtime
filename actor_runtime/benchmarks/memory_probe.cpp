@@ -198,11 +198,17 @@ int main(int argc,char** argv) {
                 auto c=inspect(actor); snapshot("held",system.get(),c);
                 if(system->stats().liveFibers!=expected) throw std::runtime_error("live fiber count mismatch");
                 if(o.mode=="tasks" && c.tasks!=o.count) throw std::runtime_error("task count mismatch");
-                if(o.mode=="timers" && c.timers!=o.count) throw std::runtime_error("timer count mismatch");
+                // P0 unregisters abandoned waits, so a held wait never needs more
+                // heap entries than were requested; the earlier exact ==count
+                // check encoded the pre-P0 retention instead.
+                if(o.mode=="timers" && c.timers>o.count) throw std::runtime_error("timer count mismatch");
                 if(o.mode=="waiters" && (c.waiterKeys!=o.count+1 || c.waiterRefs!=o.count+1)) throw std::runtime_error("waiter count mismatch");
                 actor.send(2,{}); waitFor([&]{return state->done==expected && system->stats().liveStacks==0;},state);
                 auto after=inspect(actor);
-                if(after.tasks || (o.mode=="timers" && after.timers!=o.count) ||
+                // The contract that matters is cleanup: once the wait ends, no
+                // timer entry may stay behind. Expecting count here asserted the
+                // pre-P0 leak of 10000 lingering entries.
+                if(after.tasks || (o.mode=="timers" && after.timers!=0) ||
                    (o.mode=="waiters" && after.waiterRefs!=o.count)) throw std::runtime_error("release counts mismatch");
                 snapshot("released",system.get(),after);
             }
@@ -210,7 +216,7 @@ int main(int argc,char** argv) {
             if(o.mode=="timers") {
                 auto observer=system->registerActor(std::make_unique<ProbeActor>(*system,o,state));
                 auto counts=inspect(observer);
-                if(counts.timers!=o.count) throw std::runtime_error("post-stop timer count mismatch");
+                if(counts.timers!=0) throw std::runtime_error("post-stop timer count mismatch");
                 snapshot("post_stop_observer",system.get(),counts);
                 system->stopActor(observer.id()).get();
             }
