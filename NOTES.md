@@ -243,3 +243,11 @@
 - 新增 `late result of a forgotten running task is dropped and released`（重复 5/5，全量 CTest 15/15）：对**运行中**的 task 调用 `forgetTask`（这是允许的，只有 child 有「运行中不可忘」限制），随后让它在后台完成；Actor 收到携带结果的 TaskCompleted 时已找不到登记项，走丢弃路径，结果对象被释放。
 - 测试用原子栅栏而不是 sleep 来制造时序：阻塞线程发布弱观测后以 release 置位，Actor 侧以 acquire 等待，避免读写半写入的 `weak_ptr`；再用有上限的定时器轮询等待释放，超时才失败。
 - 仍未覆盖：父协程退出时未完成子任务的完整矩阵（CancelWithParent 与 Detach 两种归属下的取消/脱离与结果归属），以及 timer 大量乱序撤销与容量收缩。
+
+### 父退出矩阵已覆盖
+
+- 新增两条到 `result_lifetime_tests.cpp`（各重复 5/5，带 20 秒 `timeout` 保护确认不挂死；全量 CTest 15/15）：
+  - `parent exit cleans up an unfinished CancelWithParent child`：父协程在子任务仍等待（2 秒定时器或永不到来的消息）时直接结束，子任务必须被取消清理；沿用测试壳既有的 `liveStacks == 0` 断言作为清理证据。
+  - `parent exit leaves a detached child owned by the Actor`：同一形状但归属为 `DetachedFromParent`，子任务不再随父结束，其生命周期归 Actor；同样以 `liveStacks == 0` 收尾。
+- 两例的子任务都写成「最多等到一个有界定时器」，因此即使实现出错也只会失败而不是永久挂起；枚举实际名称是 `ChildLifetime::DetachedFromParent`（不是 `Detach`）。
+- 至此 P0 结果生命周期的验收矩阵（root 释放、child 释放、父退出取消/脱离、blocking 便捷释放、显式 forget、晚到结果丢弃）已完整；剩余空白只剩 timer 大量乱序撤销与容量收缩、以及需要先装 gcovr 的覆盖率复测。
