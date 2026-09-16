@@ -60,11 +60,11 @@ private:
 };
 
 int main() {
-    ar::ActorSystem system({2});
+    ar::ActorSystem& system = ar::ActorSystem::start({2});
     std::atomic<bool> done{false};
     const auto catalog = system.registerActor(std::make_unique<Catalog>(system));
     const auto checkout = system.registerActor(std::make_unique<Checkout>(system, catalog, done));
     checkout.send(Start, {});
     while (!done.load(std::memory_order_acquire)) std::this_thread::sleep_for(1ms);
-    system.shutdown();
+    ar::ActorSystem::stop();
 }

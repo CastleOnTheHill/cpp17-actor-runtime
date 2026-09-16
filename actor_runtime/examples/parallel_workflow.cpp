@@ -41,10 +41,10 @@ private:
 };
 
 int main() {
-    ar::ActorSystem system({3});
+    ar::ActorSystem& system = ar::ActorSystem::start({3});
     std::atomic<bool> done{false};
     const auto workflow = system.registerActor(std::make_unique<OrderWorkflow>(system, done));
     workflow.send(1, {});
     while (!done.load(std::memory_order_acquire)) std::this_thread::sleep_for(1ms);
-    system.shutdown();
+    ar::ActorSystem::stop();
 }

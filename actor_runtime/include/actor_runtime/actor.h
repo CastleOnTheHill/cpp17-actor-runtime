@@ -24,6 +24,10 @@ public:
     ActorRef self() const noexcept;
 
 protected:
+    // 绑定到进程全局实例（ActorSystem::instance()），供子模块使用。
+    // 系统未运行时抛 std::logic_error。
+    Actor();
+    // 显式绑定；actor 必须在系统运行期间构造，否则注册时会被拒绝。
     explicit Actor(ActorSystem& system);
 
     FiberId start(CoroutineBody body);

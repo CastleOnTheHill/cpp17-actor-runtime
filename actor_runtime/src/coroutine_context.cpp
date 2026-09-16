@@ -27,8 +27,21 @@ WaitResult CoroutineContext::await(WaitSpec spec) {
     if (immediate) return std::move(*immediate);
 
     fiber.state = FiberState::Waiting;
-    if (::swapcontext(&fiber.context, &currentWorker->schedulerContext) != 0) {
-        throw std::system_error(errno, std::generic_category(), "swapcontext to scheduler");
+    Worker& worker = *currentWorker;
+    // 协程栈 -> 调度器栈：目标栈是 worker 线程自身的栈，同时保存本协程栈的 fake stack。
+    const bool annotate = worker.stackAnnotated;
+    if (annotate) {
+        detail::asanStartSwitch(&fiber.asanFakeStack, worker.stackBottom, worker.stackSize);
+    }
+    const int status = ::swapcontext(&fiber.context, &worker.schedulerContext);
+    const int savedErrno = errno;
+    if (annotate) {
+        // 被恢复时立刻回到这里：恢复本协程栈的 fake stack。
+        detail::asanFinishSwitch(fiber.asanFakeStack);
+        worker.system->fiberSwitches.fetch_add(1, std::memory_order_relaxed);
+    }
+    if (status != 0) {
+        throw std::system_error(savedErrno, std::generic_category(), "swapcontext to scheduler");
     }
     if (!fiber.pendingWait) throw std::logic_error("resumed coroutine has no wait result");
     WaitResult result = std::move(*fiber.pendingWait);

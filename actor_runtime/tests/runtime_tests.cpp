@@ -21,6 +21,21 @@ void require(bool condition, const char* message) {
     }
 }
 
+// ActorSystem 是进程级单例：测试夹具负责 start/stop。
+class SystemScope final {
+public:
+    explicit SystemScope(std::size_t workers) { actor_runtime::ActorSystem::start({workers}); }
+    ~SystemScope() {
+        try {
+            actor_runtime::ActorSystem::stop();
+        } catch (...) {
+        }
+    }
+    SystemScope(const SystemScope&) = delete;
+    SystemScope& operator=(const SystemScope&) = delete;
+    actor_runtime::ActorSystem& operator*() const { return actor_runtime::ActorSystem::instance(); }
+};
+
 template<class Predicate>
 void eventually(Predicate predicate) {
     const auto deadline = std::chrono::steady_clock::now() + 2s;
@@ -44,14 +59,15 @@ private:
 };
 
 void basic_post_calls_on_message_exactly_once() {
-    actor_runtime::ActorSystem system({2});
+    SystemScope scope{2};
+    auto& system = *scope;
     std::atomic<int> count{0};
     auto ref = system.registerActor(std::make_unique<CountingActor>(system, count));
     ref.send(1, 42);
     eventually([&] { return count.load(std::memory_order_relaxed) == 1; });
     std::this_thread::sleep_for(20ms);
     require(count.load(std::memory_order_relaxed) == 1, "message was dispatched more than once");
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
 }
 
 class TimerActor final : public actor_runtime::Actor {
@@ -81,12 +97,13 @@ private:
 };
 
 void ucontext_timer_preserves_nested_stack_locals() {
-    actor_runtime::ActorSystem system({2});
+    SystemScope scope{2};
+    auto& system = *scope;
     std::atomic<int> result{0};
     auto ref = system.registerActor(std::make_unique<TimerActor>(system, result));
     ref.send(1, {});
     eventually([&] { return result.load(std::memory_order_acquire) == 42; });
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
     const auto stats = system.stats();
     require(stats.liveFibers == 0, "fiber leaked after shutdown");
     require(stats.liveStacks == 0, "fiber stack leaked after shutdown");
@@ -119,7 +136,8 @@ private:
 };
 
 void message_wait_matches_type_and_correlation() {
-    actor_runtime::ActorSystem system({3});
+    SystemScope scope{3};
+    auto& system = *scope;
     std::atomic<int> armed{0};
     std::atomic<int> received{0};
     std::atomic<int> observed{0};
@@ -133,7 +151,7 @@ void message_wait_matches_type_and_correlation() {
     ref.send(20, 77, requestId);
     eventually([&] { return received.load(std::memory_order_acquire) == 77; });
     eventually([&] { return observed.load(std::memory_order_relaxed) == 4; });
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
 }
 
 class BroadcastActor final : public actor_runtime::Actor {
@@ -167,7 +185,8 @@ private:
 };
 
 void message_wait_is_broadcast() {
-    actor_runtime::ActorSystem system({2});
+    SystemScope scope{2};
+    auto& system = *scope;
     std::atomic<int> armed{0};
     std::atomic<int> done{0};
     std::mutex mutex;
@@ -182,7 +201,7 @@ void message_wait_is_broadcast() {
         require(addresses.size() == 2 && addresses[0] == addresses[1],
             "waiters did not observe the same immutable Message instance");
     }
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
 }
 
 class DispatchSnapshotActor final : public actor_runtime::Actor {
@@ -217,7 +236,8 @@ private:
 };
 
 void dispatch_snapshot_excludes_new_waiters() {
-    actor_runtime::ActorSystem system({3});
+    SystemScope scope{3};
+    auto& system = *scope;
     std::atomic<int> armed{0};
     std::atomic<int> oldDone{0};
     std::atomic<int> newDone{0};
@@ -232,7 +252,7 @@ void dispatch_snapshot_excludes_new_waiters() {
         "waiter created during dispatch observed the current message");
     ref.send(41, {});
     eventually([&] { return newDone.load(std::memory_order_acquire) == 1; });
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
 }
 
 class ChildActor final : public actor_runtime::Actor {
@@ -279,7 +299,8 @@ private:
 };
 
 void child_join_and_error_propagation() {
-    actor_runtime::ActorSystem system({2});
+    SystemScope scope{2};
+    auto& system = *scope;
     std::atomic<int> value{0};
     std::atomic<int> errorSeen{0};
     std::atomic<int> messages{0};
@@ -290,7 +311,7 @@ void child_join_and_error_propagation() {
     eventually([&] { return errorSeen.load(std::memory_order_acquire) == 1; });
     ref.send(72, {});
     eventually([&] { return messages.load(std::memory_order_relaxed) == 3; });
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
 }
 
 class CompositeActor final : public actor_runtime::Actor {
@@ -372,7 +393,8 @@ private:
 };
 
 void any_all_and_nested_waits() {
-    actor_runtime::ActorSystem system({3});
+    SystemScope scope{3};
+    auto& system = *scope;
     std::atomic<int> armed{0};
     std::atomic<int> anyResumes{0};
     std::atomic<int> allDone{0};
@@ -398,7 +420,7 @@ void any_all_and_nested_waits() {
     std::this_thread::sleep_for(15ms);
     ref.send(85, {});
     eventually([&] { return nestedDone.load(std::memory_order_acquire) == 1; });
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
 }
 
 class RaceActor final : public actor_runtime::Actor {
@@ -425,7 +447,8 @@ private:
 };
 
 void response_timeout_race_never_double_resumes() {
-    actor_runtime::ActorSystem system({4});
+    SystemScope scope{4};
+    auto& system = *scope;
     std::atomic<int> armed{0};
     std::atomic<int> resumes{0};
     auto ref = system.registerActor(std::make_unique<RaceActor>(system, armed, resumes));
@@ -445,7 +468,7 @@ void response_timeout_race_never_double_resumes() {
     std::this_thread::sleep_for(20ms);
     require(resumes.load(std::memory_order_acquire) == iterations,
         "late response or timer resumed an old registration");
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
 }
 
 class LifetimeActor final : public actor_runtime::Actor {
@@ -508,7 +531,8 @@ private:
 };
 
 void child_lifetime_and_shutdown_cancellation() {
-    actor_runtime::ActorSystem system({3});
+    SystemScope scope{3};
+    auto& system = *scope;
     std::atomic<int> armed{0};
     std::atomic<int> cancelled{0};
     std::atomic<int> detachedDone{0};
@@ -523,7 +547,7 @@ void child_lifetime_and_shutdown_cancellation() {
     ref.send(101, {});
     eventually([&] { return armed.load(std::memory_order_acquire) >= 3; });
     std::this_thread::sleep_for(10ms);
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
     require(shutdownCancelled.load(std::memory_order_acquire) == 1,
         "detached child survived Actor/System shutdown");
     require(system.stats().liveFibers == 0 && system.stats().liveStacks == 0,
@@ -560,7 +584,8 @@ private:
 };
 
 void actor_is_serial_but_migrates_across_workers() {
-    actor_runtime::ActorSystem system({4});
+    SystemScope scope{4};
+    auto& system = *scope;
     std::atomic<int> count{0};
     std::atomic<int> maxActive{0};
     std::mutex mutex;
@@ -583,7 +608,7 @@ void actor_is_serial_but_migrates_across_workers() {
         std::lock_guard<std::mutex> lock(mutex);
         require(threads.size() > 1, "actor never migrated between worker threads");
     }
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
 }
 
 class OwnerActor final : public actor_runtime::Actor {
@@ -608,7 +633,8 @@ private:
 };
 
 void fiber_stays_on_owner_worker_and_stack_is_reclaimed() {
-    actor_runtime::ActorSystem system({4});
+    SystemScope scope{4};
+    auto& system = *scope;
     std::atomic<int> sameOwner{0};
     auto ref = system.registerActor(std::make_unique<OwnerActor>(system, sameOwner));
     constexpr int fibers = 80;
@@ -618,7 +644,7 @@ void fiber_stays_on_owner_worker_and_stack_is_reclaimed() {
         const auto stats = system.stats();
         return stats.liveFibers == 0 && stats.liveStacks == 0;
     });
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
 }
 
 class FlagActor final : public actor_runtime::Actor {
@@ -633,7 +659,8 @@ private:
 };
 
 void busy_actor_does_not_starve_another_actor() {
-    actor_runtime::ActorSystem system({2});
+    SystemScope scope{2};
+    auto& system = *scope;
     std::atomic<int> busyCount{0};
     std::atomic<int> busyMax{0};
     std::mutex mutex;
@@ -648,7 +675,7 @@ void busy_actor_does_not_starve_another_actor() {
     eventually([&] { return quietCount.load(std::memory_order_acquire) == 1; });
     require(busyCount.load(std::memory_order_acquire) < busyMessages,
         "quiet actor only ran after the busy actor drained completely");
-    system.shutdown();
+    actor_runtime::ActorSystem::stop();
 }
 
 void invalid_inputs_have_clear_errors() {

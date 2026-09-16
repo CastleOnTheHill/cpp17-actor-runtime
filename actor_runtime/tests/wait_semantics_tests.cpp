@@ -2,6 +2,7 @@
 #include "actor_runtime/coroutine_context.h"
 #include <future>
 #include <iostream>
+#include <thread>
 
 using namespace actor_runtime;
 using namespace std::chrono_literals;
@@ -31,13 +32,30 @@ private:
 void run(const char* name, Actor::CoroutineBody body) {
     std::promise<void> done;
     auto future = done.get_future();
-    ActorSystem system({3});
+    ActorSystem& system = ActorSystem::start({3});
     auto actor = system.registerActor(std::make_unique<ScenarioActor>(system, std::move(body), done));
     actor.send(1, {});
-    check(future.wait_for(3s) == std::future_status::ready, "scenario timed out");
-    future.get();
-    system.shutdown();
-    check(system.stats().liveFibers == 0 && system.stats().liveStacks == 0, "leaked resources");
+    const bool ready = future.wait_for(3s) == std::future_status::ready;
+    std::exception_ptr failure;
+    if (ready) {
+        try {
+            future.get();
+        } catch (...) {
+            failure = std::current_exception();
+        }
+    }
+    // 等所有协程栈真正退出后再断言，然后结束进程级单例。
+    // 注意 liveFibers 与 liveStacks 是先后递减的，必须两者都归零。
+    const auto deadline = std::chrono::steady_clock::now() + 2s;
+    while ((system.stats().liveFibers != 0 || system.stats().liveStacks != 0) &&
+        std::chrono::steady_clock::now() < deadline) {
+        std::this_thread::sleep_for(1ms);
+    }
+    const auto stats = system.stats();
+    ActorSystem::stop();
+    if (failure) std::rethrow_exception(failure);
+    check(ready, "scenario timed out");
+    check(stats.liveFibers == 0 && stats.liveStacks == 0, "leaked resources");
     std::cout << "[PASS] " << name << '\n';
 }
 
