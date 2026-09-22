@@ -7,7 +7,14 @@
 
 namespace actor_runtime {
 
-Actor::Actor(ActorSystem& system) : impl_(std::make_unique<Impl>(system)) {}
+Actor::Actor() : Actor(ActorSystem::instance()) {}
+
+Actor::Actor(ActorSystem& system) : impl_(std::make_unique<Impl>(system)) {
+    // 记录构造时的系统世代号：跨世代（例如系统重启前构造）的 Actor
+    // 不允许注册到新的系统实例上。
+    impl_->generation = system.impl_ ? system.impl_->generation : 0;
+}
+
 Actor::~Actor() = default;
 
 ActorId Actor::id() const noexcept { return impl_->id; }

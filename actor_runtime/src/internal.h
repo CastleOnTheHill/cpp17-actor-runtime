@@ -3,6 +3,7 @@
 #include "actor_runtime/actor.h"
 #include "actor_runtime/actor_system.h"
 #include "actor_runtime/coroutine_context.h"
+#include "asan_fiber.h"
 #include "wait_internal.h"
 
 #include <atomic>
@@ -30,6 +31,8 @@ struct Actor::Impl {
     explicit Impl(ActorSystem& owner) : system(&owner) {}
     ActorSystem* system;
     ActorId id = 0;
+    // Actor 构造时 ActorSystem 的世代号。0 表示构造时系统未运行。
+    std::uint64_t generation = 0;
     std::weak_ptr<ActorControl> control;
 };
 
@@ -77,6 +80,8 @@ struct Fiber final {
     std::unique_ptr<StackMapping> stack;
     Actor::CoroutineBody body;
     CoroutineContext::Impl contextImpl;
+    // ASan: 本协程栈离开时保存的 fake stack（见 detail::asanStartSwitch）。
+    void* asanFakeStack = nullptr;
     FiberState state = FiberState::Ready;
     bool started = false;
     bool finishedOnStack = false;
@@ -167,6 +172,12 @@ struct Worker final {
     std::deque<Job> localQueue;
     std::priority_queue<TimerEntry, std::vector<TimerEntry>, TimerLater> timers;
     std::uint64_t nextTimerSequence = 1;
+    // 本 worker 线程自身的栈范围，用于 ASan fiber 切换注解的目标栈描述。
+    const void* stackBottom = nullptr;
+    std::size_t stackSize = 0;
+    bool stackAnnotated = false;
+    // ASan: 调度器栈离开时保存的 fake stack。
+    void* schedulerFakeStack = nullptr;
 };
 
 struct ActorSystem::Impl final {
@@ -176,6 +187,7 @@ struct ActorSystem::Impl final {
     void enqueueGlobal(Job job);
     void enqueueLocal(Worker& worker, Job job);
     void workerLoop(Worker& worker);
+    void captureWorkerStack(Worker& worker);
     void processJob(Worker& worker, Job job);
     FiberId createFiber(
         const std::shared_ptr<ActorControl>& actor,
@@ -189,9 +201,12 @@ struct ActorSystem::Impl final {
     std::optional<WaitResult> installWait(Fiber& fiber, const WaitSpec& spec);
     void triggerWait(const std::shared_ptr<ActorControl>& actor, const LeafRef& leaf, WaitResult result);
     void notifyMessage(const std::shared_ptr<ActorControl>& actor, const MessagePtr& message);
+    // 停止接收新工作、取消全部协程、等待排空并 join 所有 worker。
+    void teardown();
 
     ActorSystem& facade;
     Config config;
+    std::uint64_t generation = 0;
     std::atomic<bool> accepting{true};
     std::atomic<bool> stopping{false};
     std::atomic<ActorId> nextActorId{1};
@@ -200,6 +215,7 @@ struct ActorSystem::Impl final {
     std::atomic<std::size_t> outstandingJobs{0};
     std::atomic<std::size_t> liveFibers{0};
     std::atomic<std::size_t> liveStacks{0};
+    std::atomic<std::size_t> fiberSwitches{0};
 
     mutable std::mutex registryMutex;
     std::unordered_map<ActorId, std::shared_ptr<ActorControl>> registry;

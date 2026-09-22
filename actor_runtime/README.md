@@ -6,6 +6,11 @@ non-template `ActorSystem`, `ActorRef`, `Actor`, `CoroutineContext`, and runtime
 `WaitSpec` tree while mailbox, scheduling, wait registration, timers, context
 switching, and stack lifetime remain internal.
 
+`ActorSystem` is a **process-wide singleton**: `main` starts it, every
+submodule obtains the same instance and registers its own actors. Fiber
+switching is annotated for AddressSanitizer, so ASan understands alternate
+stacks instead of guessing.
+
 This release is **single-process only and does not support IPC**. It has no wire
 protocol, serialization, remote addresses, persistence, delivery retry, or
 distributed supervision.
@@ -20,15 +25,52 @@ ctest --test-dir build --output-on-failure
 ./build/request_response_example
 ./build/parallel_workflow_example
 ./build/order_fulfillment_example
+./build/module_registration_example
+
+# 带 AddressSanitizer 的协程切换验证
+cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=RelWithDebInfo -DACTOR_RUNTIME_ASAN=ON
+cmake --build build-asan -j
+ctest --test-dir build-asan --output-on-failure
 ```
 
 Requirements: Linux/glibc, a C++17 compiler, CMake 3.16 or newer, and pthreads.
 There are no third-party runtime or test dependencies.
 
+## 进程级 ActorSystem 单例
+
+```cpp
+int main() {
+    actor_runtime::ActorSystem& system = actor_runtime::ActorSystem::start({4});
+    const auto inventory = inventory::install();  // 子模块自己注册
+    const auto order = orders::install(inventory);
+    order.send(PlaceOrder, std::string("SKU-42"));
+    actor_runtime::ActorSystem::stop();
+}
+```
+
+- `ActorSystem::start()` / `start(Config)` 由 `main` 调用，返回唯一的实例。
+  进程内已有运行中的实例时抛 `std::logic_error`；配置非法时抛
+  `std::invalid_argument` 并保持“未运行”状态，不会留下半启动的系统。
+- `ActorSystem::instance()` 是子模块取用全局实例的入口，未运行时抛
+  `std::logic_error`。`isRunning()` 提供无异常的探测。
+- `Actor` 的默认构造 `Actor()` 直接绑定全局实例，子模块不需要传递
+  `ActorSystem&`；`explicit Actor(ActorSystem&)` 仍然保留给需要显式绑定的场合。
+- `ActorSystem::stop()` 幂等，负责取消全部协程、排空任务、join 所有 worker
+  并释放协程栈。它不得从运行库的 worker 线程（`onMessage` 或协程体内）调用，
+  否则抛 `std::logic_error`；进程退出时还有一次 `atexit` 兜底。
+- 单例外壳对象只分配一次且永不析构，`stop()` 只释放内部实现。因此停止之后
+  旧的 `ActorRef` 不会变成悬垂指针：它只会安全地抛 `std::runtime_error`。
+- 每次 `start` 递增一个世代号。跨世代的对象（例如重启前构造、重启后才注册的
+  `Actor`）会被 `registerActor` 以 `std::invalid_argument` 拒绝。
+- `examples/module_registration.cpp` 与 `examples/modules/*` 是跨编译单元的最小
+  示例：子模块只写 `ActorSystem::instance()`，不接收 `ActorSystem&` 参数。
+
 ## Execution model and invariants
 
 - An Actor has at most one executor at any instant. Each mailbox dispatch and
   fiber resume acquires the same Actor execution token.
+- A process runs at most one ActorSystem. Worker threads, the actor registry,
+  and the id sequences all belong to that single instance.
 - Mailbox turns are global jobs, so different turns of one Actor may execute on
   different workers. A created fiber is permanently bound to its owner worker;
   every later resume is placed on that worker's local queue.
@@ -122,6 +164,16 @@ The caller must cancel unwanted children explicitly.
 可公开触发的参数校验、重复取消、异常处理都通过真实测试覆盖。分支覆盖率
 另行展示，包含 GCC 生成的 C++ 异常边，不能与行覆盖率混用。
 
+| CTest 目标 | 覆盖内容 |
+| --- | --- |
+| `actor_runtime_tests` | 调度、消息、Any/All/AllSettled、迁移、公平性、栈回收 |
+| `wait_semantics_tests` | 等待语义边界：立即完成、陈旧注册、取消粘性、顺序保持 |
+| `api_contract_tests` | 单例契约、参数校验、异常隔离、幂等停止与重启 |
+| `actor_system_lifecycle_tests` | `start`/`instance`/`stop` 生命周期、子模块注册、worker 线程拒绝停止 |
+| `asan_fiber_tests` | ASan 注解切换压力、挂起前后局部变量有效、ASan 状态断言 |
+| `order_fulfillment` | 中文业务链路的集成验证（1/4 worker × 4 条路径） |
+| `module_registration` | 跨编译单元的子模块注册示例 |
+
 ```bash
 cmake -S . -B build-coverage -DCMAKE_BUILD_TYPE=Debug -DACTOR_RUNTIME_COVERAGE=ON
 cmake --build build-coverage --target coverage -j4
@@ -142,22 +194,62 @@ an executing stack asynchronously.
 
 ## Shutdown
 
-Shutdown first rejects Actor creation and external sends, requests cancellation
-for every fiber, resumes suspended fibers with `Cancelled`, drains scheduler
-jobs up to the configured shutdown deadline, stops and joins every worker, then
-destroys actors and mappings. Cooperative bodies must return, await, or call
-`throwIfCancelled`; a body that computes forever cannot be forcibly unwound
-safely. `RuntimeStats` exposes live fiber and stack counts for shutdown checks.
+`ActorSystem::stop()` first rejects Actor creation and external sends, requests
+cancellation for every fiber, resumes suspended fibers with `Cancelled`, drains
+scheduler jobs up to the configured shutdown deadline, stops and joins every
+worker, then destroys actors and mappings. Cooperative bodies must return, await,
+or call `throwIfCancelled`; a body that computes forever cannot be forcibly
+unwound safely. `RuntimeStats` exposes live fiber and stack counts for shutdown
+checks. Note that `liveFibers` and `liveStacks` are decremented one after the
+other, so a shutdown check must wait for both to reach zero.
 
-## Sanitizers and known limits
+## AddressSanitizer 协程切换 hook
 
-The runtime does not yet call the AddressSanitizer fiber-switch hooks
-(`__sanitizer_start_switch_fiber` / `__sanitizer_finish_switch_fiber`). ASan may
-therefore report false positives or mishandle alternate stacks, so an ASan pass
-is not claimed. UBSan coverage around deprecated `makecontext` calling
-conventions is likewise platform-sensitive. The automated suite instead
-stresses 19 public behaviors including repeated message/timeout races,
-broadcast, nested waits, parent/child policies, Actor serialization and
-migration, owner-worker affinity, fairness, stack preservation, and complete
-shutdown. Production hardening should add sanitizer hooks before treating ASan
-as authoritative.
+The runtime calls the AddressSanitizer fiber annotation interface
+(`__sanitizer_start_switch_fiber` / `__sanitizer_finish_switch_fiber`) at every
+stack switch, so ASan tracks the alternate stacks, the fake stacks used by
+`detect_stack_use_after_return`, and the moment a fiber stack is destroyed.
+Call sites, all in the switching code paths:
+
+| 切换 | `start_switch` 的目标栈 | `finish_switch` 的位置 |
+| --- | --- | --- |
+| 调度器 -> 协程 (`resumeFiber`) | 协程栈 | 回到调度器栈后 |
+| 协程 -> 调度器 (`await`) | worker 线程栈 | 被恢复后的协程栈上 |
+| 协程首次进入 (`fiberTrampoline`) | — | 进入协程栈后 |
+| 协程永久退出 (`fiberTrampoline` 尾部) | worker 线程栈，`fake_stack_save` 传 `nullptr` 销毁 fake stack | 回到调度器栈后 |
+
+- 两个 hook 声明为**弱符号**，运行库不需要在编译期依赖 ASan：链接了 ASan 运行时
+  就调用真实实现，否则退化为空操作。因此普通构建与 ASan 构建共用同一份代码。
+- 每个 worker 线程启动时通过 `pthread_getattr_np` 取得自身栈范围，作为切回
+  调度器栈时的目标描述；取不到范围时该 worker 关闭注解（在 glibc 上不会发生）。
+- 协程栈本身是可用的 `mmap` 区间（`usable` / `usableSize`），两端各有一个
+  `PROT_NONE` 保护页。
+- `RuntimeStats::asanFiberHooks` 报告进程内是否解析到了 hook 实现，
+  `RuntimeStats::fiberSwitches` 统计带注解的协程栈切换次数，两者都可用于
+  CI 断言。
+- ASan 自身会对 `makecontext`/`swapcontext` 打印一次
+  `WARNING: ASan doesn't fully support makecontext/swapcontext ...`。这是
+  ASan 的拦截器提示，注解接口正是为此提供的补救手段；用例在该警告下仍然全绿。
+- `ACTOR_RUNTIME_ASAN=ON` 会把运行库与用例一起插桩，`asan_fiber_tests` 在
+  `detect_stack_use_after_return=1`、`detect_leaks=1`、`halt_on_error=1` 下运行
+  30 轮嵌套 spawn/cancel/挂起/恢复（约 780 次切换），并在挂起前后校验逃逸到
+  fake stack 上的局部变量仍然有效。覆盖率构建不开 ASan，因此
+  `src/asan_fiber.cpp` 中真正调用 hook 的两行在覆盖率报告里不计入已覆盖，
+  整体门禁仍然是 90%（当前约 96.6%）。
+
+## Known limits
+
+`ucontext` is deprecated and this project is deliberately restricted to
+Linux/glibc. `makecontext` is called through a convention that UBSan cannot
+fully validate, so UBSan is not claimed even though the automated suite passes.
+The ASan fiber hooks remove the largest source of false positives on alternate
+stacks, but a signal delivered while a fiber switch is in progress still runs
+outside the fake-stack machinery — that limitation is documented by ASan itself.
+`pthread_getattr_np` is a glibc extension, which is why the worker stack bounds
+cannot be captured on other libc implementations.
+
+Beyond that, the suite stresses 22 public behaviors, including repeated
+message/timeout races, broadcast, nested waits, parent/child policies, Actor
+serialization and migration, owner-worker affinity, fairness, stack
+preservation, complete shutdown, the singleton lifecycle, submodule
+registration, and the annotated switch stress run.

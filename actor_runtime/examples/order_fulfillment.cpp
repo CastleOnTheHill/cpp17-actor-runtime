@@ -19,6 +19,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <thread>
 
 namespace ar = actor_runtime;
 using namespace std::chrono_literals;
@@ -179,13 +180,20 @@ int main() {
                 std::promise<Report> done;
                 auto future = done.get_future();
                 auto counts = std::make_shared<Counters>();
-                ar::ActorSystem system({workers});
+                ar::ActorSystem& system = ar::ActorSystem::start({workers});
                 auto service = system.registerActor(std::make_unique<Services>(system));
                 auto order = system.registerActor(std::make_unique<Order>(system, service, mode, counts, done));
                 order.send(Begin, {});
                 require(future.wait_for(5s) == std::future_status::ready, "order stalled");
                 auto result = future.get();
-                system.shutdown();
+                // 等所有协程栈退出后再断言，然后结束进程级单例。
+                const auto deadline = Clock::now() + 2s;
+                while ((system.stats().liveFibers != 0 || system.stats().liveStacks != 0) &&
+                    Clock::now() < deadline) {
+                    std::this_thread::sleep_for(1ms);
+                }
+                const auto stats = system.stats();
+                ar::ActorSystem::stop();
                 const char* expected = mode == Mode::Success ? "成交" : mode == Mode::OutOfStock ? "缺货，订单拒绝" :
                                        mode == Mode::PaymentTimeout ? "支付超时" : "用户撤单";
                 require(result.status == expected && result.loserCancelled, "wrong business outcome");
@@ -193,7 +201,7 @@ int main() {
                 require(result.paymentCancelled == cancelledPayment, "wrong payment cancellation outcome");
                 require(counts->cancelled.load() == (cancelledPayment ? 2 : 1), "nested service cancellation not observed");
                 require(counts->opened.load() == counts->closed.load(), "RAII resource leaked");
-                require(system.stats().liveFibers == 0 && system.stats().liveStacks == 0, "runtime resource leaked");
+                require(stats.liveFibers == 0 && stats.liveStacks == 0, "runtime resource leaked");
                 std::cout << "[PASS] workers=" << workers << "，订单结果=" << result.status
                           << "，已释放资源=" << counts->closed << '\n';
             }

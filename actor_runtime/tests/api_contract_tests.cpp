@@ -80,17 +80,28 @@ int main() {
         expectLogic([&] { invalidContext.await(WaitSpec::message({1, 0})); });
         expectLogic([&] { invalidContext.spawn({}, ChildLifetime::CancelWithParent); });
         expectLogic([&] { invalidContext.cancel(1); });
-        expectInvalid([] { ActorSystem::Config options; options.fiberStackSize = 1; ActorSystem system(options); });
+        // 进程级单例契约：未启动时不可用；非法配置不会留下半启动状态。
+        require(!ActorSystem::isRunning(), "system reported running before start");
+        expectLogic([] { ActorSystem::instance(); });
+        expectInvalid([] {
+            ActorSystem::Config options;
+            options.fiberStackSize = 1;
+            ActorSystem::start(options);
+        });
+        require(!ActorSystem::isRunning(), "failed start left the system running");
 
         std::atomic<int> errors{0}, handled{0};
-        ActorSystem system({2});
-        ActorSystem other({1});
+        ActorSystem& system = ActorSystem::start({2});
+        ActorSystem& other = ActorSystem::instance();
+        require(&other == &system, "instance() returned a different system");
+        require(ActorSystem::isRunning() && system.stats().workerCount == 2, "start contract invalid");
+        expectLogic([] { ActorSystem::start({1}); });
         expectInvalid([&] { system.registerActor(nullptr); });
-        expectInvalid([&] { system.registerActor(std::make_unique<ErrorActor>(other, errors, handled)); });
         expectInvalid([&] { system.ref(9999).send(1, {}); });
         auto actor = std::make_unique<ErrorActor>(system, errors, handled);
         require(actor->id() == 0, "unregistered actor has an id");
         expectLogic([&] { actor->invalidStart(); });
+        auto stale = std::make_unique<ErrorActor>(system, errors, handled);
         auto ref = system.registerActor(std::move(actor));
         require(ref.id() != 0 && static_cast<bool>(ref), "registered ref invalid");
         ref.send(1, {});
@@ -102,12 +113,22 @@ int main() {
         auto deadline = std::chrono::steady_clock::now() + 3s;
         while ((handled != 4 || errors != 2) && std::chrono::steady_clock::now() < deadline) std::this_thread::sleep_for(1ms);
         require(handled == 4 && errors == 2, "worker stopped after exception");
-        system.shutdown();
-        system.shutdown();
-        require(!system.stats().acceptingMessages && system.stats().liveStacks == 0, "shutdown stats invalid");
+        ActorSystem::stop();
+        ActorSystem::stop();
+        require(!ActorSystem::isRunning() && !system.stats().acceptingMessages &&
+            system.stats().liveStacks == 0, "shutdown stats invalid");
         expectRuntime([&] { ref.send(1, {}); });
         expectRuntime([&] { system.registerActor(std::make_unique<ErrorActor>(system, errors, handled)); });
-        { ActorSystem defaultSystem; require(defaultSystem.stats().workerCount > 0, "default worker config invalid"); }
-        std::cout << "[PASS] public API validation, exception isolation, idempotent shutdown\n";
+        expectLogic([] { ActorSystem::instance(); });
+        {
+            ActorSystem& restarted = ActorSystem::start();
+            require(restarted.stats().workerCount > 0, "default worker config invalid");
+            // 重启前构造的 Actor 属于上一代，不能注册到新实例上。
+            expectInvalid([&] { restarted.registerActor(std::move(stale)); });
+            auto fresh = restarted.registerActor(std::make_unique<ErrorActor>(restarted, errors, handled));
+            require(static_cast<bool>(fresh) && restarted.stats().acceptingMessages, "restart failed");
+            ActorSystem::stop();
+        }
+        std::cout << "[PASS] singleton lifecycle, public API validation, exception isolation, idempotent shutdown\n";
     } catch (const std::exception& e) { std::cerr << "[FAIL] " << e.what() << '\n'; return 1; }
 }

@@ -6,7 +6,10 @@
 #include <algorithm>
 #include <cerrno>
 #include <chrono>
+#include <cstdlib>
 #include <cstring>
+#include <mutex>
+#include <pthread.h>
 #include <stdexcept>
 #include <system_error>
 #include <sys/mman.h>
@@ -29,6 +32,9 @@ void fiberTrampoline(std::uint32_t low, std::uint32_t high) {
     if (fiber == nullptr || fiber->id != id) {
         std::terminate();
     }
+    Worker& worker = *fiber->owner;
+    // 首次进入该协程栈：完成调度器发起的切换注解（此时本栈还没有 fake stack）。
+    if (worker.stackAnnotated) detail::asanFinishSwitch(fiber->asanFakeStack);
     CoroutineContext context(&fiber->contextImpl);
     try {
         fiber->result = fiber->body(context);
@@ -41,6 +47,13 @@ void fiberTrampoline(std::uint32_t low, std::uint32_t high) {
         fiber->state = FiberState::Done;
     }
     fiber->finishedOnStack = true;
+    // 协程栈永久退出：销毁它的 ASan fake stack（传 nullptr），然后显式切回调度器栈。
+    if (worker.stackAnnotated) {
+        detail::asanStartSwitch(nullptr, worker.stackBottom, worker.stackSize);
+    }
+    if (::swapcontext(&fiber->context, &worker.schedulerContext) != 0) {
+        std::terminate();
+    }
 }
 
 bool evaluate(RuntimeWaitNode& node) {
@@ -167,8 +180,22 @@ void ActorSystem::Impl::enqueueLocal(Worker& worker, Job job) {
     queueCv.notify_all();
 }
 
+void ActorSystem::Impl::captureWorkerStack(Worker& worker) {
+    ::pthread_attr_t attributes;
+    if (::pthread_getattr_np(::pthread_self(), &attributes) != 0) return;
+    void* address = nullptr;
+    std::size_t size = 0;
+    const int status = ::pthread_attr_getstack(&attributes, &address, &size);
+    ::pthread_attr_destroy(&attributes);
+    if (status != 0 || address == nullptr || size == 0) return;
+    worker.stackBottom = address;
+    worker.stackSize = size;
+    worker.stackAnnotated = true;
+}
+
 void ActorSystem::Impl::workerLoop(Worker& worker) {
     currentWorker = &worker;
+    captureWorkerStack(worker);
     for (;;) {
         std::optional<Job> selected;
         {
@@ -319,6 +346,8 @@ FiberId ActorSystem::Impl::createFiber(
     fiber->context.uc_stack.ss_sp = fiber->stack->usable;
     fiber->context.uc_stack.ss_size = fiber->stack->usableSize;
     fiber->context.uc_stack.ss_flags = 0;
+    // uc_link 只是兜底：协程正常结束时由 trampoline 显式 swapcontext 回调度器栈，
+    // 这样 ASan 的两次栈切换注解才是成对的。
     fiber->context.uc_link = &owner.schedulerContext;
     const auto low = static_cast<std::uint32_t>(fiber->id & 0xffffffffULL);
     const auto high = static_cast<std::uint32_t>(fiber->id >> 32U);
@@ -356,9 +385,22 @@ void ActorSystem::Impl::resumeFiber(
     fiber.state = FiberState::Running;
     fiber.started = true;
     currentFiber = &fiber;
-    if (::swapcontext(&worker.schedulerContext, &fiber.context) != 0) {
+    // 调度器栈 -> 协程栈：注解目标栈为协程栈，并保存调度器栈的 fake stack。
+    const bool annotate = worker.stackAnnotated;
+    if (annotate) {
+        detail::asanStartSwitch(
+            &worker.schedulerFakeStack, fiber.stack->usable, fiber.stack->usableSize);
+    }
+    const int status = ::swapcontext(&worker.schedulerContext, &fiber.context);
+    const int savedErrno = errno;
+    if (annotate) {
+        // 回到调度器栈：恢复调度器栈的 fake stack。
+        detail::asanFinishSwitch(worker.schedulerFakeStack);
+        fiberSwitches.fetch_add(1, std::memory_order_relaxed);
+    }
+    if (status != 0) {
         currentFiber = nullptr;
-        throw std::system_error(errno, std::generic_category(), "swapcontext to fiber");
+        throw std::system_error(savedErrno, std::generic_category(), "swapcontext to fiber");
     }
     currentFiber = nullptr;
     const auto again = actor->fibers.find(id);
@@ -556,17 +598,106 @@ void ActorSystem::Impl::notifyMessage(
     if (refs.empty()) actor->messageWaiters.erase(found);
 }
 
-ActorSystem::ActorSystem() : ActorSystem(Config{}) {}
-ActorSystem::ActorSystem(Config config) : impl_(std::make_unique<Impl>(*this, config)) {}
-ActorSystem::~ActorSystem() { shutdown(); }
+namespace {
+
+std::atomic<std::uint64_t> nextSystemGeneration{1};
+
+// 保护单例外壳的 start/stop/instance 状态。
+std::mutex& systemStateMutex() {
+    static std::mutex mutex;
+    return mutex;
+}
+
+// 串行化 stop()。它不能是 systemStateMutex：teardown 会 join worker，
+// 而 worker 上运行的业务代码随时可能调用 instance()/isRunning()/stats()，
+// 持状态锁等待 join 会直接死锁。
+std::mutex& systemStopMutex() {
+    static std::mutex mutex;
+    return mutex;
+}
+
+// 进程退出兜底：main 忘记 stop() 时也保证 join 所有 worker。
+void stopAtExit() noexcept {
+    try {
+        ActorSystem::stop();
+    } catch (...) {
+        // 退出路径不允许抛异常。
+    }
+}
+
+} // namespace
+
+// 单例外壳：整个进程只分配一次，且永不析构。
+// stop() 只释放 impl_，外壳地址保持不变，所以旧的 ActorRef 不会变成悬垂
+// 指针——对已经停止的系统调用只会安全地抛异常。
+ActorSystem& ActorSystem::shell() {
+    static ActorSystem& instance = *new ActorSystem();
+    return instance;
+}
+
+ActorSystem& ActorSystem::start() { return start(Config{}); }
+
+ActorSystem& ActorSystem::start(Config config) {
+    std::lock_guard<std::mutex> lock(systemStateMutex());
+    ActorSystem& system = shell();
+    if (system.impl_) {
+        throw std::logic_error("an ActorSystem is already running in this process");
+    }
+    static const bool exitHookRegistered = [] {
+        std::atexit(&stopAtExit);
+        return true;
+    }();
+    (void)exitHookRegistered;
+    // 配置非法时 Impl 构造抛出，impl_ 保持为空，系统仍处于“未运行”状态。
+    auto impl = std::make_unique<Impl>(system, config);
+    impl->generation = nextSystemGeneration.fetch_add(1, std::memory_order_relaxed);
+    system.impl_ = std::move(impl);
+    return system;
+}
+
+void ActorSystem::stop() {
+    if (currentWorker != nullptr) {
+        throw std::logic_error("ActorSystem::stop must not be called from a runtime worker thread");
+    }
+    std::lock_guard<std::mutex> stopLock(systemStopMutex());
+    Impl* impl = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(systemStateMutex());
+        ActorSystem& system = shell();
+        if (!system.impl_) return;
+        impl = system.impl_.get();
+    }
+    // 状态锁在此处是空闲的：停止期间 worker 上的业务代码仍可安全地取用全局实例，
+    // 否则 teardown 等待 join 时会被 worker 卡住，形成死锁。
+    impl->teardown();
+    std::lock_guard<std::mutex> lock(systemStateMutex());
+    shell().impl_.reset();
+}
+
+bool ActorSystem::isRunning() {
+    std::lock_guard<std::mutex> lock(systemStateMutex());
+    return shell().impl_ != nullptr;
+}
+
+ActorSystem& ActorSystem::instance() {
+    std::lock_guard<std::mutex> lock(systemStateMutex());
+    ActorSystem& system = shell();
+    if (!system.impl_) {
+        throw std::logic_error("ActorSystem is not running; call ActorSystem::start() from main");
+    }
+    return system;
+}
 
 ActorRef ActorSystem::registerActor(std::unique_ptr<Actor> actor) {
+    if (!impl_) throw std::runtime_error("actor system is not running");
     if (!actor) throw std::invalid_argument("cannot register a null actor");
     if (!impl_->accepting.load(std::memory_order_acquire)) {
         throw std::runtime_error("actor system is shutting down");
     }
-    if (actor->impl_->system != this || actor->impl_->id != 0) {
-        throw std::invalid_argument("actor belongs to another system or is already registered");
+    if (actor->impl_->system != this || actor->impl_->generation != impl_->generation ||
+        actor->impl_->id != 0) {
+        throw std::invalid_argument(
+            "actor belongs to another system or generation, or is already registered");
     }
     const ActorId id = impl_->nextActorId.fetch_add(1, std::memory_order_relaxed);
     auto control = std::make_shared<ActorControl>();
@@ -588,6 +719,7 @@ MessageId ActorSystem::send(
     TypeId typeId,
     std::any payload,
     MessageId correlationId) {
+    if (!impl_) throw std::runtime_error("actor system is not running");
     if (!impl_->accepting.load(std::memory_order_acquire)) {
         throw std::runtime_error("actor system is shutting down");
     }
@@ -611,43 +743,45 @@ MessageId ActorSystem::send(
 }
 
 RuntimeStats ActorSystem::stats() const noexcept {
-    if (!impl_) return {};
-    return RuntimeStats{
-        impl_->liveFibers.load(std::memory_order_acquire),
-        impl_->liveStacks.load(std::memory_order_acquire),
-        impl_->workers.size(),
-        impl_->accepting.load(std::memory_order_acquire)};
+    RuntimeStats result;
+    result.asanFiberHooks = detail::asanFiberHooksAvailable();
+    if (!impl_) return result;
+    result.liveFibers = impl_->liveFibers.load(std::memory_order_acquire);
+    result.liveStacks = impl_->liveStacks.load(std::memory_order_acquire);
+    result.workerCount = impl_->workers.size();
+    result.fiberSwitches = impl_->fiberSwitches.load(std::memory_order_relaxed);
+    result.acceptingMessages = impl_->accepting.load(std::memory_order_acquire);
+    return result;
 }
 
-void ActorSystem::shutdown() {
-    if (!impl_) return;
+void ActorSystem::Impl::teardown() {
     bool expected = true;
-    if (!impl_->accepting.compare_exchange_strong(expected, false, std::memory_order_acq_rel)) return;
+    if (!accepting.compare_exchange_strong(expected, false, std::memory_order_acq_rel)) return;
 
     std::vector<std::shared_ptr<ActorControl>> actors;
     {
-        std::lock_guard<std::mutex> lock(impl_->registryMutex);
-        for (const auto& item : impl_->registry) actors.push_back(item.second);
+        std::lock_guard<std::mutex> lock(registryMutex);
+        for (const auto& item : registry) actors.push_back(item.second);
     }
     for (const auto& actor : actors) {
-        impl_->enqueueGlobal(Job{JobKind::CancelActor, actor, 0, 0, 0});
+        enqueueGlobal(Job{JobKind::CancelActor, actor, 0, 0, 0});
     }
 
-    const auto deadline = std::chrono::steady_clock::now() + impl_->config.shutdownTimeout;
+    const auto deadline = std::chrono::steady_clock::now() + config.shutdownTimeout;
     {
-        std::unique_lock<std::mutex> lock(impl_->queueMutex);
-        impl_->stateCv.wait_until(lock, deadline, [&] {
-            return impl_->outstandingJobs.load(std::memory_order_acquire) == 0 &&
-                impl_->liveFibers.load(std::memory_order_acquire) == 0;
+        std::unique_lock<std::mutex> lock(queueMutex);
+        stateCv.wait_until(lock, deadline, [&] {
+            return outstandingJobs.load(std::memory_order_acquire) == 0 &&
+                liveFibers.load(std::memory_order_acquire) == 0;
         });
     }
-    impl_->stopping.store(true, std::memory_order_release);
-    impl_->queueCv.notify_all();
-    for (auto& worker : impl_->workers) {
+    stopping.store(true, std::memory_order_release);
+    queueCv.notify_all();
+    for (auto& worker : workers) {
         if (worker->thread.joinable()) worker->thread.join();
     }
-    std::lock_guard<std::mutex> lock(impl_->registryMutex);
-    impl_->registry.clear();
+    std::lock_guard<std::mutex> lock(registryMutex);
+    registry.clear();
 }
 
 } // namespace actor_runtime
